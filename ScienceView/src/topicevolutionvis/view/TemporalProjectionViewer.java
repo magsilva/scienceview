@@ -59,7 +59,7 @@ public class TemporalProjectionViewer extends Viewer implements ChangeListener {
     private static final long serialVersionUID = 1L;
     private java.awt.Font font = new java.awt.Font("Tahoma", java.awt.Font.PLAIN, 12);
     private TemporalProjection projection;
-    private ViewPanel view;
+    private final ViewPanel view;
     private Tracker tracker;
     private ReportView report;
     private DefaultComboBoxModel colorComboModel = new DefaultComboBoxModel(), sizeComboModel = new DefaultComboBoxModel(), edgesComboModel = new DefaultComboBoxModel(), titlesComboModel = new DefaultComboBoxModel();
@@ -77,7 +77,7 @@ public class TemporalProjectionViewer extends Viewer implements ChangeListener {
     private boolean updating_topics = false;
     private Thread animation;
     private ColorLegendPanel sliderPanel;
-    private TIntArrayList previous_vertex_with_labels = new TIntArrayList();
+    private final TIntArrayList previous_vertex_with_labels = new TIntArrayList();
     private double zoom_rate = 1d;
     private TemporalGraph zoomed_graph = null;
     private ChangeListener titlesListener = new ChangeListener() {
@@ -891,7 +891,7 @@ private void previous_graphButtonActionPerformed(java.awt.event.ActionEvent evt)
             this.indexesUpdateDocumentsTree[0] = 0;
             this.indexesUpdateTopicsTree[0] = 0;
             this.indexesUpdateTopicsTree[1] = TemporalProjection.getN() / 2;
-            labelTable.put(Integer.valueOf(0), new JLabel("Start"));
+            labelTable.put(0, new JLabel("Start"));
 
             for (int i = 1; i < projection.getNumberOfYears(); i++) {
                 labelTable.put(Integer.valueOf(i * TemporalProjection.getN() - 1), new JLabel(Integer.toString(years[i - 1])));
@@ -1083,8 +1083,7 @@ private void previous_graphButtonActionPerformed(java.awt.event.ActionEvent evt)
 
     @Override
     public void cleanTopics() {
-        for (Iterator<Entry<Integer, ArrayList<TemporalGraph>>> it = this.projection.getGraphs().entrySet().iterator(); it.hasNext();) {
-            Entry<Integer, ArrayList<TemporalGraph>> entry = it.next();
+        for (Entry<Integer, ArrayList<TemporalGraph>> entry : this.projection.getGraphs().entrySet()) {
             for (TemporalGraph g : entry.getValue()) {
                 g.getTopics().clear();
             }
@@ -1819,6 +1818,18 @@ private void previous_graphButtonActionPerformed(java.awt.event.ActionEvent evt)
             return null;
         }
 
+        public Topic getTopicByPosition2(java.awt.Point point) {
+            double dist = Double.MAX_VALUE;
+            Topic topic = null;
+            for (Topic t : getGraph().getTopics()) {
+                double aux = t.weightDistance(point);
+                if (aux != -1 && dist > aux) {
+                    dist = aux;
+                    topic = t;
+                }
+            }
+            return topic;
+        }
 
         private void saveToPngImageFile(String filename) throws IOException {
             try {

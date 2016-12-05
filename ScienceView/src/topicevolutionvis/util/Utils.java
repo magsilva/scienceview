@@ -47,14 +47,20 @@
  * ***** END LICENSE BLOCK ***** */
 package topicevolutionvis.util;
 
+import gnu.trove.iterator.TIntObjectIterator;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.THashMap;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
+import topicevolutionvis.graph.Scalar;
+import topicevolutionvis.graph.TemporalGraph;
 import topicevolutionvis.graph.Vertex;
+import topicevolutionvis.matrix.SparseMatrix;
+import topicevolutionvis.matrix.SparseVector;
 import topicevolutionvis.topic.Topic;
 
 /**
@@ -108,6 +114,23 @@ public class Utils {
 //        }
 //
 //    }
+    public static SparseMatrix exportProjection(TemporalGraph graph) throws IOException {
+        SparseMatrix matrix;
+        matrix = new SparseMatrix(graph.getVertex().keys().length);
+
+        for (TIntObjectIterator<Vertex> it = graph.getVertex().iterator(); it.hasNext();) {
+            it.advance();
+            double[] point = new double[2];
+            Vertex v = it.value();
+            point[0] = v.getX();
+            point[1] = v.getY();
+
+            matrix.addRow(new SparseVector(point, it.key()));
+        }
+
+        return matrix;
+    }
+
     public static double[] dispersion(double[][] projection) {
         double[] values_x = new double[projection.length],
                 values_y = new double[projection.length],

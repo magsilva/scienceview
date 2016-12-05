@@ -63,14 +63,14 @@ public class Ngram implements Comparable<Ngram>, Serializable {
         this.frequency = 1;
     }
 
-    public Ngram(String ngram, int frequency) {
+    public Ngram(String ngram, double frequency) {
         this.ngram = ngram;
         this.frequency = frequency;
     }
 
     @Override
     public int compareTo(Ngram o) {
-        return o.frequency - this.frequency;
+        return Double.compare(o.frequency, this.frequency);
     }
 
     @Override
@@ -83,6 +83,6 @@ public class Ngram implements Comparable<Ngram>, Serializable {
         return null;
     }
     public String ngram;
-    public int frequency;
+    public double frequency;
     private static final long serialVersionUID = 1L;
 }

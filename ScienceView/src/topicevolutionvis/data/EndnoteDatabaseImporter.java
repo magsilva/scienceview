@@ -90,7 +90,7 @@ public class EndnoteDatabaseImporter extends DatabaseImporter {
             EndnoteEntry entry = null;
             ArrayList<Ngram> fngrams;
             ArrayList<EndnoteEntry> entries = new ArrayList<>();
-            HashMap<String, Integer> corpusNgrams = new HashMap<>();
+            HashMap<String, Double> corpusNgrams = new HashMap<>();
 
             conn = connManager.getConnection();
             in = new BufferedReader(new FileReader(this.filename));
@@ -224,7 +224,7 @@ public class EndnoteDatabaseImporter extends DatabaseImporter {
 
             //add the ngrams to the collection
             ArrayList<Ngram> ngrams = new ArrayList<>();
-            for (Entry<String, Integer> e : corpusNgrams.entrySet()) {
+            for (Entry<String, Double> e : corpusNgrams.entrySet()) {
                 ngrams.add(new Ngram(e.getKey(), e.getValue()));
             }
             Collections.sort(ngrams);

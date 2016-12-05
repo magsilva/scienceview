@@ -10,8 +10,19 @@
  */
 package topicevolutionvis.view;
 
+import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Document;
@@ -27,6 +38,8 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
 
     private String url;
     private Highlighter.HighlightPainter myHighlightPainter = new MyHighlightPainter(java.awt.Color.YELLOW);
+    private String[] columns;
+    private Object[][] errors;
 
     /** Creates new form DocumentViewerPanel */
     public DocumentViewerPanel(String title, String content, int date, String doi) {
@@ -73,8 +86,90 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         contentTextPane = new javax.swing.JTextPane();
-
         setLayout(new java.awt.BorderLayout());
+
+        columns = new String[] {"Error", "Quantity"};
+        errors = new Object[][] {
+        	{"Lines", new Double(0.0)},
+			{"Errors E", new Double(0.0)},
+			{"E101", new Double(0.0)},
+			{"E111", new Double(0.0)},
+			{"E112", new Double(0.0)},
+			{"E113", new Double(0.0)},
+			{"E114", new Double(0.0)},
+			{"E115", new Double(0.0)},
+			{"E116", new Double(0.0)},
+			{"E121", new Double(0.0)},
+			{"E122", new Double(0.0)},
+			{"E123", new Double(0.0)},
+			{"E124", new Double(0.0)},
+			{"E125", new Double(0.0)},
+			{"E126", new Double(0.0)},
+			{"E127", new Double(0.0)},
+			{"E128", new Double(0.0)},
+			{"E129", new Double(0.0)},
+			{"E131", new Double(0.0)},
+			{"E133", new Double(0.0)},
+			{"E201", new Double(0.0)},
+			{"E202", new Double(0.0)},
+			{"E203", new Double(0.0)},
+			{"E211", new Double(0.0)},
+			{"E221", new Double(0.0)},
+			{"E222", new Double(0.0)},
+			{"E223", new Double(0.0)},
+			{"E224", new Double(0.0)},
+			{"E225", new Double(0.0)},
+			{"E226", new Double(0.0)},
+			{"E227", new Double(0.0)},
+			{"E228", new Double(0.0)},
+			{"E231", new Double(0.0)},
+			{"E241", new Double(0.0)},
+			{"E242", new Double(0.0)},
+			{"E251", new Double(0.0)},
+			{"E261", new Double(0.0)},
+			{"E262", new Double(0.0)},
+			{"E265", new Double(0.0)},
+			{"E266", new Double(0.0)},
+			{"E271", new Double(0.0)},
+			{"E272", new Double(0.0)},
+			{"E273", new Double(0.0)},
+			{"E274", new Double(0.0)},
+			{"E301", new Double(0.0)},
+			{"E302", new Double(0.0)},
+			{"E303", new Double(0.0)},
+			{"E304", new Double(0.0)},
+			{"E401", new Double(0.0)},
+			{"E501", new Double(0.0)},
+			{"E502", new Double(0.0)},
+			{"E701", new Double(0.0)},
+			{"E702", new Double(0.0)},
+			{"E703", new Double(0.0)},
+			{"E704", new Double(0.0)},
+			{"E711", new Double(0.0)},
+			{"E712", new Double(0.0)},
+			{"E713", new Double(0.0)},
+			{"E714", new Double(0.0)},
+			{"E721", new Double(0.0)},
+			{"E731", new Double(0.0)},
+			{"E901", new Double(0.0)},
+			{"E902", new Double(0.0)},
+			{"Cc", new Double(0.0)}};
+		DefaultTableModel model = new DefaultTableModel(errors, columns) {
+			public Class getColumnClass(int column) {
+				if(column == 0)
+					return String.class;
+				return Double.class;
+			}
+		};
+        errorsTable = new javax.swing.JTable(model);
+        errorsTable.setPreferredScrollableViewportSize(new Dimension(180, 350));
+        errorsTable.setFillsViewportHeight(true);
+        errorsTable.setEnabled(false);
+
+        TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(errorsTable.getModel());
+        errorsTable.setRowSorter(sorter);
+        
+        scrollPaneErrorsTable = new javax.swing.JScrollPane(errorsTable);
 
         jPanel4.setLayout(new java.awt.GridBagLayout());
 
@@ -138,6 +233,7 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
         jScrollPane1.setViewportView(contentTextPane);
 
         jPanel2.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+        jPanel2.add(scrollPaneErrorsTable, java.awt.BorderLayout.EAST);
 
         add(jPanel2, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
@@ -146,6 +242,11 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
         URLLauncher.openURL(url);
     }//GEN-LAST:event_doiButtonActionPerformed
 
+    public void insertErrorsTable(double[] value) {
+    	for(int line = 0; line < 64; line++)
+    		errorsTable.setValueAt(value[line], line, 1);
+    }    
+    
     // Creates highlights around all occurrences of pattern in textComp
     public void highlight(String pattern) {
         // First remove all old highlights
@@ -205,5 +306,7 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
     private javax.swing.JPanel pdfPanel;
     private javax.swing.JPanel titlePanel;
     private javax.swing.JTextField titleTextField;
+    private javax.swing.JTable errorsTable;
+    private javax.swing.JScrollPane scrollPaneErrorsTable;
     // End of variables declaration//GEN-END:variables
 }

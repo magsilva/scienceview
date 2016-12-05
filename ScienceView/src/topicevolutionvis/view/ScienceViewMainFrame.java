@@ -31,6 +31,7 @@ import javax.swing.tree.TreePath;
 
 import topicevolutionvis.database.SqlManager;
 import topicevolutionvis.datamining.clustering.monic.MONICSettings;
+import topicevolutionvis.datamining.dataanalysis.NeighborhoodPreservationView;
 import topicevolutionvis.graph.Edge;
 import topicevolutionvis.graph.Scalar;
 import topicevolutionvis.graph.TemporalGraph;
@@ -54,17 +55,17 @@ public class ScienceViewMainFrame extends javax.swing.JFrame implements TreeSele
 
     private static final long serialVersionUID = 1L;
     //   private JScrollPane documentsScrollPane = new JScrollPane();
-    private DefaultListModel nearestNeighborListModel = new DefaultListModel();
-    private HashMap<JComponent, JRadioButtonMenuItem> windows = new HashMap<>();
+    private final DefaultListModel nearestNeighborListModel = new DefaultListModel();
+    private final HashMap<JComponent, JRadioButtonMenuItem> windows = new HashMap<>();
     private TemporalProjectionViewer currentViewer = null;
-    private DefaultTreeModel documentsModel = new DefaultTreeModel(null);
+    private final DefaultTreeModel documentsModel = new DefaultTreeModel(null);
     public JTree documentsTree = new JTree(documentsModel);
-    private DefaultTreeModel topicsModel = new DefaultTreeModel(null);
+    private final DefaultTreeModel topicsModel = new DefaultTreeModel(null);
     public JTree topicsTree = new JTree(topicsModel);
     //private JScrollPane groupsScrollPane = new JScrollPane();
     private static ScienceViewMainFrame _instance;
     private int documents_or_groups = 0;
-    private DefaultTableModel authorsTableModel;
+    private final DefaultTableModel authorsTableModel;
 
     /**
      * Creates new form TopicEvolutionVisMainFrame
@@ -327,9 +328,6 @@ public class ScienceViewMainFrame extends javax.swing.JFrame implements TreeSele
         jMenu1 = new javax.swing.JMenu();
         newProjectionMenuItem = new javax.swing.JMenuItem();
         jSeparator4 = new javax.swing.JPopupMenu.Separator();
-        exportMenu = new javax.swing.JMenu();
-        saveMenuItem = new javax.swing.JMenuItem();
-        exportPNGMenuItem = new javax.swing.JMenuItem();
         importMenu = new javax.swing.JMenu();
         openProjectionMenuItem = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JSeparator();
@@ -342,14 +340,18 @@ public class ScienceViewMainFrame extends javax.swing.JFrame implements TreeSele
         optionsMenuItem = new javax.swing.JMenuItem();
         memorycheckMenuItem = new javax.swing.JMenuItem();
         dataminingMenu = new javax.swing.JMenu();
-        jMenu2 = new javax.swing.JMenu();
+        dataanalysisMenu = new javax.swing.JMenu();
         stressMenuItem = new javax.swing.JMenuItem();
-        jMenuItem1 = new javax.swing.JMenuItem();
+        neighborhoodpreservationMenuItem = new javax.swing.JMenuItem();
+        topicMenuItem = new javax.swing.JMenuItem();
         menuWindows = new javax.swing.JMenu();
         alignVerticallyMenuItem = new javax.swing.JMenuItem();
         jSeparator3 = new javax.swing.JPopupMenu.Separator();
         helpMenu = new javax.swing.JMenu();
         aboutMenuItem = new javax.swing.JMenuItem();
+        exportMenu = new javax.swing.JMenu();
+        saveMenuItem = new javax.swing.JMenuItem();
+        exportPNGMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Science View");
@@ -791,28 +793,6 @@ public class ScienceViewMainFrame extends javax.swing.JFrame implements TreeSele
             jMenu1.add(newProjectionMenuItem);
             jMenu1.add(jSeparator4);
 
-            exportMenu.setText("Export");
-            exportMenu.setEnabled(false);
-
-            saveMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
-            saveMenuItem.setText("Save Projection...");
-            saveMenuItem.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    saveMenuItemActionPerformed(evt);
-                }
-            });
-            exportMenu.add(saveMenuItem);
-
-            exportPNGMenuItem.setText("Export Projection Image to PNG File");
-            exportPNGMenuItem.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    exportPNGMenuItemActionPerformed(evt);
-                }
-            });
-            exportMenu.add(exportPNGMenuItem);
-
-            jMenu1.add(exportMenu);
-
             importMenu.setText("Import");
 
             openProjectionMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
@@ -841,6 +821,7 @@ public class ScienceViewMainFrame extends javax.swing.JFrame implements TreeSele
 
             cleanMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.event.InputEvent.CTRL_MASK));
             cleanMenuItem.setText("Clean Projection");
+            cleanMenuItem.setEnabled(false);
             cleanMenuItem.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     cleanMenuItemActionPerformed(evt);
@@ -881,26 +862,38 @@ public class ScienceViewMainFrame extends javax.swing.JFrame implements TreeSele
 
             dataminingMenu.setText("Data Mining");
 
-            jMenu2.setText("Data Analysis");
-            jMenu2.setToolTipText("");
+            dataanalysisMenu.setText("Data Analysis");
+            dataanalysisMenu.setToolTipText("");
+            dataanalysisMenu.setEnabled(false);
 
             stressMenuItem.setText("Projection Stress");
+            stressMenuItem.setEnabled(false);
             stressMenuItem.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     stressMenuItemActionPerformed(evt);
                 }
             });
-            jMenu2.add(stressMenuItem);
+            dataanalysisMenu.add(stressMenuItem);
 
-            dataminingMenu.add(jMenu2);
-
-            jMenuItem1.setText("Topic Extraction and Tracking");
-            jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            neighborhoodpreservationMenuItem.setText("Neighborhood Preservation");
+            neighborhoodpreservationMenuItem.setEnabled(false);
+            neighborhoodpreservationMenuItem.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    jMenuItem1ActionPerformed(evt);
+                    neighborhoodpreservationMenuItemActionPerformed(evt);
                 }
             });
-            dataminingMenu.add(jMenuItem1);
+            dataanalysisMenu.add(neighborhoodpreservationMenuItem);
+
+            dataminingMenu.add(dataanalysisMenu);
+
+            topicMenuItem.setText("Topic Extraction and Tracking");
+            topicMenuItem.setEnabled(false);
+            topicMenuItem.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    topicMenuItemActionPerformed(evt);
+                }
+            });
+            dataminingMenu.add(topicMenuItem);
 
             jMenuBar1.add(dataminingMenu);
 
@@ -930,6 +923,28 @@ public class ScienceViewMainFrame extends javax.swing.JFrame implements TreeSele
             helpMenu.add(aboutMenuItem);
 
             jMenuBar1.add(helpMenu);
+
+            exportMenu.setText("Export");
+            exportMenu.setEnabled(false);
+
+            saveMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
+            saveMenuItem.setText("Save Projection...");
+            saveMenuItem.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    saveMenuItemActionPerformed(evt);
+                }
+            });
+            exportMenu.add(saveMenuItem);
+
+            exportPNGMenuItem.setText("Export Projection Image to PNG File");
+            exportPNGMenuItem.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    exportPNGMenuItemActionPerformed(evt);
+                }
+            });
+            exportMenu.add(exportPNGMenuItem);
+
+            jMenuBar1.add(exportMenu);
 
             setJMenuBar(jMenuBar1);
 
@@ -1079,6 +1094,11 @@ public class ScienceViewMainFrame extends javax.swing.JFrame implements TreeSele
                     this.exportMenu.setEnabled(true);
                     this.cleanMenuItem.setEnabled(true);
                     this.optionsMenuItem.setEnabled(true);
+                    this.cleanMenuItem.setEnabled(true);
+                    this.dataanalysisMenu.setEnabled(true);
+                    this.topicMenuItem.setEnabled(true);
+                    this.stressMenuItem.setEnabled(true);
+                    this.neighborhoodpreservationMenuItem.setEnabled(true);
                 } else if (c instanceof JInternalFrame.JDesktopIcon) {
                     Viewer gv = (Viewer) ((JInternalFrame.JDesktopIcon) c).getInternalFrame();
                     this.windows.get(gv).setText(gv.getTitle());
@@ -1378,17 +1398,27 @@ public class ScienceViewMainFrame extends javax.swing.JFrame implements TreeSele
         }
     }//GEN-LAST:event_removezoomButtonActionPerformed
 
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+    private void topicMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_topicMenuItemActionPerformed
         JInternalFrame frame = this.desktop.getSelectedFrame();
         if (frame != null && frame instanceof TemporalProjectionViewer) {
             TemporalProjectionViewer temporalViewer = (TemporalProjectionViewer) frame;
             MONICSettings monicSettings = new MONICSettings(temporalViewer);
             monicSettings.setVisible(true);
         }
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
+    }//GEN-LAST:event_topicMenuItemActionPerformed
+
+    private void neighborhoodpreservationMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_neighborhoodpreservationMenuItemActionPerformed
+        JInternalFrame frame = this.desktop.getSelectedFrame();
+        if (frame != null && frame instanceof TemporalProjectionViewer) {
+            TemporalProjectionViewer temporalViewer = (TemporalProjectionViewer) frame;
+            NeighborhoodPreservationView neighborhoodPreservationView = new NeighborhoodPreservationView(this, temporalViewer);
+            neighborhoodPreservationView.setVisible(true);
+            neighborhoodPreservationView.setLocationRelativeTo(this);
+        }
+    }//GEN-LAST:event_neighborhoodpreservationMenuItemActionPerformed
 
     public double setZoom(int increment) {
-        this.zoomSpinner.setValue((Integer) this.zoomSpinner.getValue() + Integer.valueOf(increment) * 5);
+        this.zoomSpinner.setValue((Integer) this.zoomSpinner.getValue() + increment * 5);
         return ((Integer) this.zoomSpinner.getValue()).doubleValue() / 100d;
     }
 
@@ -1434,8 +1464,8 @@ public class ScienceViewMainFrame extends javax.swing.JFrame implements TreeSele
 //    }
     public class Neighbor {
 
-        private Edge edge;
-        private Vertex vertex;
+        private final Edge edge;
+        private final Vertex vertex;
         private boolean show_weight = false;
         public int in_or_out = Neighbor.IN;
         public static final int IN = 1, OUT = 2;
@@ -1482,6 +1512,7 @@ public class ScienceViewMainFrame extends javax.swing.JFrame implements TreeSele
     private javax.swing.JPanel contentPanel;
     private javax.swing.JScrollPane contentScrollPane;
     private javax.swing.JTextArea contentTextArea;
+    private javax.swing.JMenu dataanalysisMenu;
     private javax.swing.JMenu dataminingMenu;
     private javax.swing.JDesktopPane desktop;
     private javax.swing.JPanel documentsPanel;
@@ -1507,9 +1538,7 @@ public class ScienceViewMainFrame extends javax.swing.JFrame implements TreeSele
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -1533,6 +1562,7 @@ public class ScienceViewMainFrame extends javax.swing.JFrame implements TreeSele
     private javax.swing.ButtonGroup menus_buttonGroup;
     private javax.swing.JScrollPane nearestNeighborScrollPanel;
     private javax.swing.JList nearestNeighborsList;
+    private javax.swing.JMenuItem neighborhoodpreservationMenuItem;
     private javax.swing.JPanel neighborsPanel;
     private javax.swing.JMenuItem newProjectionMenuItem;
     private javax.swing.JTextField numberOfDocumentsTextField;
@@ -1555,6 +1585,7 @@ public class ScienceViewMainFrame extends javax.swing.JFrame implements TreeSele
     private javax.swing.JMenuItem stressMenuItem;
     private javax.swing.JTextField titleTextField;
     private javax.swing.JTextField topicIdTextField;
+    private javax.swing.JMenuItem topicMenuItem;
     private javax.swing.JScrollPane topicsScrollPane;
     private javax.swing.JToggleButton viewContentToggleButton;
     private javax.swing.JSpinner zoomSpinner;

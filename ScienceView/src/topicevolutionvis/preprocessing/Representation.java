@@ -4,9 +4,6 @@
  */
 package topicevolutionvis.preprocessing;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
@@ -15,12 +12,14 @@ import java.util.logging.Logger;
 import topicevolutionvis.database.DatabaseCorpus;
 import topicevolutionvis.graph.Vertex;
 import topicevolutionvis.matrix.SparseMatrix;
+import topicevolutionvis.matrix.SparseVector;
 import topicevolutionvis.preprocessing.singular.PlingStemmer;
 import topicevolutionvis.preprocessing.steemer.Stemmer;
 import topicevolutionvis.preprocessing.steemer.StemmerFactory;
 import topicevolutionvis.preprocessing.steemer.StemmerType;
 import topicevolutionvis.preprocessing.transformation.MatrixTransformationType;
 import topicevolutionvis.projection.ProjectionData;
+import topicevolutionvis.projection.temporal.TemporalProjection;
 
 /**
  *
@@ -35,6 +34,8 @@ public abstract class Representation {
     protected int lowerCut, upperCut;
     protected boolean useStopword, resolve_plural = false, include_references = false;
     protected ArrayList<Ngram> ngrams;
+    protected SparseMatrix sm;
+    protected ProjectionData pdata;
 
     public Representation(DatabaseCorpus corpus) {
         this.corpus = corpus;
@@ -56,7 +57,7 @@ public abstract class Representation {
     }
 
     protected ArrayList<Ngram> getCorpusNgrams() throws IOException {
-        HashMap<String, Integer> corpusNgrams_aux = new HashMap<>();
+        HashMap<String, Double> corpusNgrams_aux = new HashMap<>();
         Stopwords stp = null;
 
         if (useStopword) {
@@ -95,9 +96,9 @@ public abstract class Representation {
             }
         }
 
-        int freq;
+        double freq;
         ArrayList<Ngram> ngrams_aux = new ArrayList<>();
-        for (Entry<String, Integer> entry : corpusNgrams_aux.entrySet()) {
+        for (Entry<String, Double> entry : corpusNgrams_aux.entrySet()) {
             freq = entry.getValue();
             if (upperCut >= 0) {
                 if (freq >= lowerCut && freq <= upperCut) {
@@ -128,7 +129,7 @@ public abstract class Representation {
     }
 
     public SparseMatrix getMatrixSelected(int lowerCut, int upperCut, int numberGrams,
-            StemmerType.Type stemmer, boolean useStopword, boolean resolve_plural, ArrayList<Vertex> selected) throws IOException {
+            StemmerType.Type stemmer, boolean useStopword, boolean resolve_plural, ArrayList<Vertex> selected, TemporalProjection tprojection) throws IOException {
 
         this.lowerCut = lowerCut;
         this.upperCut = upperCut;
@@ -142,17 +143,38 @@ public abstract class Representation {
             ids[i] = selected.get(i).getId();
         }
 
+        try {
         //store the ngrams present on the selected corpus
         this.ngrams = this.getCorpusNgrams(ids);
+        } catch (Exception e) {
+//        	Pegar a sparse matrix
+        	//sm = new SparseMatrix();
+        	//pdata = new ProjectionData();
+        	
+        	pdata = tprojection.getProjectionData();
+        	sm = pdata.getMatrix();
+        	
+        	SparseMatrix smSelected = new SparseMatrix(ids.length);
+        	SparseVector sv;
+        	double values[] = new double[64];
+        	for(int i = 0 ; i < ids.length; i++) {
+        		sv = sm.getRowWithId(ids[i]);
+        		values = sv.getValues();
+        		smSelected.addRow(values, ids[i]);
+        	}
+        	
+        	return smSelected;
+//        	criar nova matrix e deixar somente os ids selecionáveis
+        }
 
         return this.getMatrix(ids, null);
     }
 
     protected ArrayList<Ngram> getCorpusNgrams(int[] urls) throws IOException {
-        HashMap<String, Integer> corpusNgrams_aux = new HashMap<>();
-        Iterator<Map.Entry<String, Integer>> iterator;
-        Map.Entry<String, Integer> entry;
-        HashMap<String, Integer> docNgrams;
+        HashMap<String, Double> corpusNgrams_aux = new HashMap<>();
+        Iterator<Map.Entry<String, Double>> iterator;
+        Map.Entry<String, Double> entry;
+        HashMap<String, Double> docNgrams;
         String token, new_token;
 
         Stopwords stp = null;
@@ -217,9 +239,9 @@ public abstract class Representation {
         return ngrams_aux;
     }
 
-    protected HashMap<String, Integer> getNgrams(Integer id) {
+    protected HashMap<String, Double> getNgrams(Integer id) {
         try {
-            HashMap<String, Integer> ngrams_aux = new HashMap<>();
+            HashMap<String, Double> ngrams_aux = new HashMap<>();
             Stopwords stp = null;
             if (useStopword) {
                 stp = Stopwords.getInstance();
@@ -227,38 +249,12 @@ public abstract class Representation {
             ArrayList<Ngram> fngrams = this.corpus.getNgrams(id);
             String token;
             Stemmer stemmer = StemmerFactory.getInstance(stemmerType);
-            
-            /**
-            * Starting Modified by @rodrigo
-            */
-            ArrayList<String> terms = new ArrayList();
-            try {
-                FileReader fr = new FileReader("model.txt");
-                BufferedReader bf = new BufferedReader(fr);
-                
-                String line = bf.readLine();
-                while(line != null) {
-                  //  System.out.println(line);
-                    terms.add(line);
-                    line = bf.readLine();
-                }
-                fr.close();
-            } catch (FileNotFoundException e) {
-                System.out.println(e.getMessage());
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-            }
-           /**
-            * Finish Modified
-            */
-
             if (fngrams != null) {
                 for (Ngram n : fngrams) {
                     token = n.ngram;
                     if (useStopword && !stp.isStopWord(token)) {
                         token = stemmer.stem(token);
                         if (token.trim().length() > 0) {
-                           if (terms.contains(token)) {
                                 if (ngrams_aux.containsKey(token)) {
                                     ngrams_aux.put(token, ngrams_aux.get(token) + n.frequency);
                                 } else {
@@ -266,7 +262,6 @@ public abstract class Representation {
                                 }
                             }
                         }
-                    }
                 }
             }
             return ngrams_aux;

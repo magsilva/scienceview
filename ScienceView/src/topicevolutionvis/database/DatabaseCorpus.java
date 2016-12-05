@@ -18,6 +18,7 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.collections.map.MultiKeyMap;
 
 import topicevolutionvis.data.Encoding;
+import topicevolutionvis.matrix.SparseMatrix;
 import topicevolutionvis.preprocessing.Ngram;
 import topicevolutionvis.preprocessing.Reference;
 import topicevolutionvis.projection.ProjectionData;
@@ -782,6 +783,26 @@ public class DatabaseCorpus {
         return this.ascending_dates;
     }
 
+    public SparseMatrix getCorpusSparseMatrix() throws IOException {
+    	SparseMatrix sm = new SparseMatrix();
+    	
+        try (
+                Connection conn = connManager.getConnection();
+                PreparedStatement stmt = sqlManager.getSqlStatement(conn, "SELECT.SPARSEMATRIX.COLLECTION");) {
+            stmt.setInt(1, this.id_collection);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    InputStream is = rs.getBlob(1).getBinaryStream();
+                    ObjectInputStream ois = new ObjectInputStream(is);
+                    sm = (SparseMatrix) ois.readObject();
+                }
+            }
+        } catch (IOException | SQLException | ClassNotFoundException e) {
+            throw new RuntimeException("Error loading data from database", e);
+        }
+        return sm;
+    }
+    
     private void retrievetAscendingDates(Connection conn) {
         try (
                 PreparedStatement stmt = sqlManager.getSqlStatement(conn, "SELECT.DISTINCT.YEARS", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);) {

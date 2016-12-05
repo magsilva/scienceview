@@ -130,7 +130,7 @@ public class OpenTemporalProjection extends SwingWorker<Void, Void> {
                 String collection_name = line.substring(index, index2);
                 int aux = cm.getCollectionId(collection_name);
 
-                if (aux != -1) { //uma coleção com este nome já existe na base de dados
+                if (aux != -1) { //uma colecao com este nome ja existe na base de dados
                     String message = "The collection \"" + collection_name + "\" already exists. \n"
                             + "Do you want to replace it?";
                     int answer = JOptionPane.showOptionDialog(this.view, message, "Warning",

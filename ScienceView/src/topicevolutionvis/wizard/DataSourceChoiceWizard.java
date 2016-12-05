@@ -422,6 +422,7 @@ public class DataSourceChoiceWizard extends WizardPanel implements ActionListene
         fc.addChoosableFileFilter(new ISIFileFilter());
         fc.addChoosableFileFilter(new EndnoteExportFileFilter());
         fc.addChoosableFileFilter(new DatabaseFileFilter());
+        fc.addChoosableFileFilter(new CSVFileFilter());
         int result = fc.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
@@ -479,6 +480,8 @@ public class DataSourceChoiceWizard extends WizardPanel implements ActionListene
 	                importer = new EndnoteDatabaseImporter(filename, collectionName, nrGrams, this, false);
 	            } else if (corpusType.equalsIgnoreCase("db")) {
 	                importer = new DumpDatabaseImporter(filename, this, false);
+	            } else if (corpusType.equalsIgnoreCase("csv")) {
+	            	importer = new CSVDatabaseImporter(filename, collectionName, this);
 	            }
 	
 	            if (importer != null) {
@@ -604,5 +607,9 @@ public class DataSourceChoiceWizard extends WizardPanel implements ActionListene
 
 	@Override
 	public void resetConfiguration() {
+	}
+	
+	public ProjectionData getPdata() {
+		return this.pdata;
 	}
 }

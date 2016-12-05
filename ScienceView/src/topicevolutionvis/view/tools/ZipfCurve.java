@@ -149,8 +149,8 @@ public class ZipfCurve extends javax.swing.JPanel {
 
         if (ngrams != null) {
             int nelements = ngrams.size();
-            float maxf = ngrams.get(0).frequency;
-            float minf = ngrams.get(0).frequency;
+            double maxf = ngrams.get(0).frequency;
+            double minf = ngrams.get(0).frequency;
 
             for (int i = 1; i < nelements; i++) {
                 if (ngrams.get(i).frequency > maxf) {
@@ -160,8 +160,8 @@ public class ZipfCurve extends javax.swing.JPanel {
                 }
             }
 
-            maxf = (float) Math.log(maxf);
-            minf = (float) Math.log(minf);
+            maxf = (double) Math.log(maxf);
+            minf = (double) Math.log(minf);
 
             for (int i = 0; i < nelements - 1; i++) {
                 int posx1 = (int) ((((float) i) / nelements) * (size.width - 40)) + 20;

@@ -101,8 +101,10 @@ public class TemporalGraphBuilder {
                     //creating the initial matrix
 
                     long time2 = System.currentTimeMillis();
-                    SparseMatrix complete_matrix = RepresentationFactory.getInstance(pdata.getRepresentationType(), corpus).getMatrix(pdata);
-//                    similarityCon = new SimilarityConnectivy(corpus, complete_matrix, DissimilarityFactory.getInstance(pdata.getDissimilarityType()));
+//                  SparseMatrix complete_matrix = RepresentationFactory.getInstance(pdata.getRepresentationType(), corpus).getMatrix(pdata);
+//                  SparseMatrix complete_matrix = tproj.getProjectionData().getMatrix();
+                    SparseMatrix complete_matrix = corpus.getCorpusSparseMatrix();
+                  
                     diss = DissimilarityFactory.getInstance(pdata.getDissimilarityType());
 
                     long time3 = System.currentTimeMillis();
@@ -204,10 +206,11 @@ public class TemporalGraphBuilder {
                     DimensionalityReduction dr = DimensionalityReductionFactory.getInstance(pdata.getDimensionReductionType(), pdata.getTargetDimension());
                     previous_full_matrix = dr.reduce(previous_full_matrix, this.tproj);
                 }
-            } else if (pdata.getRepresentationType() != RepresentationType.LDA) {
-                previous_full_matrix = MatrixTransformationFactory.getInstance(pdata.getMatrixTransformationType()).tranform(previous_full_matrix, null);
-                previous_full_matrix = NormalizationFactory.getInstance(pdata.getNormalization()).execute(previous_full_matrix);
             }
+//            else if (pdata.getRepresentationType() != RepresentationType.LDA) {
+//                previous_full_matrix = MatrixTransformationFactory.getInstance(pdata.getMatrixTransformationType()).tranform(previous_full_matrix, null);
+//                previous_full_matrix = NormalizationFactory.getInstance(pdata.getNormalization()).execute(previous_full_matrix);
+//            }
 
             if (!pdata.getDistanceMatrixFilename().isEmpty()) {
                 DistanceMatrix distanceMatrix = new DistanceMatrix(previous_full_matrix, DissimilarityFactory.getInstance(pdata.getDissimilarityType()));

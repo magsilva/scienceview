@@ -60,7 +60,7 @@ public class CovarianceTopic extends Topic {
 
             VectorSpaceRepresentation pp = new VectorSpaceRepresentation(corpus);
             SparseMatrix matrix = pp.getMatrixSelected(lowercut, uppercut, ngrams,
-                    StemmerType.Type.NONE, true, true, this.getVertexList());
+                    StemmerType.Type.NONE, true, true, this.getVertexList(), this.tprojection);
             ArrayList<Ngram> cpNgrams = pp.getNgrams();
 
             //Reducing the points and creating an index

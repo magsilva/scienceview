@@ -11,7 +11,10 @@
 package topicevolutionvis.view;
 
 
+import java.io.IOException;
+
 import topicevolutionvis.database.DatabaseCorpus;
+import topicevolutionvis.matrix.SparseMatrix;
 
 /**
  *
@@ -36,13 +39,23 @@ public class MultipleDocumentViewer extends javax.swing.JDialog {
 
     public void display() {
         int id;
+        double[] value = new double[64];
         String title;
         DocumentViewerPanel documentViewerPanel;
+        SparseMatrix sm = new SparseMatrix();
+        try {
+			sm = corpus.getCorpusSparseMatrix();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         for (int i = 0; i < documents.length; i++) {
             id = documents[i];
             title = corpus.getTitle(id);
-            documentViewerPanel = new DocumentViewerPanel(title, corpus.getViewContent(id), corpus.getYear(id), corpus.getDOI(id));
-
+            documentViewerPanel = new DocumentViewerPanel(title, corpus.getAbstract(id), corpus.getYear(id), corpus.getDOI(id));
+            for (int j = 0; j < 64; j++)
+            	value[j] = sm.getValueWithId(sm.getIndexWithId(id + 1), j);
+            documentViewerPanel.insertErrorsTable(value);
             int size_title = title.length();
             if (size_title > 20) {
                 title = title.substring(0, 20) + "...";

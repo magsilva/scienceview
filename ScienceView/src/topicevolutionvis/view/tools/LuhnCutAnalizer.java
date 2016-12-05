@@ -602,24 +602,24 @@ public class LuhnCutAnalizer extends javax.swing.JDialog {
             for (int i = 0; i < ngrams.size(); i++) {
                 label = new String[2];
                 label[0] = ngrams.get(i).ngram;
-                label[1] = Integer.toString(ngrams.get(i).frequency);
+                label[1] = Double.toString(ngrams.get(i).frequency);
                 this.tableModel.addRow(label);
             }
 
             ((ZipfCurve) this.zipfCurvePanel).setNgrams(ngrams);
 
-            int max = ngrams.get(0).frequency, min = ngrams.get(ngrams.size() - 1).frequency;
+            double max = ngrams.get(0).frequency, min = ngrams.get(ngrams.size() - 1).frequency;
 
-            this.lowerCutSlider.setMaximum(max);
-            this.lowerCutSlider.setMinimum(min);
+            this.lowerCutSlider.setMaximum((int) max);
+            this.lowerCutSlider.setMinimum((int) min);
             this.lowerCutSlider.setEnabled(true);
 
-            this.upperCutSlider.setMaximum(max);
-            this.upperCutSlider.setMinimum(min);
+            this.upperCutSlider.setMaximum((int) max);
+            this.upperCutSlider.setMinimum((int) min);
             if (pdata.getReferencesUpperCut() != -1) {
                 this.upperCutSlider.setValue(pdata.getLunhUpperCut());
             } else {
-                this.upperCutSlider.setValue(max);
+                this.upperCutSlider.setValue((int) max);
             }
             this.upperCutSlider.setEnabled(true);
 

@@ -94,7 +94,7 @@ public class ISICorpusDatabaseImporter extends DatabaseImporter
 
         String line = "";
         try {
-            HashMap<String, Integer> corpusNgrams = new HashMap<String, Integer>();
+            HashMap<String, Double> corpusNgrams = new HashMap<String, Double>();
             Integer index = -1, type = -1;
             String tag, title, authors, abs, author_keywords, keywords, references, doi, aux, journal, journal_abbrev, volume, begin_page, end_page, research_address;
             title = authors = research_address = doi = abs = keywords = author_keywords = references = journal = journal_abbrev = volume = begin_page = end_page = null;
@@ -207,7 +207,7 @@ public class ISICorpusDatabaseImporter extends DatabaseImporter
 
             //add the ngrams to the collection
             ArrayList<Ngram> ngrams = new ArrayList<Ngram>();
-            for (Entry<String, Integer> e : corpusNgrams.entrySet()) {
+            for (Entry<String, Double> e : corpusNgrams.entrySet()) {
             	ngrams.add(new Ngram(e.getKey(), e.getValue()));
             }
             Collections.sort(ngrams);

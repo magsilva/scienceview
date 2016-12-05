@@ -104,7 +104,7 @@ public class PCATopic extends Topic implements Cloneable {
                 lowercut = 20;
             }
             VectorSpaceRepresentation pp = new VectorSpaceRepresentation(corpus);
-            SparseMatrix matrix = pp.getMatrixSelected(lowercut, -1, ngrams, StemmerType.Type.NONE, true, true, this.getVertexList());
+            SparseMatrix matrix = pp.getMatrixSelected(lowercut, -1, ngrams, StemmerType.Type.NONE, true, true, this.getVertexList(), this.tprojection);
             ArrayList<Ngram> cpNgrams = pp.getNgrams();
             if (vertex_id.size() > 1) {
                 ArrayList<String> attributes = new ArrayList<>();
