@@ -24,6 +24,8 @@ public class TopicFactory {
             return new PCATopic(selectedVertices, projection, graph);
         } else if (projection.getTopicData().getTopicType() == TopicType.LDA) {
             return new LDATopic(selectedVertices, projection, graph, projection.getProjectionData().getLDAMatrices());
+        } else if (projection.getTopicData().getTopicType() == TopicType.NONE) {
+        	return new TopicNone(selectedVertices, projection, graph);
         }
         return null;
     }

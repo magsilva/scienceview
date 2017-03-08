@@ -143,30 +143,13 @@ public abstract class Representation {
             ids[i] = selected.get(i).getId();
         }
 
-        try {
-        //store the ngrams present on the selected corpus
-        this.ngrams = this.getCorpusNgrams(ids);
-        } catch (Exception e) {
-//        	Pegar a sparse matrix
-        	//sm = new SparseMatrix();
-        	//pdata = new ProjectionData();
-        	
-        	pdata = tprojection.getProjectionData();
-        	sm = pdata.getMatrix();
-        	
-        	SparseMatrix smSelected = new SparseMatrix(ids.length);
-        	SparseVector sv;
-        	double values[] = new double[64];
-        	for(int i = 0 ; i < ids.length; i++) {
-        		sv = sm.getRowWithId(ids[i]);
-        		values = sv.getValues();
-        		smSelected.addRow(values, ids[i]);
-        	}
-        	
-        	return smSelected;
-//        	criar nova matrix e deixar somente os ids selecionáveis
+        try{
+        	//store the ngrams present on the selected corpus
+            this.ngrams = this.getCorpusNgrams(ids);
+        } catch (ClassCastException e) {
+        	System.out.println("Erro getMatrix" + e.getMessage());
         }
-
+       
         return this.getMatrix(ids, null);
     }
 

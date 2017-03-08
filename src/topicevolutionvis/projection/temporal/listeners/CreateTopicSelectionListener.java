@@ -9,6 +9,7 @@ import topicevolutionvis.graph.TemporalGraph;
 import topicevolutionvis.projection.temporal.TemporalProjection;
 import topicevolutionvis.topic.Topic;
 import topicevolutionvis.topic.TopicFactory;
+import topicevolutionvis.topic.TopicNone;
 import topicevolutionvis.view.ScienceViewMainFrame;
 import topicevolutionvis.view.TemporalProjectionViewer;
 
@@ -33,11 +34,13 @@ public class CreateTopicSelectionListener extends VertexSelectionListener {
                 graph = panel.getGraph();
             }
             this.topic = TopicFactory.getInstance(projection, graph, vertex);
-            this.topic.calcPolygon();
-            this.topic.createTopic();
-            graph.addTopic(topic);
-            ScienceViewMainFrame.getInstance().updateTopicsTree();
-            panel.updateImage();
+            if (! (this.topic instanceof TopicNone)) {
+            	this.topic.calcPolygon();
+            	this.topic.createTopic();
+            	graph.addTopic(topic);
+            	ScienceViewMainFrame.getInstance().updateTopicsTree();
+            	panel.updateImage();
+            }
         }
     }
 
