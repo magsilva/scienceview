@@ -36,7 +36,7 @@ import topicevolutionvis.wizard.DataSourceChoiceWizard;
  */
 public abstract class DatabaseImporter extends SwingWorker<Void, Void> {
 
-    protected String collection, filename, msg = "";
+    protected String collection, filename, path, msg = "";
     
     protected int nrGrams, id_collection;
     
@@ -54,9 +54,10 @@ public abstract class DatabaseImporter extends SwingWorker<Void, Void> {
     
     private SqlManager sqlManager;
     
-    public DatabaseImporter(String filename, String collection, int nrGrams, DataSourceChoiceWizard view, boolean removeStopwordsByTagging) {
+    public DatabaseImporter(String filename, String collection, String path, int nrGrams, DataSourceChoiceWizard view, boolean removeStopwordsByTagging) {
         this.filename = filename;
         this.collection = collection;
+        this.path = path;
         this.nrGrams = nrGrams;
         this.removeStopwordsByTagging = removeStopwordsByTagging;
         this.view = view;

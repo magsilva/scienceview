@@ -54,6 +54,9 @@ public class DataSourceChoiceWizard extends WizardPanel implements ActionListene
     private JLabel newCorpusInputFilenameLabel;
     private JTextField newCorpusFilenameTextField;
     private JButton newCorpusFilenameSearchButton;
+    private JLabel newCorpusInputPathLabel;
+    private JTextField newCorpusInputPathTextField;
+    private JButton newCorpusInputPathSearchButton;
     private JLabel newCorpusNgramLabel;
     private JComboBox<Integer> newCorpusNgramDropbox;
     private JButton newCorpusFilenameLoadCancelButton;
@@ -372,6 +375,45 @@ public class DataSourceChoiceWizard extends WizardPanel implements ActionListene
 	    newCorpusPanel.add(newCorpusFilenameSearchButton, bc);
 
 	    
+	    // Input path
+	    newCorpusInputPathLabel = new JLabel();
+	    newCorpusInputPathLabel.setText("Input path:");
+	    bc.anchor = GridBagConstraints.LINE_START;
+        bc.fill = GridBagConstraints.NONE;
+        bc.gridy = 4;
+        bc.gridx = 0;
+        bc.gridwidth = 1;
+        newCorpusPanel.add(newCorpusInputPathLabel, bc);
+        
+        newCorpusInputPathTextField = new JTextField();
+        newCorpusInputPathTextField.setColumns(30);
+        newCorpusInputPathTextField.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				corpusPathActionPerformed();
+			}
+		});
+        bc.fill = GridBagConstraints.HORIZONTAL;
+		bc.anchor = GridBagConstraints.LINE_START;
+        bc.gridy = 4;
+        bc.gridx = 1;
+        bc.gridwidth = 2;
+        newCorpusPanel.add(newCorpusInputPathTextField, bc);
+        
+        newCorpusInputPathSearchButton = new JButton();
+        newCorpusInputPathSearchButton.setText("Select path");
+        newCorpusInputPathSearchButton.addActionListener(new ActionListener() {
+	        public void actionPerformed(ActionEvent evt) {
+	        	searchPathButtonActionPerformed();
+	        }
+	    });
+        bc.fill = GridBagConstraints.HORIZONTAL;
+		bc.anchor = GridBagConstraints.LINE_START;
+        bc.gridy = 4;
+        bc.gridx = 3;
+        bc.gridwidth = 1;
+	    newCorpusPanel.add(newCorpusInputPathSearchButton, bc);
+	    
 	    // Load, cancel, progress bar
         newCorpusFilenameLoadCancelButton = new JButton();
 	    newCorpusFilenameLoadCancelButton.setText("Load");
@@ -383,7 +425,7 @@ public class DataSourceChoiceWizard extends WizardPanel implements ActionListene
 	    });
 		bc.anchor = GridBagConstraints.LINE_START;
         bc.fill = GridBagConstraints.NONE;
-        bc.gridy = 4;
+        bc.gridy = 5;
         bc.gridx = 0;
         bc.gridwidth = 1;
 	    newCorpusPanel.add(newCorpusFilenameLoadCancelButton, bc);
@@ -392,7 +434,7 @@ public class DataSourceChoiceWizard extends WizardPanel implements ActionListene
 	    newCorpusProgressBar.setPreferredSize(new Dimension(300, 14));
 		bc.anchor = GridBagConstraints.LINE_START;
         bc.fill = GridBagConstraints.NONE;
-        bc.gridy = 4;
+        bc.gridy = 5;
         bc.gridx = 1;
         bc.gridwidth = 3;
 	    newCorpusPanel.add(newCorpusProgressBar, bc);
@@ -401,6 +443,11 @@ public class DataSourceChoiceWizard extends WizardPanel implements ActionListene
     
     protected void corpusFilenameActionPerformed() {
     	File file = new File(newCorpusFilenameTextField.getText().trim());
+    	checkNewCorpusInputFile(file);
+	}
+    
+    protected void corpusPathActionPerformed() {
+    	File file = new File(newCorpusInputPathTextField.getText().trim());
     	checkNewCorpusInputFile(file);
 	}
 
@@ -435,6 +482,22 @@ public class DataSourceChoiceWizard extends WizardPanel implements ActionListene
         }
     }
 	
+	private void searchPathButtonActionPerformed() {
+		JFileChooser fc = new JFileChooser();
+		fc = new JFileChooser();
+		
+		fc.setCurrentDirectory(new java.io.File("."));
+		fc.setDialogTitle("Select the implementations directory");
+		fc.setAcceptAllFileFilterUsed(false);
+        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fc.setMultiSelectionEnabled(false);
+
+        int result = fc.showOpenDialog(null);
+        if (result == JFileChooser.APPROVE_OPTION) {
+        	newCorpusInputPathTextField.setText(fc.getSelectedFile().toString());
+        }
+	}
+	
 	private void checkNewCorpusInputFile(File file) {
         SystemPropertiesManager m = SystemPropertiesManager.getInstance();
 		if (file.isFile() && file.exists() && file.canRead()) {
@@ -462,6 +525,7 @@ public class DataSourceChoiceWizard extends WizardPanel implements ActionListene
     	if ("Load".equalsIgnoreCase(newCorpusFilenameLoadCancelButton.getText())) {
 	        String collectionName = newCorpusNameTextField.getText().trim();
 	        String filename = newCorpusFilenameTextField.getText().trim();
+	        String path = newCorpusInputPathTextField.getText().trim();
 	        File inputFile = new File(filename);
 	        if (! filename.isEmpty() && inputFile.isFile() && inputFile.exists() && inputFile.canRead() && ! collectionName.isEmpty()) {
 	            pdata.setSourceFile(filename);
@@ -481,7 +545,7 @@ public class DataSourceChoiceWizard extends WizardPanel implements ActionListene
 	            } else if (corpusType.equalsIgnoreCase("db")) {
 	                importer = new DumpDatabaseImporter(filename, this, false);
 	            } else if (corpusType.equalsIgnoreCase("csv")) {
-	            	importer = new CSVDatabaseImporter(filename, collectionName, this);
+	            	importer = new CSVDatabaseImporter(filename, collectionName, path, this);
 	            }
 	
 	            if (importer != null) {

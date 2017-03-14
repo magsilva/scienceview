@@ -19,7 +19,6 @@ import topicevolutionvis.database.SqlManager;
 import topicevolutionvis.database.SqlUtil;
 import topicevolutionvis.matrix.SparseMatrix;
 import topicevolutionvis.projection.ProjectionData;
-import topicevolutionvis.view.DirectoryChooser;
 import topicevolutionvis.wizard.DataSourceChoiceWizard;
 
 /**
@@ -28,8 +27,8 @@ import topicevolutionvis.wizard.DataSourceChoiceWizard;
  */
 public class CSVDatabaseImporter extends DatabaseImporter {
 
-    public CSVDatabaseImporter(String filename, String collection, DataSourceChoiceWizard view) {
-        super(filename, collection, 1, view, false);
+    public CSVDatabaseImporter(String filename, String collection, String path, DataSourceChoiceWizard view) {
+        super(filename, collection, path, 1, view, false);
     }
 
     @Override
@@ -77,7 +76,6 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 		int ano = 2016;
 		double[] vetor;
 		String file, codigo;
-		DirectoryChooser dc = new DirectoryChooser();
 		PreparedStatement stmt = null;
 		
 		for (CSVRecord record : records) {
@@ -91,7 +89,7 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 				sm.addRow(vetor, linha);
 				
 				file = new String();
-				file = dc.getFc().getSelectedFile().toString() + '/' + record.get(0);
+				file = path.toString() + '/' + record.get(0);
 				System.out.println(file);
 				BufferedReader bf = new BufferedReader(new FileReader(file));
 				String line = null;
