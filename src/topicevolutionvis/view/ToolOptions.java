@@ -66,6 +66,7 @@ public class ToolOptions extends javax.swing.JDialog {
         topicExtractionPanel = new javax.swing.JPanel();
         pcaRadioButton = new javax.swing.JRadioButton();
         pcaSettingsButton = new javax.swing.JButton();
+        topicNoneRadioButton = new javax.swing.JRadioButton();
         jPanel1 = new javax.swing.JPanel();
         simpleRadioButton = new javax.swing.JRadioButton();
         tagcloudRadioButton = new javax.swing.JRadioButton();
@@ -201,7 +202,7 @@ public class ToolOptions extends javax.swing.JDialog {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
@@ -233,6 +234,19 @@ public class ToolOptions extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
         topicExtractionPanel.add(ldaSettingsButton, gridBagConstraints);
 
+        topicsButtonGroup.add(topicNoneRadioButton);
+        topicNoneRadioButton.setText("Topic None");
+        topicNoneRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                topicNoneRadioButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        topicExtractionPanel.add(topicNoneRadioButton, gridBagConstraints);
+        
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -388,6 +402,12 @@ public class ToolOptions extends javax.swing.JDialog {
             this.tprojection.getTopicData().setTopicType(TopicType.PCA);
         }
     }//GEN-LAST:event_pcaRadioButtonActionPerformed
+    
+    private void topicNoneRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pcaRadioButtonActionPerformed
+        if (this.tprojection != null) {
+            this.tprojection.getTopicData().setTopicType(TopicType.NONE);
+        }
+    }//GEN-LAST:event_topcNoneRadioButtonActionPerformed
 
     private void labelsizeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_labelsizeComboBoxActionPerformed
         if (this.temporalViewer != null) {
@@ -502,6 +522,7 @@ public class ToolOptions extends javax.swing.JDialog {
     private javax.swing.JPanel optionsPanel;
     private javax.swing.JRadioButton pcaRadioButton;
     private javax.swing.JButton pcaSettingsButton;
+    private javax.swing.JRadioButton topicNoneRadioButton;
     private javax.swing.JButton settingsTagCloudButton;
     private javax.swing.JRadioButton simpleRadioButton;
     private javax.swing.ButtonGroup strokeColorVertexButtonGroup;
