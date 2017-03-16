@@ -28,8 +28,8 @@ public class EndnoteDatabaseImporter extends DatabaseImporter {
 
     Pattern endnotePattern = Pattern.compile("%[A-Z0-9]\\s.*|.*:.*|Review|%».*|%∂.*|%©.*|%@.*|%+.*");
 
-    public EndnoteDatabaseImporter(String filename, String collection, int nrGrams, DataSourceChoiceWizard view, boolean removeStopwordsByTagging) {
-        super(filename, collection, nrGrams, view, removeStopwordsByTagging);
+    public EndnoteDatabaseImporter(String filename, String collection, String path, int nrGrams, DataSourceChoiceWizard view, boolean removeStopwordsByTagging) {
+        super(filename, collection, path, nrGrams, view, removeStopwordsByTagging);
     }
 
     @Override

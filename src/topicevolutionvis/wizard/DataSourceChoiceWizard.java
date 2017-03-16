@@ -537,13 +537,13 @@ public class DataSourceChoiceWizard extends WizardPanel implements ActionListene
 	                bib.setInputFile(new File(filename));
 	                bib.readData();
 	                bib.convert();
-	                importer = new ISICorpusDatabaseImporter(bib.getOutputFile().getAbsolutePath(), collectionName, nrGrams, this, false);
+	                importer = new ISICorpusDatabaseImporter(bib.getOutputFile().getAbsolutePath(), collectionName, path, nrGrams, this, false);
 	            } else if (corpusType.equalsIgnoreCase("isi")) {
-	                importer = new ISICorpusDatabaseImporter(filename, collectionName, nrGrams, this, false);
+	                importer = new ISICorpusDatabaseImporter(filename, collectionName, path, nrGrams, this, false);
 	            } else if (corpusType.equalsIgnoreCase("enw")) {
-	                importer = new EndnoteDatabaseImporter(filename, collectionName, nrGrams, this, false);
+	                importer = new EndnoteDatabaseImporter(filename, collectionName, path, nrGrams, this, false);
 	            } else if (corpusType.equalsIgnoreCase("db")) {
-	                importer = new DumpDatabaseImporter(filename, this, false);
+	                importer = new DumpDatabaseImporter(filename, path, this, false);
 	            } else if (corpusType.equalsIgnoreCase("csv")) {
 	            	importer = new CSVDatabaseImporter(filename, collectionName, path, this);
 	            }
