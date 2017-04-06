@@ -18,8 +18,8 @@ import topicevolutionvis.wizard.DataSourceChoiceWizard;
  */
 public class DumpDatabaseImporter extends DatabaseImporter {
 
-    public DumpDatabaseImporter(String filename, DataSourceChoiceWizard view, boolean removeStopwordsByTagging) {
-        super(filename, null, -1, view, removeStopwordsByTagging);
+    public DumpDatabaseImporter(String filename, String path, DataSourceChoiceWizard view, boolean removeStopwordsByTagging) {
+        super(filename, path, null, -1, view, removeStopwordsByTagging);
     }
 
     @Override

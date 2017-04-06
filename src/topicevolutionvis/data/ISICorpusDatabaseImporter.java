@@ -35,8 +35,8 @@ public class ISICorpusDatabaseImporter extends DatabaseImporter
 	// TODO: Move this to JabRef
 	public static final String FILE_EXTENSION = ".isi";
 
-    public ISICorpusDatabaseImporter(String filename, String collection, int nrGrams, DataSourceChoiceWizard view, boolean removeStopwordsByTagging) {
-        super(filename, collection, nrGrams, view, removeStopwordsByTagging);
+    public ISICorpusDatabaseImporter(String filename, String collection, String path, int nrGrams, DataSourceChoiceWizard view, boolean removeStopwordsByTagging) {
+        super(filename, collection, path, nrGrams, view, removeStopwordsByTagging);
     }
 
     @Override

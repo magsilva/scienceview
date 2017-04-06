@@ -216,8 +216,9 @@ public class DatabaseCorpus {
         if (nrDocuments > 0) {
             documents_ids = new int[this.nrDocuments];
             try (
-                    PreparedStatement stmt = sqlManager.getSqlStatement(conn, "SELECT.DOCUMENTS.IDS");) {
+                PreparedStatement stmt = sqlManager.getSqlStatement(conn, "SELECT.DOCUMENTS.IDS");) {
                 stmt.setInt(1, this.id_collection);
+                System.out.println("id_collection"+ id_collection);
                 try (
                         ResultSet rs = stmt.executeQuery();) {
                     for (int i = 0; i < this.documents_ids.length && rs.next(); i++) {
@@ -1145,12 +1146,12 @@ public class DatabaseCorpus {
     }
 
     private void matchCoreCitations(Connection conn) {
-        for (int i = 0; i < this.documents_ids.length; i++) {
+    	for (int i = 0; i < this.documents_ids.length; i++) {
             this.citation_core.put(documents_ids[i], new ArrayList<Pair>());
         }
         int count;
         try (
-                PreparedStatement stmt = sqlManager.getSqlStatement(conn, "CORE.REFERENCES")) {
+            PreparedStatement stmt = sqlManager.getSqlStatement(conn, "CORE.REFERENCES")) {
             stmt.setInt(1, id_collection);
             ResultSet rs = stmt.executeQuery();
 
