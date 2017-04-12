@@ -42,7 +42,9 @@ public abstract class DatabaseImporter extends SwingWorker<Void, Void> {
     
     protected boolean removeStopwordsByTagging;
     
-    protected DataSourceChoiceWizard view = null;
+    protected boolean loadingDatabase = false;
+    
+	protected DataSourceChoiceWizard view = null;
     
     protected CollectionManager collectionManager;
     
@@ -78,6 +80,14 @@ public abstract class DatabaseImporter extends SwingWorker<Void, Void> {
         view.finishedLoadingCollection(collection, isCancelled());
     }
 
+    public boolean isLoadingDatabase() {
+		return loadingDatabase;
+	}
+
+	public void setLoadingDatabase(boolean loadingDatabase) {
+		this.loadingDatabase = loadingDatabase;
+	}
+    
     protected void matchReferencesToPapers(Connection conn) {
         PreparedStatement stmt = null;
         PreparedStatement stmt2 = null;
@@ -397,8 +407,10 @@ public abstract class DatabaseImporter extends SwingWorker<Void, Void> {
             if (authors != null) {
                 saveAuthors(conn, id, authors);
             }
+            if (references != null){
+                saveReferences(conn, id, references);
+            }
 
-            saveReferences(conn, id, references);
 
         } catch (SQLException e) {
             throw new RuntimeException("Error loading data from database", e);
