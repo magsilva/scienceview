@@ -510,65 +510,55 @@ public class DataSourceChoiceWizard extends WizardPanel implements ActionListene
 		}
 	}
 
-<<<<<<< HEAD
-    private void removeButtonActionPerformed(ActionEvent evt) {
-        if (selectCorpusNameComboBox.getSelectedIndex() > 0) {
-        	String collection = selectCorpusNameComboBox.getItemAt(selectCorpusNameComboBox.getSelectedIndex());
-        	int result = JOptionPane.showConfirmDialog(this, "Collection removal", "Confirm removal of collection '" + collection + "'?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-        	if (result == JOptionPane.OK_OPTION) {
-        		collectionManager.removeCollection(collection);
-        		updateCollections("");
-        	}
-        }
-    }
-
     public void setStatus(String status, boolean running) {
         newCorpusProgressBar.setIndeterminate(running);
     }
 
-    private void loadCancelButtonActionPerformed(ActionEvent evt) {
-    	if ("Load".equalsIgnoreCase(newCorpusFilenameLoadCancelButton.getText())) {
-	        String collectionName = newCorpusNameTextField.getText().trim();
-	        String filename = newCorpusFilenameTextField.getText().trim();
-	        String path = newCorpusInputPathTextField.getText().trim();
-	        File inputFile = new File(filename);
-	        if (! filename.isEmpty() && inputFile.isFile() && inputFile.exists() && inputFile.canRead() && ! collectionName.isEmpty()) {
-	            pdata.setSourceFile(filename);
-	            String corpusType = filename.substring(filename.lastIndexOf(".") + 1);
-	            int nrGrams = newCorpusNgramDropbox.getItemAt(newCorpusNgramDropbox.getSelectedIndex());
-	            if (corpusType.equalsIgnoreCase("bib")) {
-	                BibTeX2RIS bib = null;
-	                bib = new BibTeX2RIS();
-	                bib.setInputFile(new File(filename));
-	                bib.readData();
-	                bib.convert();
-	                importer = new ISICorpusDatabaseImporter(bib.getOutputFile().getAbsolutePath(), collectionName, path, nrGrams, this, false);
-	            } else if (corpusType.equalsIgnoreCase("isi")) {
-	                importer = new ISICorpusDatabaseImporter(filename, collectionName, path, nrGrams, this, false);
-	            } else if (corpusType.equalsIgnoreCase("enw")) {
-	                importer = new EndnoteDatabaseImporter(filename, collectionName, path, nrGrams, this, false);
-	            } else if (corpusType.equalsIgnoreCase("db")) {
-	                importer = new DumpDatabaseImporter(filename, path, this, false);
-	            } else if (corpusType.equalsIgnoreCase("csv")) {
-	            	importer = new CSVDatabaseImporter(filename, collectionName, path, this);
-	            }
-	
-	            if (importer != null) {
-	            	newCorpusFilenameLoadCancelButton.setText("Cancel");
-	                setStatus("Loading collection " + collectionName + "...", true);
-	                loadingCollection();
-	                importer.execute();
-	            }
-	
-	        } else {
-	            JOptionPane.showMessageDialog(this, "All parameters must be filled to load a new collection", "Warning", JOptionPane.WARNING_MESSAGE);
-	        }
-    	} else {
-    		importer.cancel(true);	
-            setStatus("", true);
+	private void loadCancelButtonActionPerformed(ActionEvent evt) {
+		if ("Load".equalsIgnoreCase(newCorpusFilenameLoadCancelButton.getText())) {
+			String collectionName = newCorpusNameTextField.getText().trim();
+			String filename = newCorpusFilenameTextField.getText().trim();
+			String path = newCorpusInputPathTextField.getText().trim();
+			File inputFile = new File(filename);
+			if (!filename.isEmpty() && inputFile.isFile() && inputFile.exists() && inputFile.canRead()
+					&& !collectionName.isEmpty()) {
+				pdata.setSourceFile(filename);
+				String corpusType = filename.substring(filename.lastIndexOf(".") + 1);
+				int nrGrams = newCorpusNgramDropbox.getItemAt(newCorpusNgramDropbox.getSelectedIndex());
+				if (corpusType.equalsIgnoreCase("bib")) {
+					BibTeX2RIS bib = null;
+					bib = new BibTeX2RIS();
+					bib.setInputFile(new File(filename));
+					bib.readData();
+					bib.convert();
+					importer = new ISICorpusDatabaseImporter(bib.getOutputFile().getAbsolutePath(), collectionName,
+							path, nrGrams, this, false);
+				} else if (corpusType.equalsIgnoreCase("isi")) {
+					importer = new ISICorpusDatabaseImporter(filename, collectionName, path, nrGrams, this, false);
+				} else if (corpusType.equalsIgnoreCase("enw")) {
+					importer = new EndnoteDatabaseImporter(filename, collectionName, path, nrGrams, this, false);
+				} else if (corpusType.equalsIgnoreCase("db")) {
+					importer = new DumpDatabaseImporter(filename, path, this, false);
+				} else if (corpusType.equalsIgnoreCase("csv")) {
+					importer = new CSVDatabaseImporter(filename, collectionName, path, this);
+				}
+				if (importer != null) {
+					newCorpusFilenameLoadCancelButton.setText("Cancel");
+					setStatus("Loading collection " + collectionName + "...", true);
+					loadingCollection();
+					importer.execute();
+				}
 
-    	}
-    }
+			} else {
+				JOptionPane.showMessageDialog(this, "All parameters must be filled to load a new collection", "Warning",
+						JOptionPane.WARNING_MESSAGE);
+			}
+		} else {
+			importer.cancel(true);
+			setStatus("", true);
+
+		}
+	}
 
     private void corpusComboBoxActionPerformed(ActionEvent evt) {
     	if (selectCorpusNameComboBox.getSelectedIndex() > 0) {
@@ -633,124 +623,6 @@ public class DataSourceChoiceWizard extends WizardPanel implements ActionListene
     		pdata.setDatabaseCorpus(corpus);
          }
     }
-=======
-	public void setStatus(String status, boolean running) {
-		newCorpusProgressBar.setIndeterminate(running);
-	}
-
-	private void loadCancelButtonActionPerformed(ActionEvent evt) {
-		if ("Load".equalsIgnoreCase(newCorpusFilenameLoadCancelButton.getText())) {
-			String collectionName = newCorpusNameTextField.getText().trim();
-			String filename = newCorpusFilenameTextField.getText().trim();
-			String path = newCorpusInputPathTextField.getText().trim();
-			File inputFile = new File(filename);
-			if (!filename.isEmpty() && inputFile.isFile() && inputFile.exists() && inputFile.canRead()
-					&& !collectionName.isEmpty()) {
-				pdata.setSourceFile(filename);
-				String corpusType = filename.substring(filename.lastIndexOf(".") + 1);
-				int nrGrams = newCorpusNgramDropbox.getItemAt(newCorpusNgramDropbox.getSelectedIndex());
-				if (corpusType.equalsIgnoreCase("bib")) {
-					BibTeX2RIS bib = null;
-					bib = new BibTeX2RIS();
-					bib.setInputFile(new File(filename));
-					bib.readData();
-					bib.convert();
-					importer = new ISICorpusDatabaseImporter(bib.getOutputFile().getAbsolutePath(), collectionName,
-							path, nrGrams, this, false);
-				} else if (corpusType.equalsIgnoreCase("isi")) {
-					importer = new ISICorpusDatabaseImporter(filename, collectionName, path, nrGrams, this, false);
-				} else if (corpusType.equalsIgnoreCase("enw")) {
-					importer = new EndnoteDatabaseImporter(filename, collectionName, path, nrGrams, this, false);
-				} else if (corpusType.equalsIgnoreCase("db")) {
-					importer = new DumpDatabaseImporter(filename, path, this, false);
-				} else if (corpusType.equalsIgnoreCase("csv")) {
-					importer = new CSVDatabaseImporter(filename, collectionName, path, this);
-				}
-				if (importer != null) {
-					newCorpusFilenameLoadCancelButton.setText("Cancel");
-					setStatus("Loading collection " + collectionName + "...", true);
-					loadingCollection();
-					importer.execute();
-				}
-
-			} else {
-				JOptionPane.showMessageDialog(this, "All parameters must be filled to load a new collection", "Warning",
-						JOptionPane.WARNING_MESSAGE);
-			}
-		} else {
-			importer.cancel(true);
-			setStatus("", true);
-
-		}
-	}
-
-	private void corpusComboBoxActionPerformed(ActionEvent evt) {
-		if (importer != null && !importer.isLoadingDatabase()) {
-			String collectionName = selectCorpusNameComboBox.getItemAt(selectCorpusNameComboBox.getSelectedIndex());
-			getInformations(collectionName);
-		} else if (importer == null && selectCorpusNameComboBox.getSelectedIndex() > 0) {
-			String collectionName = selectCorpusNameComboBox.getItemAt(selectCorpusNameComboBox.getSelectedIndex());
-			getInformations(collectionName);
-		}
-	}
-
-	private void loadingCollection() {
-		newCorpusFilenameLoadCancelButton.setEnabled(false);
-		newCorpusFilenameTextField.setEnabled(false);
-		newCorpusNameTextField.setEnabled(false);
-		newCorpusFilenameSearchButton.setEnabled(false);
-		newCorpusNgramDropbox.setEnabled(false);
-		selectCorpusRemoveButton.setEnabled(false);
-	}
-
-	public void finishedLoadingCollection(String collection, boolean canceled) {
-		if (!canceled) {
-			updateCollections(collection);
-			newCorpusFilenameTextField.setText(null);
-			newCorpusNameTextField.setText(null);
-			newCorpusFilenameLoadCancelButton.setText("Load");
-		}
-		newCorpusFilenameTextField.setEnabled(true);
-		newCorpusNameTextField.setEnabled(true);
-		newCorpusFilenameSearchButton.setEnabled(true);
-		newCorpusNgramDropbox.setEnabled(true);
-		newCorpusFilenameLoadCancelButton.setEnabled(true);
-		selectCorpusRemoveButton.setEnabled(true);
-	}
-
-	public DataSourceChoiceWizard reset() {
-		return this;
-	}
-
-	@Override
-	public void refreshData() {
-		/*
-		 * if (selectCorpusNameComboBox.getSelectedIndex() > 0) { String
-		 * collectionName =
-		 * selectCorpusNameComboBox.getItemAt(selectCorpusNameComboBox.
-		 * getSelectedIndex()); pdata.setCollectionName(collectionName);
-		 * pdata.setDatabaseCorpus(new DatabaseCorpus(collectionName)); }
-		 */
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-	}
-
-	private void getInformations(String collectionName) {
-		if (!collectionManager.isUnique(collectionName)) {
-			DatabaseCorpus corpus = new DatabaseCorpus(collectionName);
-			Integer ngrams = corpus.getNumberGrams();
-			Integer numberDocs = corpus.getNumberOfDocuments();
-			Integer numberRef = corpus.getNumberOfUniqueReferences();
-			corpusNgramsTextField.setText(ngrams.toString());
-			corpusNumberDocumentsTextField.setText(numberDocs.toString());
-			corpusNumberReferencesTextField.setText(numberRef.toString());
-			pdata.setCollectionName(collectionName);
-			pdata.setDatabaseCorpus(corpus);
-		}
-	}
->>>>>>> fadf3dbb0ae5f7a9479b45cdfb952dcfd3a4e93f
 
 	@Override
 	public boolean isNextStepTerminal() {
