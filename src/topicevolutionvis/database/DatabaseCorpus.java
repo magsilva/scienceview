@@ -53,6 +53,8 @@ public class DatabaseCorpus {
     private int n_unique_references = 0;
 
     private ConnectionManager connManager;
+    
+    private SparseMatrix normalizedSm = new SparseMatrix();
 
     private SqlManager sqlManager;
 
@@ -1311,4 +1313,13 @@ public class DatabaseCorpus {
             throw new RuntimeException("Error loading data from database", e);
         }
     }
+
+	public SparseMatrix getNormalizedSm() {
+		return normalizedSm;
+	}
+
+	public void setNormalizedSm(SparseMatrix normalizedSm) {
+		this.normalizedSm = normalizedSm;
+	}
+    
 }
