@@ -139,6 +139,7 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
 			{"E303", new Double(0.0), new Double(0.0)},
 			{"E304", new Double(0.0), new Double(0.0)},
 			{"E401", new Double(0.0), new Double(0.0)},
+			{"E402", new Double(0.0), new Double(0.0)},
 			{"E501", new Double(0.0), new Double(0.0)},
 			{"E502", new Double(0.0), new Double(0.0)},
 			{"E701", new Double(0.0), new Double(0.0)},
@@ -243,12 +244,12 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_doiButtonActionPerformed
 
     public void insertErrorsTable(double[] value) {
-    	for(int line = 0; line < 64; line++)
+    	for(int line = 0; line < value.length; line++)
     		errorsTable.setValueAt(value[line], line, 1);
     }    
     
     public void insertNormalizedTable(double[] value) {
-		for(int line = 0; line < 64; line++)
+		for(int line = 0; line < value.length; line++)
 			errorsTable.setValueAt(value[line], line, 2);
     }
     

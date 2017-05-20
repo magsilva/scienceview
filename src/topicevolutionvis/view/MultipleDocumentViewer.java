@@ -39,8 +39,8 @@ public class MultipleDocumentViewer extends javax.swing.JDialog {
 
     public void display() {
         int id;
-        double[] errorValue = new double[64];
-        double[] normalizedValue = new double[64];
+        double[] errorValue = new double[65];
+        double[] normalizedValue = new double[65];
         String title;
         DocumentViewerPanel documentViewerPanel;
         SparseMatrix sm = new SparseMatrix();
@@ -56,7 +56,7 @@ public class MultipleDocumentViewer extends javax.swing.JDialog {
             id = documents[i];
             title = corpus.getTitle(id);
             documentViewerPanel = new DocumentViewerPanel(title, corpus.getAbstract(id), corpus.getYear(id), corpus.getDOI(id));
-            for (int j = 0; j < 64; j++) {
+            for (int j = 0; j < 65; j++) {
             	errorValue[j] = sm.getValueWithId(sm.getIndexWithId(id + 1), j);
             	normalizedValue[j] = normalizedSm.getValueWithId(normalizedSm.getIndexWithId(id + 1), j);
             }
