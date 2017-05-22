@@ -57,10 +57,10 @@ public class MatrixTransformationType {
     static {
         MatrixTransformationType.types = new ArrayList<>();
     }
+    public static final MatrixTransformationType NONE = new MatrixTransformationType("NONE (TF)");
     public static final MatrixTransformationType TF_IDF = new MatrixTransformationType("TF-IDF");
     public static final MatrixTransformationType NTF_IDF = new MatrixTransformationType("NTF-IDF");
     public static final MatrixTransformationType NTF = new MatrixTransformationType("NTF");
-    public static final MatrixTransformationType NONE = new MatrixTransformationType("NONE (TF)");
  //   public static final MatrixTransformationType TF_IDF2 = new MatrixTransformationType("TF-IDF2");
 
     /** 
