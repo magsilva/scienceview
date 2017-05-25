@@ -101,9 +101,9 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 					header.add(it.next());
 				}
 			} else {
-			    vetor = new double[header.size()];
-				for (int i = 1; i < vetor.length; i++) {
-					vetor[i] = Double.parseDouble(record.get(i));
+			    vetor = new double[header.size() - 1];
+				for (int i = 1, position = 0; position < vetor.length; i++, position++) {
+					vetor[position] = Double.parseDouble(record.get(i));
 				}
 				sm.addRow(vetor, linha);
 				
