@@ -63,6 +63,7 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
             contentTextPane.setText(content);
             contentTextPane.setEditable(false);
             contentTextPane.setCaretPosition(0);
+//            exerciseTextArea.setText("");
         }
     }
 
@@ -83,6 +84,8 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
         titleTextField = new javax.swing.JTextField();
         datePanel = new javax.swing.JPanel();
         dateTextField = new javax.swing.JTextField();
+        exercisePanel = new javax.swing.JPanel();
+        exerciseTextArea = new javax.swing.JTextArea();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         contentTextPane = new javax.swing.JTextPane();
@@ -225,6 +228,23 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         jPanel4.add(datePanel, gridBagConstraints);
+        
+        exercisePanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Exercise"));
+        exercisePanel.setPreferredSize(new java.awt.Dimension(645, 70));
+        exercisePanel.setLayout(new java.awt.BorderLayout());
+        
+        exerciseTextArea.setEditable(false);
+        exerciseTextArea.setBorder(null);
+        exerciseTextArea.setLineWrap(true);
+        exerciseTextArea.setOpaque(false);
+        exercisePanel.add(exerciseTextArea, java.awt.BorderLayout.CENTER);
+        
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel4.add(exercisePanel, gridBagConstraints);
 
         add(jPanel4, java.awt.BorderLayout.NORTH);
 
@@ -314,5 +334,7 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
     private javax.swing.JTextField titleTextField;
     private javax.swing.JTable errorsTable;
     private javax.swing.JScrollPane scrollPaneErrorsTable;
+    private javax.swing.JPanel exercisePanel;
+    private javax.swing.JTextArea exerciseTextArea;
     // End of variables declaration//GEN-END:variables
 }
