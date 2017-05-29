@@ -19,6 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.RowSorter;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SortOrder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -42,7 +43,7 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
     private Object[][] errors;
 
     /** Creates new form DocumentViewerPanel */
-    public DocumentViewerPanel(String title, String content, int date, String doi) {
+    public DocumentViewerPanel(String title, String content, int date, String doi, String exercise) {
         initComponents();
         if (doi != null) {
             url = "http://dx.doi.org/".concat(doi);
@@ -51,10 +52,10 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
             url = null;
             this.doiButton.setEnabled(false);
         }
-        display(title, content, date);
+        display(title, content, date, exercise);
     }
 
-    public final void display(String title, String content, int date) {
+    public final void display(String title, String content, int date, String exercise) {
         if (title != null) {
             titleTextField.setText(title);
             titleTextField.setCaretPosition(0);
@@ -63,7 +64,11 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
             contentTextPane.setText(content);
             contentTextPane.setEditable(false);
             contentTextPane.setCaretPosition(0);
-//            exerciseTextArea.setText("");
+            if(exercise != null) {
+	            exerciseTextArea.setText(exercise);
+	            exerciseTextArea.setCaretPosition(0);
+            } else
+            	exercisePanel.setVisible(false);
         }
     }
 
@@ -85,6 +90,7 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
         datePanel = new javax.swing.JPanel();
         dateTextField = new javax.swing.JTextField();
         exercisePanel = new javax.swing.JPanel();
+        scrollExerciseTextArea = new javax.swing.JScrollPane();
         exerciseTextArea = new javax.swing.JTextArea();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -237,7 +243,9 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
         exerciseTextArea.setBorder(null);
         exerciseTextArea.setLineWrap(true);
         exerciseTextArea.setOpaque(false);
-        exercisePanel.add(exerciseTextArea, java.awt.BorderLayout.CENTER);
+        scrollExerciseTextArea.setViewportView(exerciseTextArea);
+        scrollExerciseTextArea.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        exercisePanel.add(scrollExerciseTextArea, java.awt.BorderLayout.CENTER);
         
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = 3;
@@ -335,6 +343,7 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
     private javax.swing.JTable errorsTable;
     private javax.swing.JScrollPane scrollPaneErrorsTable;
     private javax.swing.JPanel exercisePanel;
+    private javax.swing.JScrollPane scrollExerciseTextArea;
     private javax.swing.JTextArea exerciseTextArea;
     // End of variables declaration//GEN-END:variables
 }

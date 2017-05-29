@@ -58,7 +58,7 @@ public class MultipleDocumentViewer extends javax.swing.JDialog {
         for (int i = 0; i < documents.length; i++) {
             id = documents[i];
             title = corpus.getTitle(id);
-            documentViewerPanel = new DocumentViewerPanel(title, corpus.getAbstract(id), corpus.getYear(id), corpus.getDOI(id));
+            documentViewerPanel = new DocumentViewerPanel(title, corpus.getAbstract(id), corpus.getYear(id), corpus.getDOI(id), corpus.getKeywords(id));
             for (int j = 0; j < errorValue.length; j++) {
             	errorValue[j] = sm.getValueWithId(sm.getIndexWithId(id + 1), j);
             	normalizedValue[j] = normalizedSm.getValueWithId(normalizedSm.getIndexWithId(id + 1), j);
