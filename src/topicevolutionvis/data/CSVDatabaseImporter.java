@@ -3,6 +3,7 @@ package topicevolutionvis.data;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -86,7 +87,11 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 		int linha = 0;
 		int ano = 2016;
 		double[] vetor;
-		String file, codigo;
+		String file, codigo, pathExercise;
+		String descriptionExercise = null;
+		String pathDescriptionExercise = new String();
+		String separator = System.getProperty("file.separator");
+		String[] chunks;
 		PreparedStatement stmt = null;
 
 		ArrayList<Ngram> fngrams;
@@ -108,7 +113,15 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 				}
 				sm.addRow(vetor, linha);
 				
-				file = path.toString() + System.getProperty("file.separator") + record.get(0);
+				file = path.toString() + separator + record.get(0);
+				
+				chunks = record.get(0).split(separator);
+				if(!pathDescriptionExercise.equals(chunks[1].trim())) {
+					pathExercise = path.toString() + separator + chunks[0].trim() + separator + chunks[1].trim();
+					descriptionExercise = readFile(pathExercise, separator);
+					pathDescriptionExercise = new String(chunks[1].trim());
+				}
+				
 				BufferedReader bf = new BufferedReader(new FileReader(file));
 				String line = null;
 				codigo = new String();
@@ -117,7 +130,7 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 					codigo = codigo + "\n";
 				}
 				bf.close();
-				saveToDataBase(conn, linha, 0, record.get(0), null, null, codigo, null, null, null, ano, 0, null, null,
+				saveToDataBase(conn, linha, 0, record.get(0), null, null, codigo, descriptionExercise, null, null, ano, 0, null, null,
 						null, "", null, null, null, 0);
 				fngrams = getNgramsFromCSVRecord(record, header);
 				csv_ngrams.addAll(fngrams);
@@ -201,6 +214,19 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 		}
 		File teste = new File(System.getProperty("user.dir")+File.separator+file);
 		return teste.getAbsolutePath();
+	}
+	
+	private String readFile(String path, String separator) throws IOException {
+		File file = new File(path);
+		String folderName = file.getName();
+		file = new File(file.getAbsolutePath() + separator + folderName + ".txt");
+		
+		FileInputStream fis = new FileInputStream(file);
+		byte[] data = new byte[(int) file.length()];
+		fis.read(data);
+		fis.close();
+		
+		return new String(data, "UTF-8");
 	}
 
 	public ArrayList<Ngram> getNgramsFromCSVRecord(CSVRecord record, ArrayList<String> header) {
