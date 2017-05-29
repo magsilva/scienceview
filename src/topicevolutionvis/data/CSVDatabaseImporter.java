@@ -118,7 +118,7 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 				chunks = record.get(0).split(separator);
 				if(!pathDescriptionExercise.equals(chunks[1].trim())) {
 					pathExercise = path.toString() + separator + chunks[0].trim() + separator + chunks[1].trim();
-					descriptionExercise = readFile(pathExercise, separator);
+					descriptionExercise = readDescriptionExerciseFile(pathExercise, separator);
 					pathDescriptionExercise = new String(chunks[1].trim());
 				}
 				
@@ -216,7 +216,7 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 		return teste.getAbsolutePath();
 	}
 	
-	private String readFile(String path, String separator) throws IOException {
+	private String readDescriptionExerciseFile(String path, String separator) throws IOException {
 		File file = new File(path);
 		String folderName = file.getName();
 		file = new File(file.getAbsolutePath() + separator + folderName + ".txt");
