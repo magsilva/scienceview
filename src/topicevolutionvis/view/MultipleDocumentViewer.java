@@ -52,8 +52,8 @@ public class MultipleDocumentViewer extends javax.swing.JDialog {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        errorValue = new double[sm.getDimensions() - 1];
-        normalizedValue = new double[sm.getDimensions() - 1];
+        errorValue = new double[sm.getDimensions()];
+        normalizedValue = new double[sm.getDimensions()];
         
         for (int i = 0; i < documents.length; i++) {
             id = documents[i];

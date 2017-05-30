@@ -105,7 +105,7 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 				while (it.hasNext()) {
 					header.add(it.next());
 				}
-				sm.setDimensions(header.size());
+				sm.setDimensions(header.size() - 1);
 			} else {
 			    vetor = new double[header.size() - 1];
 				for (int i = 1, position = 0; position < vetor.length; i++, position++) {
