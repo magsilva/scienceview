@@ -19,6 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.RowSorter;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SortOrder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -42,7 +43,7 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
     private Object[][] errors;
 
     /** Creates new form DocumentViewerPanel */
-    public DocumentViewerPanel(String title, String content, int date, String doi) {
+    public DocumentViewerPanel(String title, String content, int date, String doi, String exercise) {
         initComponents();
         if (doi != null) {
             url = "http://dx.doi.org/".concat(doi);
@@ -51,10 +52,10 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
             url = null;
             this.doiButton.setEnabled(false);
         }
-        display(title, content, date);
+        display(title, content, date, exercise);
     }
 
-    public final void display(String title, String content, int date) {
+    public final void display(String title, String content, int date, String exercise) {
         if (title != null) {
             titleTextField.setText(title);
             titleTextField.setCaretPosition(0);
@@ -63,6 +64,11 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
             contentTextPane.setText(content);
             contentTextPane.setEditable(false);
             contentTextPane.setCaretPosition(0);
+            if(exercise != null) {
+	            exerciseTextArea.setText(exercise);
+	            exerciseTextArea.setCaretPosition(0);
+            } else
+            	exercisePanel.setVisible(false);
         }
     }
 
@@ -83,77 +89,81 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
         titleTextField = new javax.swing.JTextField();
         datePanel = new javax.swing.JPanel();
         dateTextField = new javax.swing.JTextField();
+        exercisePanel = new javax.swing.JPanel();
+        scrollExerciseTextArea = new javax.swing.JScrollPane();
+        exerciseTextArea = new javax.swing.JTextArea();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         contentTextPane = new javax.swing.JTextPane();
         setLayout(new java.awt.BorderLayout());
 
-        columns = new String[] {"Error", "Quantity"};
+        columns = new String[] {"Error", "Quantity", "Normalized"};
         errors = new Object[][] {
-        	{"Lines", new Double(0.0)},
-			{"Errors E", new Double(0.0)},
-			{"E101", new Double(0.0)},
-			{"E111", new Double(0.0)},
-			{"E112", new Double(0.0)},
-			{"E113", new Double(0.0)},
-			{"E114", new Double(0.0)},
-			{"E115", new Double(0.0)},
-			{"E116", new Double(0.0)},
-			{"E121", new Double(0.0)},
-			{"E122", new Double(0.0)},
-			{"E123", new Double(0.0)},
-			{"E124", new Double(0.0)},
-			{"E125", new Double(0.0)},
-			{"E126", new Double(0.0)},
-			{"E127", new Double(0.0)},
-			{"E128", new Double(0.0)},
-			{"E129", new Double(0.0)},
-			{"E131", new Double(0.0)},
-			{"E133", new Double(0.0)},
-			{"E201", new Double(0.0)},
-			{"E202", new Double(0.0)},
-			{"E203", new Double(0.0)},
-			{"E211", new Double(0.0)},
-			{"E221", new Double(0.0)},
-			{"E222", new Double(0.0)},
-			{"E223", new Double(0.0)},
-			{"E224", new Double(0.0)},
-			{"E225", new Double(0.0)},
-			{"E226", new Double(0.0)},
-			{"E227", new Double(0.0)},
-			{"E228", new Double(0.0)},
-			{"E231", new Double(0.0)},
-			{"E241", new Double(0.0)},
-			{"E242", new Double(0.0)},
-			{"E251", new Double(0.0)},
-			{"E261", new Double(0.0)},
-			{"E262", new Double(0.0)},
-			{"E265", new Double(0.0)},
-			{"E266", new Double(0.0)},
-			{"E271", new Double(0.0)},
-			{"E272", new Double(0.0)},
-			{"E273", new Double(0.0)},
-			{"E274", new Double(0.0)},
-			{"E301", new Double(0.0)},
-			{"E302", new Double(0.0)},
-			{"E303", new Double(0.0)},
-			{"E304", new Double(0.0)},
-			{"E401", new Double(0.0)},
-			{"E501", new Double(0.0)},
-			{"E502", new Double(0.0)},
-			{"E701", new Double(0.0)},
-			{"E702", new Double(0.0)},
-			{"E703", new Double(0.0)},
-			{"E704", new Double(0.0)},
-			{"E711", new Double(0.0)},
-			{"E712", new Double(0.0)},
-			{"E713", new Double(0.0)},
-			{"E714", new Double(0.0)},
-			{"E721", new Double(0.0)},
-			{"E731", new Double(0.0)},
-			{"E901", new Double(0.0)},
-			{"E902", new Double(0.0)},
-			{"Cc", new Double(0.0)}};
+        	{"Lines", new Double(0.0), new Double(0.0)},
+			{"Errors E", new Double(0.0), new Double(0.0)},
+			{"E101", new Double(0.0), new Double(0.0)},
+			{"E111", new Double(0.0), new Double(0.0)},
+			{"E112", new Double(0.0), new Double(0.0)},
+			{"E113", new Double(0.0), new Double(0.0)},
+			{"E114", new Double(0.0), new Double(0.0)},
+			{"E115", new Double(0.0), new Double(0.0)},
+			{"E116", new Double(0.0), new Double(0.0)},
+			{"E121", new Double(0.0), new Double(0.0)},
+			{"E122", new Double(0.0), new Double(0.0)},
+			{"E123", new Double(0.0), new Double(0.0)},
+			{"E124", new Double(0.0), new Double(0.0)},
+			{"E125", new Double(0.0), new Double(0.0)},
+			{"E126", new Double(0.0), new Double(0.0)},
+			{"E127", new Double(0.0), new Double(0.0)},
+			{"E128", new Double(0.0), new Double(0.0)},
+			{"E129", new Double(0.0), new Double(0.0)},
+			{"E131", new Double(0.0), new Double(0.0)},
+			{"E133", new Double(0.0), new Double(0.0)},
+			{"E201", new Double(0.0), new Double(0.0)},
+			{"E202", new Double(0.0), new Double(0.0)},
+			{"E203", new Double(0.0), new Double(0.0)},
+			{"E211", new Double(0.0), new Double(0.0)},
+			{"E221", new Double(0.0), new Double(0.0)},
+			{"E222", new Double(0.0), new Double(0.0)},
+			{"E223", new Double(0.0), new Double(0.0)},
+			{"E224", new Double(0.0), new Double(0.0)},
+			{"E225", new Double(0.0), new Double(0.0)},
+			{"E226", new Double(0.0), new Double(0.0)},
+			{"E227", new Double(0.0), new Double(0.0)},
+			{"E228", new Double(0.0), new Double(0.0)},
+			{"E231", new Double(0.0), new Double(0.0)},
+			{"E241", new Double(0.0), new Double(0.0)},
+			{"E242", new Double(0.0), new Double(0.0)},
+			{"E251", new Double(0.0), new Double(0.0)},
+			{"E261", new Double(0.0), new Double(0.0)},
+			{"E262", new Double(0.0), new Double(0.0)},
+			{"E265", new Double(0.0), new Double(0.0)},
+			{"E266", new Double(0.0), new Double(0.0)},
+			{"E271", new Double(0.0), new Double(0.0)},
+			{"E272", new Double(0.0), new Double(0.0)},
+			{"E273", new Double(0.0), new Double(0.0)},
+			{"E274", new Double(0.0), new Double(0.0)},
+			{"E301", new Double(0.0), new Double(0.0)},
+			{"E302", new Double(0.0), new Double(0.0)},
+			{"E303", new Double(0.0), new Double(0.0)},
+			{"E304", new Double(0.0), new Double(0.0)},
+			{"E401", new Double(0.0), new Double(0.0)},
+			{"E402", new Double(0.0), new Double(0.0)},
+			{"E501", new Double(0.0), new Double(0.0)},
+			{"E502", new Double(0.0), new Double(0.0)},
+			{"E701", new Double(0.0), new Double(0.0)},
+			{"E702", new Double(0.0), new Double(0.0)},
+			{"E703", new Double(0.0), new Double(0.0)},
+			{"E704", new Double(0.0), new Double(0.0)},
+			{"E711", new Double(0.0), new Double(0.0)},
+			{"E712", new Double(0.0), new Double(0.0)},
+			{"E713", new Double(0.0), new Double(0.0)},
+			{"E714", new Double(0.0), new Double(0.0)},
+			{"E721", new Double(0.0), new Double(0.0)},
+			{"E731", new Double(0.0), new Double(0.0)},
+			{"E901", new Double(0.0), new Double(0.0)},
+			{"E902", new Double(0.0), new Double(0.0)},
+			{"Cc", new Double(0.0), new Double(0.0)}};
 		DefaultTableModel model = new DefaultTableModel(errors, columns) {
 			public Class getColumnClass(int column) {
 				if(column == 0)
@@ -224,6 +234,25 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         jPanel4.add(datePanel, gridBagConstraints);
+        
+        exercisePanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Exercise"));
+        exercisePanel.setPreferredSize(new java.awt.Dimension(645, 70));
+        exercisePanel.setLayout(new java.awt.BorderLayout());
+        
+        exerciseTextArea.setEditable(false);
+        exerciseTextArea.setBorder(null);
+        exerciseTextArea.setLineWrap(true);
+        exerciseTextArea.setOpaque(false);
+        scrollExerciseTextArea.setViewportView(exerciseTextArea);
+        scrollExerciseTextArea.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        exercisePanel.add(scrollExerciseTextArea, java.awt.BorderLayout.CENTER);
+        
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel4.add(exercisePanel, gridBagConstraints);
 
         add(jPanel4, java.awt.BorderLayout.NORTH);
 
@@ -243,9 +272,14 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_doiButtonActionPerformed
 
     public void insertErrorsTable(double[] value) {
-    	for(int line = 0; line < 64; line++)
+    	for(int line = 0; line < value.length; line++)
     		errorsTable.setValueAt(value[line], line, 1);
     }    
+    
+    public void insertNormalizedTable(double[] value) {
+		for(int line = 0; line < value.length; line++)
+			errorsTable.setValueAt(value[line], line, 2);
+    }
     
     // Creates highlights around all occurrences of pattern in textComp
     public void highlight(String pattern) {
@@ -308,5 +342,8 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
     private javax.swing.JTextField titleTextField;
     private javax.swing.JTable errorsTable;
     private javax.swing.JScrollPane scrollPaneErrorsTable;
+    private javax.swing.JPanel exercisePanel;
+    private javax.swing.JScrollPane scrollExerciseTextArea;
+    private javax.swing.JTextArea exerciseTextArea;
     // End of variables declaration//GEN-END:variables
 }

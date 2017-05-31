@@ -53,6 +53,7 @@ public class TemporalGraphBuilder {
 	private final TemporalProjection tproj;
 	private Dissimilarity diss = null;
 	private IOException exception;
+	private SparseMatrix normalizedSm = new SparseMatrix();
 	private final TreeMap<Integer, TemporalGraph> graphs = new TreeMap<>();
 	private final TIntObjectHashMap<TIntArrayList> fixedDocuments = new TIntObjectHashMap<>();
 	private final TIntObjectHashMap<TIntArrayList> newDocuments = new TIntObjectHashMap<>();
@@ -223,6 +224,7 @@ public class TemporalGraphBuilder {
 				previous_full_matrix = NormalizationFactory.getInstance(pdata.getNormalization())
 						.execute(previous_full_matrix);
 			}
+			corpus.setNormalizedSm(previous_full_matrix);
 
 			if (!pdata.getDistanceMatrixFilename().isEmpty()) {
 				DistanceMatrix distanceMatrix = new DistanceMatrix(previous_full_matrix,
@@ -1011,4 +1013,9 @@ public class TemporalGraphBuilder {
 			view.setStatus(status, value);
 		}
 	}
+
+	public SparseMatrix getNormalizedSm() {
+		return normalizedSm;
+	}
+
 }

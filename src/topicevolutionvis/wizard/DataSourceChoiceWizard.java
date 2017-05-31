@@ -510,9 +510,9 @@ public class DataSourceChoiceWizard extends WizardPanel implements ActionListene
 		}
 	}
 
-	public void setStatus(String status, boolean running) {
-		newCorpusProgressBar.setIndeterminate(running);
-	}
+    public void setStatus(String status, boolean running) {
+        newCorpusProgressBar.setIndeterminate(running);
+    }
 
 	private void loadCancelButtonActionPerformed(ActionEvent evt) {
 		if ("Load".equalsIgnoreCase(newCorpusFilenameLoadCancelButton.getText())) {
@@ -560,72 +560,69 @@ public class DataSourceChoiceWizard extends WizardPanel implements ActionListene
 		}
 	}
 
-	private void corpusComboBoxActionPerformed(ActionEvent evt) {
-		if (importer != null && !importer.isLoadingDatabase()) {
-			String collectionName = selectCorpusNameComboBox.getItemAt(selectCorpusNameComboBox.getSelectedIndex());
-			getInformations(collectionName);
-		} else if (importer == null && selectCorpusNameComboBox.getSelectedIndex() > 0) {
-			String collectionName = selectCorpusNameComboBox.getItemAt(selectCorpusNameComboBox.getSelectedIndex());
-			getInformations(collectionName);
-		}
-	}
+    private void corpusComboBoxActionPerformed(ActionEvent evt) {
+    	if (selectCorpusNameComboBox.getSelectedIndex() > 0) {
+    		String collectionName = selectCorpusNameComboBox.getItemAt(selectCorpusNameComboBox.getSelectedIndex());
+    		getInformations(collectionName);
+        }
+    }
+    
+    private void loadingCollection() {
+        newCorpusFilenameLoadCancelButton.setEnabled(false);
+        newCorpusFilenameTextField.setEnabled(false);
+        newCorpusNameTextField.setEnabled(false);
+        newCorpusFilenameSearchButton.setEnabled(false);
+        newCorpusNgramDropbox.setEnabled(false);
+        selectCorpusRemoveButton.setEnabled(false);
+    }
 
-	private void loadingCollection() {
-		newCorpusFilenameLoadCancelButton.setEnabled(false);
-		newCorpusFilenameTextField.setEnabled(false);
-		newCorpusNameTextField.setEnabled(false);
-		newCorpusFilenameSearchButton.setEnabled(false);
-		newCorpusNgramDropbox.setEnabled(false);
-		selectCorpusRemoveButton.setEnabled(false);
-	}
+    public void finishedLoadingCollection(String collection, boolean canceled) {
+        if (! canceled) {
+            updateCollections(collection);
+            newCorpusFilenameTextField.setText(null);
+            newCorpusNameTextField.setText(null);
+            newCorpusFilenameLoadCancelButton.setText("Load");
+        }
+        newCorpusFilenameTextField.setEnabled(true);
+        newCorpusNameTextField.setEnabled(true);
+        newCorpusFilenameSearchButton.setEnabled(true);
+        newCorpusNgramDropbox.setEnabled(true);
+        newCorpusFilenameLoadCancelButton.setEnabled(true);
+        selectCorpusRemoveButton.setEnabled(true);
+    }
 
-	public void finishedLoadingCollection(String collection, boolean canceled) {
-		if (!canceled) {
-			updateCollections(collection);
-			newCorpusFilenameTextField.setText(null);
-			newCorpusNameTextField.setText(null);
-			newCorpusFilenameLoadCancelButton.setText("Load");
-		}
-		newCorpusFilenameTextField.setEnabled(true);
-		newCorpusNameTextField.setEnabled(true);
-		newCorpusFilenameSearchButton.setEnabled(true);
-		newCorpusNgramDropbox.setEnabled(true);
-		newCorpusFilenameLoadCancelButton.setEnabled(true);
-		selectCorpusRemoveButton.setEnabled(true);
-	}
+    public DataSourceChoiceWizard reset() {
+        return this;
+    }
 
-	public DataSourceChoiceWizard reset() {
-		return this;
-	}
+    @Override
+    public void refreshData() {
+    	/*
+    	if (selectCorpusNameComboBox.getSelectedIndex() > 0) {
+    		String collectionName = selectCorpusNameComboBox.getItemAt(selectCorpusNameComboBox.getSelectedIndex());
+    		pdata.setCollectionName(collectionName);
+    		pdata.setDatabaseCorpus(new DatabaseCorpus(collectionName));
+        }
+        */
+    }
+    
+    @Override
+    public void actionPerformed(ActionEvent e) {
+    }
 
-	@Override
-	public void refreshData() {
-		/*
-		 * if (selectCorpusNameComboBox.getSelectedIndex() > 0) { String
-		 * collectionName =
-		 * selectCorpusNameComboBox.getItemAt(selectCorpusNameComboBox.
-		 * getSelectedIndex()); pdata.setCollectionName(collectionName);
-		 * pdata.setDatabaseCorpus(new DatabaseCorpus(collectionName)); }
-		 */
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-	}
-
-	private void getInformations(String collectionName) {
-		if (!collectionManager.isUnique(collectionName)) {
-			DatabaseCorpus corpus = new DatabaseCorpus(collectionName);
-			Integer ngrams = corpus.getNumberGrams();
-			Integer numberDocs = corpus.getNumberOfDocuments();
-			Integer numberRef = corpus.getNumberOfUniqueReferences();
-			corpusNgramsTextField.setText(ngrams.toString());
-			corpusNumberDocumentsTextField.setText(numberDocs.toString());
-			corpusNumberReferencesTextField.setText(numberRef.toString());
-			pdata.setCollectionName(collectionName);
-			pdata.setDatabaseCorpus(corpus);
-		}
-	}
+    private void getInformations(String collectionName) {
+    	if (! collectionManager.isUnique(collectionName)) {
+            DatabaseCorpus corpus = new DatabaseCorpus(collectionName);
+            Integer ngrams = corpus.getNumberGrams();
+            Integer numberDocs = corpus.getNumberOfDocuments();
+            Integer numberRef = corpus.getNumberOfUniqueReferences();
+            corpusNgramsTextField.setText(ngrams.toString());
+            corpusNumberDocumentsTextField.setText(numberDocs.toString());
+            corpusNumberReferencesTextField.setText(numberRef.toString());
+    		pdata.setCollectionName(collectionName);
+    		pdata.setDatabaseCorpus(corpus);
+         }
+    }
 
 	@Override
 	public boolean isNextStepTerminal() {

@@ -39,23 +39,32 @@ public class MultipleDocumentViewer extends javax.swing.JDialog {
 
     public void display() {
         int id;
-        double[] value = new double[64];
+        double[] errorValue;
+        double[] normalizedValue;
         String title;
         DocumentViewerPanel documentViewerPanel;
         SparseMatrix sm = new SparseMatrix();
+        SparseMatrix normalizedSm = new SparseMatrix();
         try {
 			sm = corpus.getCorpusSparseMatrix();
+			normalizedSm = corpus.getNormalizedSm();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        errorValue = new double[sm.getDimensions()];
+        normalizedValue = new double[sm.getDimensions()];
+        
         for (int i = 0; i < documents.length; i++) {
             id = documents[i];
             title = corpus.getTitle(id);
-            documentViewerPanel = new DocumentViewerPanel(title, corpus.getAbstract(id), corpus.getYear(id), corpus.getDOI(id));
-            for (int j = 0; j < 64; j++)
-            	value[j] = sm.getValueWithId(sm.getIndexWithId(id + 1), j);
-            documentViewerPanel.insertErrorsTable(value);
+            documentViewerPanel = new DocumentViewerPanel(title, corpus.getAbstract(id), corpus.getYear(id), corpus.getDOI(id), corpus.getKeywords(id));
+            for (int j = 0; j < errorValue.length; j++) {
+            	errorValue[j] = sm.getValueWithId(sm.getIndexWithId(id + 1), j);
+            	normalizedValue[j] = normalizedSm.getValueWithId(normalizedSm.getIndexWithId(id + 1), j);
+            }
+            documentViewerPanel.insertErrorsTable(errorValue);
+            documentViewerPanel.insertNormalizedTable(normalizedValue);
             int size_title = title.length();
             if (size_title > 20) {
                 title = title.substring(0, 20) + "...";
