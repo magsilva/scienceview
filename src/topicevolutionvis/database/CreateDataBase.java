@@ -20,107 +20,87 @@ public class CreateDataBase {
 
     private SqlManager sqlManager;
 
-    public void create() throws Exception {
+    public void create()  {
         connManager = ConnectionManager.getInstance();
         sqlManager = SqlManager.getInstance();
-        removeTables();
-        createTables();
-        sqlManager.close();
+        try {
+        	removeTables();
+        	createTables();
+        	sqlManager.close();
+        	connManager.close();
+        } catch (SQLException e) {
+        	throw new RuntimeException("Error creating database", e);
+        }
+        
     }
 
-    private void createTables() {
-        Connection conn = connManager.getConnection();
-        PreparedStatement stmt = null;
-        try {
-            stmt = sqlManager.getSqlStatement(conn, "CREATE.TABLE.COLLECTIONS");
-            stmt.executeUpdate();
-            stmt.close();
+    private void createTables() throws SQLException {
+    	try (Connection conn = connManager.getConnection()) {
+    		try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "CREATE.TABLE.COLLECTIONS")) {
+    			stmt.executeUpdate();
+    		}
 
-            stmt = sqlManager.getSqlStatement(conn, "CREATE.TABLE.AUTHORS");
-            stmt.executeUpdate();
-            stmt.close();
-
-            stmt = sqlManager.getSqlStatement(conn, "CREATE.TABLE.CONTENT");
-            stmt.executeUpdate();
-            stmt.close();
-
-            stmt = sqlManager.getSqlStatement(conn, "CREATE.TABLE.REFERENCES");
-            stmt.executeUpdate();
-            stmt.close();
-
-            stmt = sqlManager.getSqlStatement(conn, "CREATE.TABLE.DOCUMENTS.TO.REFERENCES");
-            stmt.executeUpdate();
-            stmt.close();
-
-            stmt = sqlManager.getSqlStatement(conn, "CREATE.TABLE.DOCUMENTS.TO.AUTHORS");
-            stmt.executeUpdate();
-            stmt.close();
-
-            stmt = sqlManager.getSqlStatement(conn, "CREATE.INDEX.REFERENCES");
-            stmt.executeUpdate();
-            stmt.close();
-
-            stmt = sqlManager.getSqlStatement(conn, "CREATE.INDEX.AUTHORS");
-            stmt.executeUpdate();
-            stmt.close();
-
-            stmt = sqlManager.getSqlStatement(conn, "CREATE.INDEX.MATCH");
-            stmt.executeUpdate();
-            stmt.close();
-
-        } catch (SQLException ex) {
-            Logger.getLogger(CreateDataBase.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException ex) {
-                }
-            }
+    		try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "CREATE.TABLE.AUTHORS")) {
+    			stmt.executeUpdate();
+    		}
+    		try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "CREATE.TABLE.CONTENT")) {
+    			stmt.executeUpdate();
+    		}
+    		
+    		try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "CREATE.TABLE.REFERENCES")) {
+    			stmt.executeUpdate();
+    		}
+            
+    		try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "CREATE.TABLE.DOCUMENTS.TO.REFERENCES")) {
+    			stmt.executeUpdate();
+    		}
+            
+    		try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "CREATE.TABLE.DOCUMENTS.TO.AUTHORS")) {
+    			stmt.executeUpdate();
+    		}
+    		
+    		try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "CREATE.INDEX.REFERENCES")) {
+    			stmt.executeUpdate();
+    		}
+    		
+    		try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "CREATE.INDEX.AUTHORS")) {
+    			stmt.executeUpdate();
+    		}
+            
+    		try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "CREATE.INDEX.MATCH")) {
+    			stmt.executeUpdate();
+    		}
         }
     }
 
     /**
      * Remove the tables of this data base.
      */
-    private void removeTables() {
-        Connection conn = connManager.getConnection();
-        PreparedStatement stmt = null;
+    private void removeTables() throws SQLException {
+    	try (Connection conn = connManager.getConnection()) {
+        	try (PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "DROP.TABLE.COLLECTIONS")) {
+        		stmt.executeUpdate();
+        	}
 
-        try {
-            stmt = SqlManager.getInstance().getSqlStatement(conn, "DROP.TABLE.COLLECTIONS");
-            stmt.executeUpdate();
-            stmt.close();
+        	try (PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "DROP.TABLE.DOCUMENTS")) {
+        		stmt.executeUpdate();
+        	}
 
-            stmt = SqlManager.getInstance().getSqlStatement(conn, "DROP.TABLE.DOCUMENTS");
-            stmt.executeUpdate();
-            stmt.close();
+        	try (PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "DROP.TABLE.REFERENCES")) {
+        		stmt.executeUpdate();
+        	}
+        	
+        	try (PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "DROP.TABLE.DOCUMENTS.TO.REFERENCES")) {
+        		stmt.executeUpdate();
+        	}
+        	
+        	try (PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "DROP.TABLE.AUTHORS")) {
+        		stmt.executeUpdate();
+        	}
 
-            stmt = SqlManager.getInstance().getSqlStatement(conn, "DROP.TABLE.REFERENCES");
-            stmt.executeUpdate();
-            stmt.close();
-
-            stmt = SqlManager.getInstance().getSqlStatement(conn, "DROP.TABLE.DOCUMENTS.TO.REFERENCES");
-            stmt.executeUpdate();
-            stmt.close();
-
-            stmt = SqlManager.getInstance().getSqlStatement(conn, "DROP.TABLE.AUTHORS");
-            stmt.executeUpdate();
-            stmt.close();
-
-            stmt = SqlManager.getInstance().getSqlStatement(conn, "DROP.TABLE.DOCUMENTS.TO.AUTHORS");
-            stmt.executeUpdate();
-            stmt.close();
-
-        } catch (SQLException ex) {
-            Logger.getLogger(CreateDataBase.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException ex) {
-                }
-            }
+        	try (PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "DROP.TABLE.DOCUMENTS.TO.AUTHORS")) {
+        		stmt.executeUpdate();
+        	}
         }
     }
 
