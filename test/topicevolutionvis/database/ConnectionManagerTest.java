@@ -14,7 +14,7 @@ public class ConnectionManagerTest
 	private ConnectionManager connManager;
 	
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		connManager = ConnectionManager.getInstance();
 	}
 
@@ -27,6 +27,16 @@ public class ConnectionManagerTest
 	public void test() throws SQLException {
 		Connection conn = connManager.getConnection();
 		assertNotNull(conn);
+	}
+	
+
+	@Test
+	public void testManyConnections() throws SQLException {
+		for (int i = 0; i < 200; i++) {
+			Connection conn = connManager.getConnection();
+			assertNotNull(conn);
+			conn.close();
+		}
 	}
 
 }
