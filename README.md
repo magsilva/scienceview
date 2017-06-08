@@ -7,6 +7,14 @@ Ferramenta ScienceView
 
 * Esta ferramenta foi desenvolvia para o sistema Windows 64 bits. Para sistemas Windows 32 bits ou outros sistemas operacionais, por favor entre em contato com a autora Aretha Alencar.
 
+
+Para gerar o executável
+===========
+1. Construa o pacote do projeto: mvn -DskipTests assembly:assembly
+2. Vá para o diretório 'target'.
+3. Execute a aplicação: java -jar scienceview-1.0.0-jar-with-dependencies.jar createdb
+
+
 Publicações Relacionadas
 ===========
 * Alencar, A. B.; Börner, K.; Paulovich, F. V.; Oliveira, M. C. F. de. **Time-aware visualization of document collections.** In: 27th Annual ACM Symposium on Applied Computing. New York, NY, EUA: ACM, p. 997–1004, 2012.

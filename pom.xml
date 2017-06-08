@@ -12,6 +12,11 @@
 	<description>Visualization tool for scientific publications</description>
 	<inceptionYear>2009</inceptionYear>
 
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+	</properties>
+
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
@@ -70,9 +75,9 @@
                 </repository>
 
                 <repository>
-                        <id>IroniaCorp</id>
-                        <name>Ironia Corporation</name>
-                        <url>http://www.ironiacorp.com/repo/maven2</url>
+                        <id>magsilva</id>
+                        <name>magsilva</name>
+                        <url>http://magsilva.pro.br/repo/maven2</url>
                         <releases>
                                 <enabled>true</enabled>
                                 <updatePolicy>interval:10080</updatePolicy>
@@ -298,6 +303,7 @@
 					<maxmem>512m</maxmem>
 					<source>1.7</source>
 					<target>1.7</target>
+					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
 
@@ -318,6 +324,30 @@
 					</descriptorRefs>
 				</configuration>
 			</plugin>
+
+			<plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target</outputDirectory>
+                            <includeEmptyDirs>true</includeEmptyDirs>
+                            <resources>
+                                <resource>
+                                    <targetPath>${basedir}/target/resources</targetPath>
+                                    <directory>resources</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
