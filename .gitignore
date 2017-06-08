@@ -9,3 +9,5 @@ nbproject/private/
 build/
 dist/
 
+# Eclipse data
+.settings/
