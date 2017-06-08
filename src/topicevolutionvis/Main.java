@@ -4,6 +4,7 @@
  */
 package topicevolutionvis;
 
+import topicevolutionvis.database.CreateDataBase;
 import topicevolutionvis.view.ScienceViewMainFrame;
 
 public class Main {
@@ -14,6 +15,10 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+    	if ("createdb".equals(args[0])) {
+    		CreateDataBase cd = new CreateDataBase();
+    		cd.create();
+    	}
         mainFrame = ScienceViewMainFrame.getInstance();
         mainFrame.display();
     }
