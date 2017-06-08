@@ -17,6 +17,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -41,18 +43,16 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 	}
 
 	@Override
-	protected Void doInBackground() throws Exception {
+	protected Void doInBackground() {
 		ConnectionManager connManager = ConnectionManager.getInstance();
-		Connection conn = null;
-		try {
-			this.setLoadingDatabase(true);
-			conn = connManager.getConnection();
+		this.setLoadingDatabase(true);
+		
+		try (Connection conn = connManager.getConnection()) {
 			createCollection(conn);
 			readCSVFile(conn);
 		} catch (Exception e) {
-			throw new RuntimeException("Could not save collection to database", e);
-		} finally {
-			SqlUtil.close(conn);
+			System.out.println("Error loading CSV file");
+			throw new RuntimeException("Error loading CSV file", e);
 		}
 		return null;
 	}
@@ -77,134 +77,148 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 			SqlUtil.close(stmt);
 		}
 	}
-
+	
 	private void readCSVFile(Connection conn) throws IOException, SQLException {
-		SparseMatrix sm = new SparseMatrix();
-		Reader in = new FileReader(filename);
 		CSVFormat format = CSVFormat.newFormat(':');
-		CSVParser parser = format.parse(in);
-		Iterable<CSVRecord> records = parser.getRecords();
-		int linha = 0;
-		int ano = 2016;
-		double[] vetor;
-		String file, codigo, pathExercise;
-		String descriptionExercise = null;
-		String pathDescriptionExercise = new String();
-		String separator = System.getProperty("file.separator");
-		String[] chunks;
-		PreparedStatement stmt = null;
-
+		SparseMatrix sm = new SparseMatrix();
 		ArrayList<Ngram> fngrams;
 		HashMap<String, Double> corpusNgrams = new HashMap<String, Double>();
 		ArrayList<Ngram> csv_ngrams = new ArrayList<Ngram>();
 		ArrayList<String> header = new ArrayList<String>();
-
-		for (CSVRecord record : records) {
-			if (linha == 0) {
-				Iterator<String> it = record.iterator();
-				while (it.hasNext()) {
-					header.add(it.next());
-				}
-				sm.setDimensions(header.size() - 1);
-			} else {
-			    vetor = new double[header.size() - 1];
-				for (int i = 1, position = 0; position < vetor.length; i++, position++) {
-					vetor[position] = Double.parseDouble(record.get(i));
-				}
-				sm.addRow(vetor, linha);
-				
-				file = path.toString() + separator + record.get(0);
-				
-				chunks = record.get(0).split(separator);
-				if(!pathDescriptionExercise.equals(chunks[1].trim())) {
+		Pattern yearPattern = Pattern.compile(".*(\\d+).*");
+		
+		try (
+				Reader in = new FileReader(filename);
+				CSVParser parser = format.parse(in);
+		) {
+			Iterable<CSVRecord> records = parser.getRecords();
+			int linha = 0;
+			
+			for (CSVRecord record : records) {		
+				if (linha == 0) {
+					Iterator<String> it = record.iterator();
+					while (it.hasNext()) {
+						header.add(it.next());
+					}
+					sm.setDimensions(header.size() - 1);
+				} else {
+					String file = null;
+					String codigo = null;
+					String pathExercise = null;
+					String descriptionExercise = null;
+					String pathDescriptionExercise = null;
+					String separator = System.getProperty("file.separator");
+					String[] chunks;
+					double[] vetor;
+					int ano = -1;
+					
+					// Read values, skipping columns with text (for now, just the first column)
+					vetor = new double[header.size() - 1];
+					for (int i = 1, position = 0; position < vetor.length; i++, position++) {
+						vetor[position] = Double.parseDouble(record.get(i));
+					}
+					sm.addRow(vetor, linha);
+					
+					
+					file = path.toString() + separator + record.get(0);
+					chunks = record.get(0).split(separator);
+					pathDescriptionExercise = new String(chunks[1].trim()); 
 					pathExercise = path.toString() + separator + chunks[0].trim() + separator + chunks[1].trim();
 					descriptionExercise = readDescriptionExerciseFile(pathExercise, separator);
-					pathDescriptionExercise = new String(chunks[1].trim());
-				}
-				
-				BufferedReader bf = new BufferedReader(new FileReader(file));
-				String line = null;
-				codigo = new String();
-				while ((line = bf.readLine()) != null) {
-					codigo = codigo + line;
-					codigo = codigo + "\n";
-				}
-				bf.close();
-				saveToDataBase(conn, linha, 0, record.get(0), null, null, codigo, descriptionExercise, null, null, ano, 0, null, null,
-						null, "", null, null, null, 0);
-				fngrams = getNgramsFromCSVRecord(record, header);
-				csv_ngrams.addAll(fngrams);
-				
-				for (Ngram n : fngrams) {
-                    if (corpusNgrams.containsKey(n.ngram)) {
-                        corpusNgrams.put(n.ngram, corpusNgrams.get(n.ngram) + n.frequency);
-                    } else {
-                        corpusNgrams.put(n.ngram, n.frequency);
-                    }
-                }
-				
-				
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				ObjectOutputStream oos = new ObjectOutputStream(baos);
-				oos.writeObject(fngrams);
-				oos.flush();
-				// inserting the ngrams on database
-				stmt = SqlManager.getInstance().getSqlStatement(conn, "UPDATE.NGRAMS.DOCUMENT");
-				stmt.setBytes(1, baos.toByteArray());
-				stmt.setInt(2, linha);
-				stmt.setInt(3, id_collection);
-				stmt.executeUpdate();
-				stmt.close();
-			}
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ObjectOutputStream oos = new ObjectOutputStream(baos);
-			oos.writeObject(sm);
-			oos.flush();
-			// inserting the sparsematrix on the document
-			stmt = SqlManager.getInstance().getSqlStatement(conn, "UPDATE.SPARSEMATRIX.DOCUMENT");
-			stmt.setBytes(1, baos.toByteArray());
-			stmt.setInt(2, linha);
-			stmt.setInt(3, id_collection);
-			stmt.executeUpdate();
-			stmt.close();
+					Matcher yearMatcher = yearPattern.matcher(pathDescriptionExercise);
+					if (yearMatcher.matches()) {
+						ano = Integer.parseInt(yearMatcher.group(1));
+					} else {
+						System.out.println("Could not find a year for: " + record.toString());
+					}
+					
+					BufferedReader bf = new BufferedReader(new FileReader(file));
+					String line = null;
+					codigo = new String();
+					while ((line = bf.readLine()) != null) {
+						codigo = codigo + line;
+						codigo = codigo + "\n";
+					}
+					bf.close();
+					saveToDataBase(conn, linha, 0, record.get(0), null, null, codigo, descriptionExercise, null, null, ano, 0, null, null,
+							null, "", null, null, null, 0);
+					fngrams = getNgramsFromCSVRecord(record, header);
+					csv_ngrams.addAll(fngrams);
+					
+					for (Ngram n : fngrams) {
+	                    if (corpusNgrams.containsKey(n.ngram)) {
+	                        corpusNgrams.put(n.ngram, corpusNgrams.get(n.ngram) + n.frequency);
+	                    } else {
+	                        corpusNgrams.put(n.ngram, n.frequency);
+	                    }
+	                }
+					
 
-			linha++;
-			if (linha % 40 == 0)
-				ano--;
+					// inserting the ngrams on document's table
+					try (
+							ByteArrayOutputStream baos = new ByteArrayOutputStream();
+							ObjectOutputStream oos = new ObjectOutputStream(baos);
+							PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "UPDATE.NGRAMS.DOCUMENT");
+					) {
+						oos.writeObject(fngrams);
+						oos.flush();
+						stmt.setBytes(1, baos.toByteArray());
+						stmt.setInt(2, linha);
+						stmt.setInt(3, id_collection);
+						stmt.executeUpdate();
+					}
+					
+					// insert the sparsematrix on the document's table
+					try (
+							ByteArrayOutputStream baos = new ByteArrayOutputStream();
+							ObjectOutputStream oos = new ObjectOutputStream(baos);
+							PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "UPDATE.SPARSEMATRIX.DOCUMENT");
+					) {
+						oos.writeObject(sm);
+						oos.flush();
+						stmt.setBytes(1, baos.toByteArray());
+						stmt.setInt(2, linha);
+						stmt.setInt(3, id_collection);
+						stmt.executeUpdate();
+					}
+				}
+	
+				linha++;
+			}
 		}
-		in.close();
 		
         for (Entry<String, Double> e : corpusNgrams.entrySet()) {
         	csv_ngrams.add(new Ngram(e.getKey(), e.getValue()));
         }
 		Collections.sort(csv_ngrams);
-		
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ObjectOutputStream oos = new ObjectOutputStream(baos);
-		oos.writeObject(csv_ngrams);
-		oos.flush();
-		stmt = SqlManager.getInstance().getSqlStatement(conn, "UPDATE.NGRAMS.COLLECTION");
-		stmt.setBytes(1, baos.toByteArray());
-		stmt.setInt(2, id_collection);
-		stmt.executeUpdate();
-		stmt.close();
+
+		try (
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(baos);
+			PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "UPDATE.NGRAMS.COLLECTION");
+		) {
+			oos.writeObject(csv_ngrams);
+			oos.flush();
+			stmt.setBytes(1, baos.toByteArray());
+			stmt.setInt(2, id_collection);
+			stmt.executeUpdate();
+		}
 
 		ProjectionData pData = this.view.getPdata();
 		pData.setMatrix(sm);
 
-		baos = new ByteArrayOutputStream();
-		oos = new ObjectOutputStream(baos);
-		oos.writeObject(sm);
-		oos.flush();
-
-		stmt = SqlManager.getInstance().getSqlStatement(conn, "UPDATE.SPARSEMATRIX.COLLECTION");
-		stmt.setBytes(1, baos.toByteArray());
-		stmt.setInt(2, id_collection);
-		stmt.executeUpdate();
-		stmt.close();
-		
+		try (
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(baos);
+			PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "UPDATE.SPARSEMATRIX.COLLECTION");
+		) {
+			oos.writeObject(sm);
+			oos.flush();
+			stmt.setBytes(1, baos.toByteArray());
+			stmt.setInt(2, id_collection);
+			stmt.executeUpdate();
+		}
 		this.setLoadingDatabase(false);
-
 	}
 	
 	private String getCodePath(String file){
