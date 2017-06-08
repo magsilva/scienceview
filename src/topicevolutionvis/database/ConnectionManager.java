@@ -1,8 +1,5 @@
 package topicevolutionvis.database;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -12,7 +9,7 @@ import java.util.Properties;
 
 public abstract class ConnectionManager
 {
-	private static ConnectionManager _instance;
+	private static ConnectionManager instance;
 	
 	private int connectionsRequested;
 	
@@ -23,45 +20,6 @@ public abstract class ConnectionManager
      */
     static final String DEFAULT_DATABASE_CONFIG = "/scienceview/database.properties";
 	
-    /**
-     * Create the ConnectionManager. The constructor must be private due to the Singleton
-     * pattern.
-     * @throws FileNotFoundException 
-     */
-    protected final Properties loadProperties(File file) throws FileNotFoundException
-    {
-        return loadProperties(new FileInputStream(file));
-    }
-
-    /**
-     * Create the ConnectionManager. The constructor must be private due to the Singleton
-     * pattern.
-     */
-    protected final Properties loadProperties(String resourcePath)
-    {
-        InputStream in = ConnectionManager.class.getResourceAsStream(resourcePath);
-        return loadProperties(in);
-    }
-
-    /**
-     * Create the ConnectionManager. The constructor must be private due to the Singleton
-     * pattern.
-     */
-    protected final Properties loadProperties(InputStream in)
-    {
-        Properties props = new Properties();
-        try {
-			props.load(in);
-		} catch (IOException e) {
-			throw new IllegalArgumentException("Invalid source for properties");
-		} finally {
-			try {
-				in.close();
-			} catch (IOException e) {}
-		}
-        return props;
-    }
-    
     /**
      * Create the ConnectionManager. The constructor must be private due to the Singleton
      * pattern.
@@ -112,9 +70,9 @@ public abstract class ConnectionManager
 		return conn;
 	}
 
-	public void close() {
-		if (_instance != null) {
-			_instance = null;
+	public synchronized void close() {
+		if (instance != null) {
+			instance = null;
 		}
 	}
 		
@@ -129,14 +87,13 @@ public abstract class ConnectionManager
 	 * data was incorrect (and no connection to the database was possible).
 	 */
 	public static synchronized ConnectionManager getInstance() {
-	    if (_instance == null) {
-	   		// _instance = new H2ConnectionManager();
-	   		_instance = new BoneCPConnectionManager();
-	   		Properties props = _instance.loadProperties(DEFAULT_DATABASE_CONFIG);
-	   		_instance.preparePool(props);
-	    }
-	    
-	    return _instance;
+		try (InputStream in = ConnectionManager.class.getResourceAsStream(DEFAULT_DATABASE_CONFIG)) {
+			Properties props  = new Properties();
+			props.load(in);
+			return getInstance(props);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Invalid properties resource", e);
+		}
 	}
     
 	/**
@@ -147,19 +104,14 @@ public abstract class ConnectionManager
 	 * @throws IllegalArgumentException if configuration data could not be loaded or the
 	 * data was incorrect (and no connection to the database was possible).
 	 */
-	public static synchronized ConnectionManager getInstance(File properties) {
-	    if (_instance == null) {
-	    	try {
-//	    		_instance = new H2ConnectionManager();
-		   		_instance = new BoneCPConnectionManager();
-		   		Properties props = _instance.loadProperties(properties);
-		   		_instance.preparePool(props);
-	    	} catch (FileNotFoundException fnfe) {
-	    		throw new IllegalArgumentException(fnfe);
-	    	}
+	public static synchronized ConnectionManager getInstance(Properties props) {
+	    if (instance == null) {
+//    		instance = new H2ConnectionManager();
+	   		instance = new BoneCPConnectionManager();
+	   		instance.preparePool(props);
 	    }
 	
-	    return _instance;
+	    return instance;
 	}
 		
 	protected abstract boolean createPool(String url, String username, String password);

@@ -89,86 +89,61 @@ public abstract class DatabaseImporter extends SwingWorker<Void, Void> {
 	}
     
     protected void matchReferencesToPapers(Connection conn) {
-        PreparedStatement stmt = null;
-        PreparedStatement stmt2 = null;
-        ResultSet result = null;
-        try {
-            stmt = sqlManager.getSqlStatement(conn, "MATCH.CORE.REFERENCES");
+        try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "MATCH.CORE.REFERENCES")) {
             stmt.setInt(1, id_collection);
             stmt.setInt(2, id_collection);
             stmt.setInt(3, id_collection);
             stmt.setInt(4, id_collection);
-            result = stmt.executeQuery();
-
-            while (result.next()) {
-                int id_doc, id_ref;
-                id_doc = result.getInt(1);
-                id_ref = result.getInt(2);
-
-                stmt2 = sqlManager.getSqlStatement(conn, "UPDATE.REFERENCE");
-                stmt2.setInt(1, id_doc);
-                stmt2.setInt(2, id_ref);
-                stmt2.setInt(3, id_collection);
-                stmt2.executeUpdate();
-                stmt2.close();
+            try (ResultSet result = stmt.executeQuery()) {
+	            while (result.next()) {
+	                int id_doc, id_ref;
+	                id_doc = result.getInt(1);
+	                id_ref = result.getInt(2);
+	                try (PreparedStatement stmt2 = sqlManager.getSqlStatement(conn, "UPDATE.REFERENCE")) {
+		                stmt2.setInt(1, id_doc);
+		                stmt2.setInt(2, id_ref);
+		                stmt2.setInt(3, id_collection);
+		                stmt2.executeUpdate();
+		                stmt2.close();
+	                }
+	            }
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error loading data from database", e);
-        } finally {
-        	SqlUtil.close(stmt);
-        	SqlUtil.close(stmt2);
-        	SqlUtil.close(result);
         }
     }
 
     public int getNumberOfReferences() {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet result = null;
-        try {
-        	conn = connManager.getConnection();
-            stmt = sqlManager.getSqlStatement(conn, "SELECT.NUMBER.OF.REFERENCES");
+        try (
+        		Connection conn = connManager.getConnection();
+        		PreparedStatement stmt = sqlManager.getSqlStatement(conn, "SELECT.NUMBER.OF.REFERENCES");
+        		
+        ) { 
             stmt.setInt(1, id_collection);
-            result = stmt.executeQuery();
-            result.next();
-            int number = result.getInt(1);
-            result.close();
-            stmt.close();
-            return number;
+            try (ResultSet result = stmt.executeQuery()) {
+            	result.next();
+            	int number = result.getInt(1);
+                return number;
+            }
         } catch (SQLException e) {
-            throw new RuntimeException("Error loading data from database", e);
-        } finally {
-        	SqlUtil.close(result);
-        	SqlUtil.close(stmt);
-        	SqlUtil.close(conn);
-        	
+        	throw new RuntimeException(e);
         }
     }
 
 
     protected void createIndexForBibliographicCoupling(Connection conn) {
-        PreparedStatement stmt = null;
-        try {
-            stmt = sqlManager.getSqlStatement(conn, "CREATE.INDEX.BC");
+        try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "CREATE.INDEX.BC")) {
             stmt.executeUpdate();
-            stmt.close();
         } catch (SQLException e) {
-            throw new RuntimeException("Error loading data from database", e);
-        } finally {
-            SqlUtil.close(stmt);
+            throw new RuntimeException("Error creating index for bibliographic coupling", e);
         }
     }
 
     protected void dropIndexForBibliographicCoupling(Connection conn) {
-        PreparedStatement stmt = null;
-        try {
-            stmt = sqlManager.getSqlStatement(conn, "DROP.INDEX.BC");
+        try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "DROP.INDEX.BC")) {
             stmt.executeUpdate();
-            stmt.close();
         } catch (SQLException e) {
-            throw new RuntimeException("Error loading data from database", e);
-        } finally {
-            SqlUtil.close(stmt);
+            throw new RuntimeException("Error reseting index for bibliographic coupling", e);
         }
     }
 
@@ -380,10 +355,7 @@ public abstract class DatabaseImporter extends SwingWorker<Void, Void> {
 
     
     protected void saveToDataBase(Connection conn, int id, int type, String title, String research_address, String authors, String abs, String keywords, String authors_keywords, String references, int year, int times_cited, String doi, String begin_page, String end_page, String pdf_file, String journal, String journal_abbrev, String volume, int classId) {
-        PreparedStatement stmt = null;
-        try {
-            //inserting the content
-            stmt = sqlManager.getSqlStatement(conn, "INSERT.CONTENT");
+        try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "INSERT.CONTENT")) {
             stmt.setInt(1, id);
             stmt.setInt(2, id_collection);
             stmt.setInt(3, type);
@@ -410,21 +382,12 @@ public abstract class DatabaseImporter extends SwingWorker<Void, Void> {
             if (references != null){
                 saveReferences(conn, id, references);
             }
-
-
         } catch (SQLException e) {
-            throw new RuntimeException("Error loading data from database", e);
-        } finally {
-        	SqlUtil.close(stmt);
+            throw new RuntimeException("Error saving data to database", e);
         }
     }
 
     private void saveAuthors(Connection conn, int id, String authors) {
-        PreparedStatement stmt = null;
-        PreparedStatement stmt2 = null;
-        PreparedStatement stmt3 = null;
-        ResultSet result = null;
-        ResultSet result2 = null;
         StringTokenizer authorsTokenizer = new StringTokenizer(authors, "|");
         String author;
         int author_order = 0, index_author;
@@ -432,49 +395,43 @@ public abstract class DatabaseImporter extends SwingWorker<Void, Void> {
         try {
             while (authorsTokenizer.hasMoreTokens()) {
                 author = authorsTokenizer.nextToken().trim().toUpperCase();
-                stmt = sqlManager.getSqlStatement(conn, "SELECT.SAME.AUTHOR");
-                stmt.setString(1, author);
-                result = stmt.executeQuery();
-                author_order++;
-                if (result.next()) {
-                    index_author = result.getInt(1);
-                    stmt2 = sqlManager.getSqlStatement(conn, "INSERT.DOCUMENT.TO.AUTHOR");
-                    stmt2.setInt(1, id);
-                    stmt2.setInt(2, id_collection);
-                    stmt2.setInt(3, index_author);
-                    stmt2.setInt(4, author_order);
-                    stmt2.executeUpdate();
-                	stmt2.close();
-                } else {
-                    stmt2 = sqlManager.getSqlStatement(conn, "INSERT.AUTHOR");
-                    stmt2.setString(1, author);
-                    stmt2.setInt(2, id_collection);
-                    stmt2.executeUpdate();
-                    result2 = stmt2.getGeneratedKeys();
-                    result2.next();
-                    index_author = result2.getInt(1);
-                	result2.close();
-                	stmt2.close();
-
-                    stmt3 = sqlManager.getSqlStatement(conn, "INSERT.DOCUMENT.TO.AUTHOR");
-                    stmt3.setInt(1, id);
-                    stmt3.setInt(2, id_collection);
-                    stmt3.setInt(3, index_author);
-                    stmt3.setInt(4, author_order);
-                    stmt3.executeUpdate();
-                	stmt3.close();
+                try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "SELECT.SAME.AUTHOR")) {
+	                stmt.setString(1, author);
+	                try (ResultSet result = stmt.executeQuery()) {
+		                author_order++;
+		                if (result.next()) {
+		                    index_author = result.getInt(1);
+		                    try (PreparedStatement stmt2 = sqlManager.getSqlStatement(conn, "INSERT.DOCUMENT.TO.AUTHOR")) {
+			                    stmt2.setInt(1, id);
+			                    stmt2.setInt(2, id_collection);
+			                    stmt2.setInt(3, index_author);
+			                    stmt2.setInt(4, author_order);
+			                    stmt2.executeUpdate();
+		                    }
+		                } else {
+		                	try (PreparedStatement stmt2 = sqlManager.getSqlStatement(conn, "INSERT.AUTHOR")) {
+			                    stmt2.setString(1, author);
+			                    stmt2.setInt(2, id_collection);
+			                    stmt2.executeUpdate();
+			                    try (ResultSet result2 = stmt2.getGeneratedKeys()) {
+			                    	result2.next();
+			                    	index_author = result2.getInt(1);
+			                    }
+		
+			                	try (PreparedStatement stmt3 = sqlManager.getSqlStatement(conn, "INSERT.DOCUMENT.TO.AUTHOR")) {
+				                    stmt3.setInt(1, id);
+				                    stmt3.setInt(2, id_collection);
+				                    stmt3.setInt(3, index_author);
+				                    stmt3.setInt(4, author_order);
+				                    stmt3.executeUpdate();
+			                	}
+		                	}
+		                }
+	                }
                 }
-                result.close();
-                stmt.close();
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error loading data from database", e);
-        } finally {
-        	SqlUtil.close(result);
-        	SqlUtil.close(result2);
-        	SqlUtil.close(stmt);
-        	SqlUtil.close(stmt2);
-        	SqlUtil.close(stmt3);
         }
     }
 

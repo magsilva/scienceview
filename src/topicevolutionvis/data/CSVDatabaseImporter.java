@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -58,33 +60,26 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 	}
 
 	private void createCollection(Connection conn) {
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		try {
-			stmt = SqlManager.getInstance().getSqlStatement(conn, "INSERT.COLLECTION");
+		try (PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "INSERT.COLLECTION")) {
 			stmt.setString(1, collection);
 			stmt.setString(2, filename);
 			stmt.setInt(3, nrGrams);
 			stmt.setString(4, "csv");
 			stmt.executeUpdate();
-			rs = stmt.getGeneratedKeys();
-			rs.next();
-			id_collection = rs.getInt(1);
+			try (ResultSet rs = stmt.getGeneratedKeys()) {
+				rs.next();
+				id_collection = rs.getInt(1);
+			}
 		} catch (SQLException e) {
 			throw new RuntimeException("Could not create and initialize collection into database", e);
-		} finally {
-			SqlUtil.close(rs);
-			SqlUtil.close(stmt);
 		}
 	}
 	
 	private void readCSVFile(Connection conn) throws IOException, SQLException {
 		CSVFormat format = CSVFormat.newFormat(':');
 		SparseMatrix sm = new SparseMatrix();
-		ArrayList<Ngram> fngrams;
-		HashMap<String, Double> corpusNgrams = new HashMap<String, Double>();
-		ArrayList<Ngram> csv_ngrams = new ArrayList<Ngram>();
-		ArrayList<String> header = new ArrayList<String>();
+		Map<String, Double> corpusNgrams = new HashMap<String, Double>();
+		List<String> header = new ArrayList<String>();
 		Pattern yearPattern = Pattern.compile(".*(\\d+).*");
 		
 		try (
@@ -102,29 +97,37 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 					}
 					sm.setDimensions(header.size() - 1);
 				} else {
-					String file = null;
-					String codigo = null;
+					String filename = null;
+					String rawContent = null;
+					String description = null;
+					double[] featuresVector;
+					int ano = -1;
+					List<Ngram> ngrams;
+
+
+					// Aux variables
 					String pathExercise = null;
-					String descriptionExercise = null;
 					String pathDescriptionExercise = null;
 					String separator = System.getProperty("file.separator");
 					String[] chunks;
-					double[] vetor;
-					int ano = -1;
 					
 					// Read values, skipping columns with text (for now, just the first column)
-					vetor = new double[header.size() - 1];
-					for (int i = 1, position = 0; position < vetor.length; i++, position++) {
-						vetor[position] = Double.parseDouble(record.get(i));
+					featuresVector = new double[header.size() - 1];
+					for (int i = 1, position = 0; position < featuresVector.length; i++, position++) {
+						featuresVector[position] = Double.parseDouble(record.get(i));
 					}
-					sm.addRow(vetor, linha);
-					
-					
-					file = path.toString() + separator + record.get(0);
+					sm.addRow(featuresVector, linha);
+
+					// Get file's name
+					filename = path.toString() + separator + record.get(0);
+
+					// Get file's description
 					chunks = record.get(0).split(separator);
 					pathDescriptionExercise = new String(chunks[1].trim()); 
 					pathExercise = path.toString() + separator + chunks[0].trim() + separator + chunks[1].trim();
-					descriptionExercise = readDescriptionExerciseFile(pathExercise, separator);
+					description = readDescriptionExerciseFile(pathExercise, separator);
+
+					// Find "year"
 					Matcher yearMatcher = yearPattern.matcher(pathDescriptionExercise);
 					if (yearMatcher.matches()) {
 						ano = Integer.parseInt(yearMatcher.group(1));
@@ -132,20 +135,20 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 						System.out.println("Could not find a year for: " + record.toString());
 					}
 					
-					BufferedReader bf = new BufferedReader(new FileReader(file));
-					String line = null;
-					codigo = new String();
-					while ((line = bf.readLine()) != null) {
-						codigo = codigo + line;
-						codigo = codigo + "\n";
+					// Read file's content
+					try (BufferedReader bf = new BufferedReader(new FileReader(filename))) {
+						String line = null;
+						rawContent = new String();
+						while ((line = bf.readLine()) != null) {
+							rawContent = rawContent + line;
+							rawContent = rawContent + "\n";
+						}
 					}
-					bf.close();
-					saveToDataBase(conn, linha, 0, record.get(0), null, null, codigo, descriptionExercise, null, null, ano, 0, null, null,
-							null, "", null, null, null, 0);
-					fngrams = getNgramsFromCSVRecord(record, header);
-					csv_ngrams.addAll(fngrams);
 					
-					for (Ngram n : fngrams) {
+					saveToDataBase(conn, linha, 0, record.get(0), null, null, rawContent, description, null, null, ano, 0, null, null, null, "", null, null, null, 0);
+					
+					ngrams = getNgramsFromCSVRecord(record, header);
+					for (Ngram n : ngrams) {
 	                    if (corpusNgrams.containsKey(n.ngram)) {
 	                        corpusNgrams.put(n.ngram, corpusNgrams.get(n.ngram) + n.frequency);
 	                    } else {
@@ -154,13 +157,13 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 	                }
 					
 
-					// inserting the ngrams on document's table
+					// Insert ngrams on document's table
 					try (
 							ByteArrayOutputStream baos = new ByteArrayOutputStream();
 							ObjectOutputStream oos = new ObjectOutputStream(baos);
 							PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "UPDATE.NGRAMS.DOCUMENT");
 					) {
-						oos.writeObject(fngrams);
+						oos.writeObject(ngrams);
 						oos.flush();
 						stmt.setBytes(1, baos.toByteArray());
 						stmt.setInt(2, linha);
@@ -168,7 +171,8 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 						stmt.executeUpdate();
 					}
 					
-					// insert the sparsematrix on the document's table
+					// TODO: it should be a SparseVector. However, the SELECT.SPARSEMATRIX.DOCUMENT is never required (we just need the sparsematrix of the collection)
+					// Insert SparseMatrix on the document's table
 					try (
 							ByteArrayOutputStream baos = new ByteArrayOutputStream();
 							ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -187,26 +191,27 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 			}
 		}
 		
+		// Save collection's ngrams
+		List<Ngram> collectionNgrams = new ArrayList<Ngram>(corpusNgrams.size());
         for (Entry<String, Double> e : corpusNgrams.entrySet()) {
-        	csv_ngrams.add(new Ngram(e.getKey(), e.getValue()));
+        	collectionNgrams.add(new Ngram(e.getKey(), e.getValue()));
         }
-		Collections.sort(csv_ngrams);
-
+		Collections.sort(collectionNgrams);
 		try (
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ObjectOutputStream oos = new ObjectOutputStream(baos);
 			PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "UPDATE.NGRAMS.COLLECTION");
 		) {
-			oos.writeObject(csv_ngrams);
+			oos.writeObject(collectionNgrams);
 			oos.flush();
 			stmt.setBytes(1, baos.toByteArray());
 			stmt.setInt(2, id_collection);
 			stmt.executeUpdate();
 		}
 
+		// Save collection's sparce matrix
 		ProjectionData pData = this.view.getPdata();
 		pData.setMatrix(sm);
-
 		try (
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -234,17 +239,16 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 		File file = new File(path);
 		String folderName = file.getName();
 		file = new File(file.getAbsolutePath() + separator + folderName + ".txt");
+		try (FileInputStream fis = new FileInputStream(file)) {
+			byte[] data = new byte[(int) file.length()];
+			fis.read(data);
+			return new String(data, "UTF-8");
+		}
 		
-		FileInputStream fis = new FileInputStream(file);
-		byte[] data = new byte[(int) file.length()];
-		fis.read(data);
-		fis.close();
-		
-		return new String(data, "UTF-8");
 	}
 
-	public ArrayList<Ngram> getNgramsFromCSVRecord(CSVRecord record, ArrayList<String> header) {
-		ArrayList<Ngram> ngrams = new ArrayList<Ngram>();
+	public List<Ngram> getNgramsFromCSVRecord(CSVRecord record, List<String> header) {
+		List<Ngram> ngrams = new ArrayList<Ngram>();
 		for (int i=1;i<header.size();i++){
 			ngrams.add(new Ngram(header.get(i), Double.valueOf(record.get(i))));
 		}
