@@ -179,7 +179,7 @@ public class NeighborhoodPreservationView extends javax.swing.JDialog {
     private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
 
         try {
-            //representação documentos no espaço multidimensional e a matriz de distância do espaço multdimensional
+            // Representation of documents in a multi-dimensional space and representatio of the matrix of distances within the multi-dimensional space
             TreeMap<Integer, ArrayList<TemporalGraph>> graphs = this.getTemporalGraphs(projection_viewer);
             DatabaseCorpus corpus = this.projection_viewer.getCorpus();
             ProjectionData pdata = projection_viewer.getProjectionData();
@@ -187,7 +187,7 @@ public class NeighborhoodPreservationView extends javax.swing.JDialog {
             Dissimilarity diss = DissimilarityFactory.getInstance(DissimilarityType.EUCLIDEAN);
             DistanceMatrix distanceMatrix = new DistanceMatrix(complete_matrix, diss);
 
-            //número de vizinhos para técnica neighborhood preservation
+            // Quantity of neighbours required for by Neighborhood Preservation
             int maxneigh = Integer.parseInt(this.nrNeighborsTextField.getText());
             KNN knndata = new KNN(maxneigh);
             Pair[][] ndata = knndata.execute(distanceMatrix);

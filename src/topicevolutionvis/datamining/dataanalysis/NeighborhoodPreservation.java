@@ -150,11 +150,10 @@ public class NeighborhoodPreservation extends javax.swing.JDialog implements Lis
         this.backup_xyseriescollection = new XYSeriesCollection();
         for (Entry<Integer, ArrayList<TemporalGraph>> entry : graphs.entrySet()) {
             TemporalGraph graph = entry.getValue().get(entry.getValue().size() - 1);
-            //Bruna: A informação dos anos está aqui
             System.out.println("Year " + graph.getYear());
 
             int n_vertex = graph.getVertex().keys().length;
-            //MELHORAR ESSE CÁLCULO POSTERIORMENTE
+            // TODO: improve calculation
             if (n_vertex > 2) {
                 int neigh = maxneigh;
                 if (n_vertex <= maxneigh) {
@@ -222,8 +221,8 @@ public class NeighborhoodPreservation extends javax.swing.JDialog implements Lis
 
         for (int j = 0; j < standard_deviation.length; j++) {
             standard_deviation[j] = Math.sqrt(standard_deviation[j] / (counter[j] - 1));
-             System.out.println("Média ["+ j+"]:" + mean[j]);
-             System.out.println("Desvio Padrão: ["+ j+"]:" + standard_deviation[j]);
+             System.out.println("Average ["+ j+"]:" + mean[j]);
+             System.out.println("Standard deviation: ["+ j+"]:" + standard_deviation[j]);
              System.out.println("");
         }
        
@@ -233,12 +232,9 @@ public class NeighborhoodPreservation extends javax.swing.JDialog implements Lis
     private CategoryDataset createDataset(double mean[], double standard_deviation[]) {
         
         DefaultStatisticalCategoryDataset dataset = new DefaultStatisticalCategoryDataset();
-      //  System.out.println("número de :"+mean.length);
    
         for (int i = 0; i < mean.length ; i++) {
-
-            dataset.add(mean[i], standard_deviation[i], "Média e Desvio Padrão", Integer.toString(i+1));
-            
+            dataset.add(mean[i], standard_deviation[i], "Average and standard deviation", Integer.toString(i+1));           
         }
         return dataset;
 
