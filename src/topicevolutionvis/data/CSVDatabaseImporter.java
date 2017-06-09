@@ -111,10 +111,12 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 					String separator = System.getProperty("file.separator");
 					String[] chunks;
 					
+					// TODO: check if csv is valid (fields at header equals to fields at rows)
 					// Read values, skipping columns with text (for now, just the first column)
 					featuresVector = new double[header.size() - 1];
 					for (int i = 1, position = 0; position < featuresVector.length; i++, position++) {
-						featuresVector[position] = Double.parseDouble(record.get(i));
+						double value = Double.parseDouble(record.get(i));
+						featuresVector[position] = value;
 					}
 					sm.addRow(featuresVector, linha);
 
