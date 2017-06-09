@@ -15,7 +15,7 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-    	if ("createdb".equals(args[0])) {
+    	if (args.length > 0 && "createdb".equals(args[0])) {
     		CreateDataBase cd = new CreateDataBase();
     		cd.create();
     	}
