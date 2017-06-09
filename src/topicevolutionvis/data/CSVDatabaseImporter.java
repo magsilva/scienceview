@@ -28,15 +28,17 @@ import org.apache.commons.csv.CSVRecord;
 
 import topicevolutionvis.database.ConnectionManager;
 import topicevolutionvis.database.SqlManager;
-import topicevolutionvis.database.SqlUtil;
 import topicevolutionvis.matrix.SparseMatrix;
 import topicevolutionvis.preprocessing.Ngram;
 import topicevolutionvis.projection.ProjectionData;
 import topicevolutionvis.wizard.DataSourceChoiceWizard;
 
 /**
- *
- * @author Aretha
+ * Importer of CSV data.
+ * 
+ * CSV should consist only of numbers (integer or real number), which are internally stored as double.
+ * If any text field is found, it will be ignored when creating the bag of words (but it can be stored
+ * within the document class).
  */
 public class CSVDatabaseImporter extends DatabaseImporter {
 
@@ -47,14 +49,15 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 	@Override
 	protected Void doInBackground() {
 		ConnectionManager connManager = ConnectionManager.getInstance();
-		this.setLoadingDatabase(true);
+		setLoadingDatabase(true);
 		
 		try (Connection conn = connManager.getConnection()) {
 			createCollection(conn);
 			readCSVFile(conn);
 		} catch (Exception e) {
-			System.out.println("Error loading CSV file");
 			throw new RuntimeException("Error loading CSV file", e);
+		} finally {
+			setLoadingDatabase(false);
 		}
 		return null;
 	}
@@ -225,7 +228,6 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 			stmt.setInt(2, id_collection);
 			stmt.executeUpdate();
 		}
-		this.setLoadingDatabase(false);
 	}
 	
 	private String getCodePath(String file){
