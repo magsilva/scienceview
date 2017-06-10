@@ -787,12 +787,12 @@ public class DatabaseCorpus {
         return this.ascending_dates;
     }
 
-    public SparseMatrix getCorpusSparseMatrix() throws IOException {
+    public SparseMatrix getCorpusSparseMatrix() {
     	SparseMatrix sm = new SparseMatrix();
-    	
-        try (
-                Connection conn = connManager.getConnection();
-                PreparedStatement stmt = sqlManager.getSqlStatement(conn, "SELECT.SPARSEMATRIX.COLLECTION");) {
+    	try (
+    		Connection conn = connManager.getConnection();
+            PreparedStatement stmt = sqlManager.getSqlStatement(conn, "SELECT.SPARSEMATRIX.COLLECTION");
+    	) {
             stmt.setInt(1, this.id_collection);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
