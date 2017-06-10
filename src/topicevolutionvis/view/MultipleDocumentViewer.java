@@ -72,10 +72,7 @@ public class MultipleDocumentViewer extends javax.swing.JDialog {
        		List<String> errorTypes = getHeader(ngrams);
             id = documents[i];
             title = corpus.getTitle(id);
-    		Object[] defaultRowValue = new Object[] {"       ", 0.0, 0.0};
             String[] columnsName = new String[] {"Error", "Quantity", "Normalized"};
-            
-            
             DefaultTableModel model = new DefaultTableModel(errorValue.length, 3) {
     			public Class getColumnClass(int column) {
     				if (column == 0) {
@@ -86,16 +83,12 @@ public class MultipleDocumentViewer extends javax.swing.JDialog {
     			}
     		};
    			model.setColumnIdentifiers(columnsName);
-   			/*
-    		for (int j = 0; j < errorTypes.size(); j++) {
-    			model.addRow(defaultRowValue.clone());
-    		}
-    		*/
     		
+   			System.out.println(sm);
     		documentViewerPanel = new DocumentViewerPanel(title, corpus.getAbstract(id), corpus.getYear(id), corpus.getDOI(id), corpus.getKeywords(id), model);
             for (int j = 0; j < ngrams.size(); j++) {
-            	errorValue[j] = sm.getValueWithId(sm.getIndexWithId(id + 1), j);
-            	normalizedValue[j] = normalizedSm.getValueWithId(normalizedSm.getIndexWithId(id + 1), j);
+            	errorValue[j] = sm.getValueWithId(sm.getIndexWithId(id), j);
+            	normalizedValue[j] = normalizedSm.getValueWithId(normalizedSm.getIndexWithId(id), j);
             }
     		
        		documentViewerPanel.insertTypesTable(errorTypes.toArray(new String[errorTypes.size()]));
