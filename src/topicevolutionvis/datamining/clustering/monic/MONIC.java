@@ -74,7 +74,8 @@ public class MONIC extends SwingWorker<Void, Void> {
         viewer.setUpdatingTopics(true);
         System.out.println("DBSCAN pra cada ano...");
         for (int i = 0; i < projection.getNumberOfYears(); i++) {
-            this.runDBScan(projection.getMainGraph(projection.getYearWithIndex(i)));
+            runDBScan(projection.getMainGraph(projection.getYearWithIndex(i)));
+            System.out.println("DBSCAN pra instante " + i);
         }
         this.monic_time = System.currentTimeMillis();
         System.out.println("MONIC...");
@@ -527,6 +528,7 @@ public class MONIC extends SwingWorker<Void, Void> {
         }
         if (index > 0) {
             try {
+            	System.out.println("Really starting DBSCAN");
                 clusterer = new DBSCAN();
                 options = new String[8];
                 options[0] = "-E";
@@ -544,8 +546,9 @@ public class MONIC extends SwingWorker<Void, Void> {
                 eval.setClusterer(clusterer);
                 eval.evaluateClusterer(new Instances(data));
 
+                
+            	System.out.println("DBSCAN: getting cluster assignments");
                 assignments = eval.getClusterAssignments();
-
                 for (int i = 0; i < assignments.length; i++) {
                     if (assignments[i] + 1 != 0) {
                         if (!map.containsKey((int) assignments[i] + 1)) {
@@ -560,11 +563,10 @@ public class MONIC extends SwingWorker<Void, Void> {
                 long time4 = System.currentTimeMillis();
                 this.dbscan_time += (time4 - time1);
 
+            	System.out.println("DBSCAN: adding topics");
                 Topic t;
                 for (TIntObjectIterator<TIntArrayList> it = map.iterator(); it.hasNext();) {
-
                     it.advance();
-
                     if (it.value().size() > 0) {
                         long time2 = System.currentTimeMillis();
                         t = TopicFactory.getInstance(projection, graph, it.value());
