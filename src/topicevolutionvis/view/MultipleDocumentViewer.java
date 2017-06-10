@@ -12,9 +12,14 @@ package topicevolutionvis.view;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.table.DefaultTableModel;
 
 import topicevolutionvis.database.DatabaseCorpus;
 import topicevolutionvis.matrix.SparseMatrix;
+import topicevolutionvis.preprocessing.Ngram;
 
 /**
  *
@@ -37,34 +42,66 @@ public class MultipleDocumentViewer extends javax.swing.JDialog {
 
     }
 
+    private List<String> getHeader(List<Ngram> ngrams) {
+    	List<String> errors = new ArrayList<String>();
+    	for (int i = 0; i < ngrams.size(); i++) {
+    		errors.add(ngrams.get(i).toString());
+    	}
+    	return errors;
+    }
+    
     public void display() {
         int id;
         double[] errorValue;
         double[] normalizedValue;
         String title;
         DocumentViewerPanel documentViewerPanel;
-        SparseMatrix sm = new SparseMatrix();
-        SparseMatrix normalizedSm = new SparseMatrix();
+        SparseMatrix sm;
+        SparseMatrix normalizedSm;
         try {
 			sm = corpus.getCorpusSparseMatrix();
 			normalizedSm = corpus.getNormalizedSm();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException("Error when getting data to display document", e);
 		}
         errorValue = new double[sm.getDimensions()];
         normalizedValue = new double[sm.getDimensions()];
         
         for (int i = 0; i < documents.length; i++) {
+            List<Ngram> ngrams = corpus.getNgrams(documents[i]);
+       		List<String> errorTypes = getHeader(ngrams);
             id = documents[i];
             title = corpus.getTitle(id);
-            documentViewerPanel = new DocumentViewerPanel(title, corpus.getAbstract(id), corpus.getYear(id), corpus.getDOI(id), corpus.getKeywords(id));
-            for (int j = 0; j < errorValue.length; j++) {
+    		Object[] defaultRowValue = new Object[] {"       ", 0.0, 0.0};
+            String[] columnsName = new String[] {"Error", "Quantity", "Normalized"};
+            
+            
+            DefaultTableModel model = new DefaultTableModel(errorValue.length, 3) {
+    			public Class getColumnClass(int column) {
+    				if (column == 0) {
+    					return String.class;
+    				} else {
+    					return Double.class;
+    				}
+    			}
+    		};
+   			model.setColumnIdentifiers(columnsName);
+   			/*
+    		for (int j = 0; j < errorTypes.size(); j++) {
+    			model.addRow(defaultRowValue.clone());
+    		}
+    		*/
+    		
+    		documentViewerPanel = new DocumentViewerPanel(title, corpus.getAbstract(id), corpus.getYear(id), corpus.getDOI(id), corpus.getKeywords(id), model);
+            for (int j = 0; j < ngrams.size(); j++) {
             	errorValue[j] = sm.getValueWithId(sm.getIndexWithId(id + 1), j);
             	normalizedValue[j] = normalizedSm.getValueWithId(normalizedSm.getIndexWithId(id + 1), j);
             }
+    		
+       		documentViewerPanel.insertTypesTable(errorTypes.toArray(new String[errorTypes.size()]));
             documentViewerPanel.insertErrorsTable(errorValue);
             documentViewerPanel.insertNormalizedTable(normalizedValue);
+            documentViewerPanel.sortTable();
             int size_title = title.length();
             if (size_title > 20) {
                 title = title.substring(0, 20) + "...";

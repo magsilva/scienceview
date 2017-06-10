@@ -83,76 +83,106 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 		SparseMatrix sm = new SparseMatrix();
 		Map<String, Double> corpusNgrams = new HashMap<String, Double>();
 		List<String> header = new ArrayList<String>();
+		List<Integer> numericFields = new ArrayList<Integer>();
+		List<Integer> othersFields = new ArrayList<Integer>();
 		Pattern yearPattern = Pattern.compile(".*(\\d+).*");
+		String separator = System.getProperty("file.separator");
+
 		
 		try (
 				Reader in = new FileReader(filename);
 				CSVParser parser = format.parse(in);
 		) {
 			Iterable<CSVRecord> records = parser.getRecords();
-			int linha = 0;
-			
-			for (CSVRecord record : records) {		
-				if (linha == 0) {
+			for (CSVRecord record : records) {
+				int currentLine = (int) record.getRecordNumber();
+				int recordId = currentLine - 2;
+				if (currentLine == 1) {
 					Iterator<String> it = record.iterator();
 					while (it.hasNext()) {
-						header.add(it.next());
+						String label = it.next();
+						header.add(label);
 					}
-					sm.setDimensions(header.size() - 1);
 				} else {
 					String filename = null;
 					String rawContent = null;
 					String description = null;
 					double[] featuresVector;
-					int ano = -1;
+					int year = -1;
 					List<Ngram> ngrams;
 
+					// Discover quantity of fields that are numeric or that are string
+					if (currentLine == 2) {
+						for (int i = 0; i < record.size(); i++) {
+							try {
+								String data = record.get(i);
+								Double.parseDouble(data);
+								numericFields.add(i);
+							} catch (Exception e) {
+								// Not a numeric header.
+								othersFields.add(i);
+							}
+						}
+						sm.setDimensions(numericFields.size());
+					}
 
 					// Aux variables
 					String pathExercise = null;
 					String pathDescriptionExercise = null;
-					String separator = System.getProperty("file.separator");
 					String[] chunks;
 					
 					// TODO: check if csv is valid (fields at header equals to fields at rows)
 					// Read values, skipping columns with text (for now, just the first column)
-					featuresVector = new double[header.size() - 1];
-					for (int i = 1, position = 0; position < featuresVector.length; i++, position++) {
-						double value = Double.parseDouble(record.get(i));
-						featuresVector[position] = value;
+					featuresVector = new double[numericFields.size()];
+					Iterator<Integer> numericFieldIterator = numericFields.iterator();
+					int currentFeaturesVectorIndex = 0;
+					while (numericFieldIterator.hasNext()) {
+						int numericFieldIndex = numericFieldIterator.next();
+						String data = record.get(numericFieldIndex);
+						double value = Double.parseDouble(data);
+						featuresVector[currentFeaturesVectorIndex] = value;
+						currentFeaturesVectorIndex++;
 					}
-					sm.addRow(featuresVector, linha);
+					sm.addRow(featuresVector, recordId); // We must subtract two because (1) the first line contains the header, not data; and (2) the count starts at 1 :-)
 
-					// Get file's name
-					filename = path.toString() + separator + record.get(0);
+					Iterator<Integer> otherFieldIterator = othersFields.iterator();
+					while (otherFieldIterator.hasNext()) {
+						int otherFieldIndex = otherFieldIterator.next();
+						String data = record.get(otherFieldIndex);
 
-					// Get file's description
-					chunks = record.get(0).split(separator);
-					pathDescriptionExercise = new String(chunks[1].trim()); 
-					pathExercise = path.toString() + separator + chunks[0].trim() + separator + chunks[1].trim();
-					description = readDescriptionExerciseFile(pathExercise, separator);
+						// Get file's name
+						filename = path.toString() + separator + data;
 
-					// Find "year"
-					Matcher yearMatcher = yearPattern.matcher(pathDescriptionExercise);
-					if (yearMatcher.matches()) {
-						ano = Integer.parseInt(yearMatcher.group(1));
-					} else {
-						System.out.println("Could not find a year for: " + record.toString());
-					}
-					
-					// Read file's content
-					try (BufferedReader bf = new BufferedReader(new FileReader(filename))) {
-						String line = null;
-						rawContent = new String();
-						while ((line = bf.readLine()) != null) {
-							rawContent = rawContent + line;
-							rawContent = rawContent + "\n";
+						// Get file's description
+						chunks = data.split(separator);
+						pathDescriptionExercise = new String(chunks[1].trim()); 
+						pathExercise = path.toString() + separator + chunks[0].trim() + separator + chunks[1].trim();
+						description = readDescriptionExerciseFile(pathExercise, separator);
+
+						// Guess "year"
+						Matcher yearMatcher = yearPattern.matcher(pathDescriptionExercise);
+						if (yearMatcher.matches()) {
+							year = Integer.parseInt(yearMatcher.group(1));
+						} else {
+							System.out.println("Could not find a year for: " + record.toString());
 						}
+						
+						// Read file's content
+						try (BufferedReader bf = new BufferedReader(new FileReader(filename))) {
+							String line = null;
+							rawContent = new String();
+							while ((line = bf.readLine()) != null) {
+								rawContent = rawContent + line;
+								rawContent = rawContent + "\n";
+							}
+						}
+
 					}
+
+					saveToDataBase(conn, recordId, 0, record.get(0), null, null, rawContent, description, null, null, year, 0, null, null, null, "", null, null, null, 0);
 					
-					saveToDataBase(conn, linha, 0, record.get(0), null, null, rawContent, description, null, null, ano, 0, null, null, null, "", null, null, null, 0);
-					
-					ngrams = getNgramsFromCSVRecord(record, header);
+					// Add record ngrams to the collection's ngram.
+					ngrams = getNgramsFromCSVRecord(record, header, numericFields);
 					for (Ngram n : ngrams) {
 	                    if (corpusNgrams.containsKey(n.ngram)) {
 	                        corpusNgrams.put(n.ngram, corpusNgrams.get(n.ngram) + n.frequency);
@@ -161,7 +191,6 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 	                    }
 	                }
 					
-
 					// Insert ngrams on document's table
 					try (
 							ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -171,7 +200,7 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 						oos.writeObject(ngrams);
 						oos.flush();
 						stmt.setBytes(1, baos.toByteArray());
-						stmt.setInt(2, linha);
+						stmt.setInt(2, recordId);
 						stmt.setInt(3, id_collection);
 						stmt.executeUpdate();
 					}
@@ -186,13 +215,11 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 						oos.writeObject(sm);
 						oos.flush();
 						stmt.setBytes(1, baos.toByteArray());
-						stmt.setInt(2, linha);
+						stmt.setInt(2, recordId);
 						stmt.setInt(3, id_collection);
 						stmt.executeUpdate();
 					}
 				}
-	
-				linha++;
 			}
 		}
 		
@@ -214,7 +241,7 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 			stmt.executeUpdate();
 		}
 
-		// Save collection's sparce matrix
+		// Save collection's sparse matrix
 		ProjectionData pData = this.view.getPdata();
 		pData.setMatrix(sm);
 		try (
@@ -251,10 +278,15 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 		
 	}
 
-	public List<Ngram> getNgramsFromCSVRecord(CSVRecord record, List<String> header) {
+	public List<Ngram> getNgramsFromCSVRecord(CSVRecord record, List<String> header, List<Integer> numericFields) {
 		List<Ngram> ngrams = new ArrayList<Ngram>();
-		for (int i=1;i<header.size();i++){
-			ngrams.add(new Ngram(header.get(i), Double.valueOf(record.get(i))));
+		Iterator<Integer> numericFieldsIterator = numericFields.iterator();
+		while (numericFieldsIterator.hasNext()) {
+			int numericFieldIndex = numericFieldsIterator.next();
+			String fieldName = header.get(numericFieldIndex);
+			double fieldValue = Double.parseDouble(record.get(numericFieldIndex));
+			Ngram ngram = new Ngram(fieldName, fieldValue); 
+			ngrams.add(ngram);
 		}
 		return ngrams;
 	}

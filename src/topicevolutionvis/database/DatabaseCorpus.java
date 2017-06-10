@@ -660,7 +660,7 @@ public class DatabaseCorpus {
         }
     }
 
-    public ArrayList<Ngram> getNgrams(int id) throws IOException {
+    public ArrayList<Ngram> getNgrams(int id)  {
         ArrayList<Ngram> ngrams = null;
 
         try (
@@ -744,12 +744,13 @@ public class DatabaseCorpus {
         return references;
     }
 
-    public ArrayList<Ngram> getCorpusNgrams() throws IOException {
+    public ArrayList<Ngram> getCorpusNgrams() {
         ArrayList<Ngram> ngrams = null;
 
         try (
-                Connection conn = connManager.getConnection();
-                PreparedStatement stmt = sqlManager.getSqlStatement(conn, "SELECT.NGRAMS.COLLECTION");) {
+        	Connection conn = connManager.getConnection();
+            PreparedStatement stmt = sqlManager.getSqlStatement(conn, "SELECT.NGRAMS.COLLECTION");
+        ) {
             stmt.setInt(1, this.id_collection);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
