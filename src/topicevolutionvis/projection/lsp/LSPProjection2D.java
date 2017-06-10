@@ -185,8 +185,8 @@ public class LSPProjection2D extends Projection {
 //        if (System.getProperty("os.name").toLowerCase().equals("windows xp")
 //                || System.getProperty("os.name").toLowerCase().equals("windows vista")
 //                || System.getProperty("os.name").toLowerCase().indexOf("linux") > -1) {
-        this.projectUsingColt(neighbors, projection);
-       // this.projectUsingProgram(neighbors, projection);
+       // this.projectUsingColt(neighbors, projection);
+        this.projectUsingProgram(neighbors, projection);
 //        }
 //        else {
 //            this.projectUsingColt(neighbors, projection);
