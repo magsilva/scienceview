@@ -206,9 +206,9 @@ public class DocumentViewerPanel extends javax.swing.JPanel {
     	sorter.sort();
     }
     
-    public void insertTable(List<String> errors, double[] errorValue, double[] normalizedValue) {
+    public void insertTable(List<String> errors, List<Double> errorValues, List<Double> normalizedValues) {
    		for (int i = 0; i < errors.size(); i++) {
-   			model.addRow(new Object[] {errors.get(i), errorValue[i], normalizedValue[i]});
+   			model.addRow(new Object[] {errors.get(i), errorValues.get(i), normalizedValues.get(i)});
    		}
     }
     

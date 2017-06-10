@@ -1,20 +1,29 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
  * MultipleDocumentViewer.java
  *
  * Created on 04/05/2009, 15:09:44
  */
 package topicevolutionvis.view;
 
-
-import java.io.IOException;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.WindowConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 
 import topicevolutionvis.database.DatabaseCorpus;
@@ -22,15 +31,42 @@ import topicevolutionvis.matrix.SparseMatrix;
 import topicevolutionvis.preprocessing.Ngram;
 
 /**
- *
+ * Viewer of multiple documents. It uses a tab to organized multiple documentos.
+ * 
  * @author Aretha
  */
-public class MultipleDocumentViewer extends javax.swing.JDialog {
-    private static final long serialVersionUID = 1L;
+public class MultipleDocumentViewer extends JDialog
+{
+	private static final long serialVersionUID = 1L;
 
+    private JTabbedPane fileviewTabbedPane;
+    
+    private JTextField highlightTextField;
+    private JButton highlightButton;
+    private JLabel highlightLabel;
+    private JPanel highlightPanel;
+
+
+    /**
+     * Documents to be shown.
+     */
     private int[] documents;
-    private DocumentViewerPanel showedDocument = null;
+    
+    /**
+     * Document currently active (shown in the panel).
+     */
+    private DocumentViewerPanel showedDocument;
+    
+    /**
+     * Database corpus.
+     */
     private DatabaseCorpus corpus;
+    
+    /**
+     * Maximum size for document title when shown at the tab title. If the title is larger than
+     * this, it will be trimmed.
+     */
+    private static final int MAX_TITLE_SIZE = 35;
 
     /** Creates new form MultipleDocumentViewer */
     public MultipleDocumentViewer(int[] documents, DatabaseCorpus corpus) {
@@ -49,32 +85,89 @@ public class MultipleDocumentViewer extends javax.swing.JDialog {
     	}
     	return errors;
     }
+
+    /** 
+     * Initialize visual components
+     */
+    private void initComponents()
+    {
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Documents Viewer");
+        setResizable(true);
+        setLayout(new BorderLayout());
+
+        initHighlightPanel();
+        initDocumentsPanel();
+        
+        getContentPane().add(highlightPanel, BorderLayout.PAGE_START);
+        getContentPane().add(fileviewTabbedPane, BorderLayout.CENTER);
+        pack();
+    }
+
+    private void initDocumentsPanel()
+    {
+    	fileviewTabbedPane = new JTabbedPane();
+        fileviewTabbedPane.setMinimumSize(new Dimension(600, 400));
+        fileviewTabbedPane.setPreferredSize(new Dimension(800, 500));
+        fileviewTabbedPane.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent evt) {
+                fileviewTabbedPaneStateChanged(evt);
+            }
+        });
+    }
+    
+    private void initHighlightPanel()
+    {
+        highlightPanel = new JPanel();
+        highlightPanel.setLayout(new FlowLayout());
+
+        highlightLabel = new JLabel();
+        highlightLabel.setText("Highlight:");
+        highlightPanel.add(highlightLabel);
+
+        highlightTextField = new JTextField();
+        highlightTextField.setColumns(20);
+        highlightTextField.addKeyListener(new KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                highlightTextFieldKeyPressed(evt);
+            }
+        });
+        highlightPanel.add(highlightTextField);
+
+        highlightButton = new JButton();
+        highlightButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/toolbarButtonGraphics/general/Bookmarks16.gif")));
+        highlightButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+                higthlightButtonActionPerformed(evt);
+            }
+        });
+        highlightPanel.add(highlightButton);    	
+    }
     
     public void display() {
-        int id;
-        double[] errorValue;
-        double[] normalizedValue;
-        String title;
-        DocumentViewerPanel documentViewerPanel;
-        SparseMatrix sm;
-        SparseMatrix normalizedSm;
-        try {
-			sm = corpus.getCorpusSparseMatrix();
-			normalizedSm = corpus.getNormalizedSm();
-		} catch (IOException e) {
-			throw new RuntimeException("Error when getting data to display document", e);
-		}
-        errorValue = new double[sm.getDimensions()];
-        normalizedValue = new double[sm.getDimensions()];
+        SparseMatrix sm = corpus.getCorpusSparseMatrix();
+        SparseMatrix normalizedSm = corpus.getNormalizedSm();
         
+        // Create one tab for each document
         for (int i = 0; i < documents.length; i++) {
-            List<Ngram> ngrams = corpus.getNgrams(documents[i]);
+        	int id = documents[i];
+            List<Ngram> ngrams = corpus.getNgrams(id);
        		List<String> errorTypes = getHeader(ngrams);
-            id = documents[i];
-            title = corpus.getTitle(id);
+            String title = corpus.getTitle(id);
+            DocumentViewerPanel documentViewerPanel = null;
+
+            List<Double> errorValues = new ArrayList<Double>();
+   			List<Double> normalizedValues = new ArrayList<Double>();
+   			for (int j = 0, index = sm.getIndexWithId(id); j < ngrams.size(); j++) {
+   				errorValues.add(sm.getValueWithId(index, j));
+   				normalizedValues.add(normalizedSm.getValueWithId(index, j));
+   			}
+            
             String[] columnsName = new String[] {"Error", "Quantity", "Normalized"};
-            DefaultTableModel model = new DefaultTableModel(errorValue.length, 3) {
-    			public Class getColumnClass(int column) {
+            DefaultTableModel model = new DefaultTableModel(0, columnsName.length) {
+				private static final long serialVersionUID = 1L;
+
+				public Class<?> getColumnClass(int column) {
     				if (column == 0) {
     					return String.class;
     				} else {
@@ -83,99 +176,39 @@ public class MultipleDocumentViewer extends javax.swing.JDialog {
     			}
     		};
    			model.setColumnIdentifiers(columnsName);
-    		
-   			System.out.println(sm);
-    		documentViewerPanel = new DocumentViewerPanel(title, corpus.getAbstract(id), corpus.getYear(id), corpus.getDOI(id), corpus.getKeywords(id), model);
-            for (int j = 0; j < ngrams.size(); j++) {
-            	errorValue[j] = sm.getValueWithId(sm.getIndexWithId(id), j);
-            	normalizedValue[j] = normalizedSm.getValueWithId(normalizedSm.getIndexWithId(id), j);
-            }
-    		
-       		documentViewerPanel.insertTable(errorTypes, errorValue, normalizedValue);
+
+   			
+   			documentViewerPanel = new DocumentViewerPanel(title, corpus.getAbstract(id), corpus.getYear(id), corpus.getDOI(id), corpus.getKeywords(id), model);
+       		documentViewerPanel.insertTable(errorTypes, errorValues, normalizedValues);
             documentViewerPanel.sortTable();
-            int size_title = title.length();
-            if (size_title > 20) {
-                title = title.substring(0, 20) + "...";
+            if (title.length() > MAX_TITLE_SIZE) {
+                title = title.substring(0, MAX_TITLE_SIZE) + "...";
             }
             fileviewTabbedPane.add(title, documentViewerPanel);
             fileviewTabbedPane.setTabComponentAt(i, new ButtonTabComponent(this, fileviewTabbedPane));
         }
-        this.setVisible(true);
+        
+        setVisible(true);
     }
 
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
-     */
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void highlightText(String text) {
+    	   if (showedDocument != null && text != null && text.length() > 0) {
+               showedDocument.highlight(text);
+           }
+    }
 
-        fileviewTabbedPane = new javax.swing.JTabbedPane();
-        jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        highlightTextField = new javax.swing.JTextField();
-        higthlightButton = new javax.swing.JButton();
+    private void higthlightButtonActionPerformed(ActionEvent evt) {
+    	highlightText(highlightTextField.getText());
+    }
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Documents Viewer");
+    private void fileviewTabbedPaneStateChanged(ChangeEvent evt) {
+        showedDocument = (DocumentViewerPanel) fileviewTabbedPane.getSelectedComponent();
+        highlightText(highlightTextField.getText());
+    }
 
-        fileviewTabbedPane.setMinimumSize(new java.awt.Dimension(1000, 500));
-        fileviewTabbedPane.setPreferredSize(new java.awt.Dimension(800, 500));
-        fileviewTabbedPane.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                fileviewTabbedPaneStateChanged(evt);
-            }
-        });
-        getContentPane().add(fileviewTabbedPane, java.awt.BorderLayout.CENTER);
-
-        jLabel1.setText("Highlight:");
-        jPanel1.add(jLabel1);
-
-        highlightTextField.setColumns(20);
-        highlightTextField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                highlightTextFieldKeyPressed(evt);
-            }
-        });
-        jPanel1.add(highlightTextField);
-
-        higthlightButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/toolbarButtonGraphics/general/Bookmarks16.gif"))); // NOI18N
-        higthlightButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                higthlightButtonActionPerformed(evt);
-            }
-        });
-        jPanel1.add(higthlightButton);
-
-        getContentPane().add(jPanel1, java.awt.BorderLayout.PAGE_END);
-
-        pack();
-    }// </editor-fold>//GEN-END:initComponents
-
-    private void higthlightButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_higthlightButtonActionPerformed
-        if (this.showedDocument != null && this.highlightTextField.getText().trim().length() > 0) {
-            this.showedDocument.highlight(this.highlightTextField.getText().trim());
+    private void highlightTextFieldKeyPressed(KeyEvent evt) {
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        	highlightText(highlightTextField.getText());
         }
-    }//GEN-LAST:event_higthlightButtonActionPerformed
-
-    private void fileviewTabbedPaneStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_fileviewTabbedPaneStateChanged
-        this.showedDocument = (DocumentViewerPanel) this.fileviewTabbedPane.getSelectedComponent();
-        if (this.showedDocument != null && this.highlightTextField.getText().trim().length() > 0) {
-            this.showedDocument.highlight(this.highlightTextField.getText().trim());
-        }
-    }//GEN-LAST:event_fileviewTabbedPaneStateChanged
-
-    private void highlightTextFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_highlightTextFieldKeyPressed
-        if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER && this.showedDocument != null && this.highlightTextField.getText().trim().length() > 0) {
-            this.showedDocument.highlight(this.highlightTextField.getText().trim());
-        }
-    }//GEN-LAST:event_highlightTextFieldKeyPressed
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTabbedPane fileviewTabbedPane;
-    private javax.swing.JTextField highlightTextField;
-    private javax.swing.JButton higthlightButton;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JPanel jPanel1;
-    // End of variables declaration//GEN-END:variables
+    }
 }
