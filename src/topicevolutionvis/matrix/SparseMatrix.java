@@ -255,4 +255,18 @@ public class SparseMatrix implements Serializable, Cloneable {
     public void setDimensions(int ndimensions) {
         this.ndimensions = ndimensions;
     }
+    
+    public String toString() {
+    	StringBuilder sb = new StringBuilder();
+		int[] ids = getIds();
+		for (int id : ids) {
+			sb.append(id + " = ");
+			SparseVector vector = getRowWithId(id);
+			for (double value : vector.getValues()) {
+				sb.append(value + "  ");
+			}
+			sb.append("\n");
+		}
+		return sb.toString();
+    }
 }
