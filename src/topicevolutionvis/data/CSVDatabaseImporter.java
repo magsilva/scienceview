@@ -96,7 +96,7 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 			Iterable<CSVRecord> records = parser.getRecords();
 			for (CSVRecord record : records) {
 				int currentLine = (int) record.getRecordNumber();
-				int recordId = currentLine - 2;
+				int recordId = currentLine - 2;  // We must subtract two because (1) the first line contains the header, not data; and (2) the count starts at 1 :-)
 				if (currentLine == 1) {
 					Iterator<String> it = record.iterator();
 					while (it.hasNext()) {
@@ -143,7 +143,7 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 						featuresVector[currentFeaturesVectorIndex] = value;
 						currentFeaturesVectorIndex++;
 					}
-					sm.addRow(featuresVector, recordId); // We must subtract two because (1) the first line contains the header, not data; and (2) the count starts at 1 :-)
+					sm.addRow(featuresVector, recordId);
 
 					Iterator<Integer> otherFieldIterator = othersFields.iterator();
 					while (otherFieldIterator.hasNext()) {
@@ -190,7 +190,7 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 	                        corpusNgrams.put(n.ngram, n.frequency);
 	                    }
 	                }
-					
+										
 					// Insert ngrams on document's table
 					try (
 							ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -244,6 +244,7 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 		// Save collection's sparse matrix
 		ProjectionData pData = this.view.getPdata();
 		pData.setMatrix(sm);
+
 		try (
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ObjectOutputStream oos = new ObjectOutputStream(baos);
