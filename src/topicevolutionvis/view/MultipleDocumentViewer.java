@@ -31,9 +31,10 @@ import topicevolutionvis.matrix.SparseMatrix;
 import topicevolutionvis.preprocessing.Ngram;
 
 /**
- * Viewer of multiple documents. It uses a tab to organized multiple documentos.
+ * Viewer of multiple documents. It uses a tab to organized multiple documents.
  * 
  * @author Aretha
+ * @author Marco Aurélio
  */
 public class MultipleDocumentViewer extends JDialog
 {
