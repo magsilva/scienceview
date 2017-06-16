@@ -1,33 +1,55 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package topicevolutionvis.database;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author Aretha
  */
-public class CreateDataBase {
+public class DatabaseManager {
 
-    ConnectionManager connManager;
+    private ConnectionManager connManager;
 
     private SqlManager sqlManager;
+    
+    public DatabaseManager()
+    {
+    	connManager = ConnectionManager.getInstance();
+    	sqlManager = SqlManager.getInstance();
+    }
+    
+    public synchronized boolean checkDatabase()
+    {
+          try (Connection conn = connManager.getConnection()) {
+        	  DatabaseMetaData dbm = conn.getMetaData();
+        	  try (ResultSet rs = dbm.getTables(null, null, "COLLECTIONS", null)) {
+        		  if (! rs.next()) {
+       				  return false;
+        		  }
+        	  }
+        	  return true;
+          } catch (Exception e) {
+				  return false;
+          }
+    }
+    
+    public synchronized void eraseDatabase()
+    {
+    	 try {
+         	removeTables();
+         } catch (SQLException e) {
+         	throw new RuntimeException("Error erasing database", e);
+         }	
+    }
 
-    public void create()  {
-        connManager = ConnectionManager.getInstance();
-        sqlManager = SqlManager.getInstance();
+    public synchronized void createDatabase()
+    {
         try {
-        	removeTables();
         	createTables();
-        	sqlManager.close();
-        	connManager.close();
         } catch (SQLException e) {
         	throw new RuntimeException("Error creating database", e);
         }
@@ -78,34 +100,35 @@ public class CreateDataBase {
      */
     private void removeTables() throws SQLException {
     	try (Connection conn = connManager.getConnection()) {
-        	try (PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "DROP.TABLE.COLLECTIONS")) {
+        	try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "DROP.TABLE.COLLECTIONS")) {
         		stmt.executeUpdate();
         	}
 
-        	try (PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "DROP.TABLE.DOCUMENTS")) {
+        	try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "DROP.TABLE.DOCUMENTS")) {
         		stmt.executeUpdate();
         	}
 
-        	try (PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "DROP.TABLE.REFERENCES")) {
+        	try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "DROP.TABLE.REFERENCES")) {
         		stmt.executeUpdate();
         	}
         	
-        	try (PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "DROP.TABLE.DOCUMENTS.TO.REFERENCES")) {
+        	try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "DROP.TABLE.DOCUMENTS.TO.REFERENCES")) {
         		stmt.executeUpdate();
         	}
         	
-        	try (PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "DROP.TABLE.AUTHORS")) {
+        	try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "DROP.TABLE.AUTHORS")) {
         		stmt.executeUpdate();
         	}
 
-        	try (PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "DROP.TABLE.DOCUMENTS.TO.AUTHORS")) {
+        	try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "DROP.TABLE.DOCUMENTS.TO.AUTHORS")) {
         		stmt.executeUpdate();
         	}
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        CreateDataBase cdb = new CreateDataBase();
-        cdb.create();
+    public synchronized void close()
+    {
+    	sqlManager.close();
+    	connManager.close();
     }
 }
