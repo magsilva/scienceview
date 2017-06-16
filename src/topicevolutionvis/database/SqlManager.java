@@ -36,22 +36,12 @@ public class SqlManager
      */
     private SqlManager()
     {
-    	InputStream is = null;
-
-    	try {
-    		is = SqlManager.class.getResourceAsStream(SQL_STATEMENTS_CONFIG);
+    	try (InputStream is = SqlManager.class.getResourceAsStream(SQL_STATEMENTS_CONFIG)) {
     		properties = new Properties();
     		properties.load(is);
         } catch (IOException ioe) {
         	throw new RuntimeException("Cannot load configuration from file", ioe);
-        } finally {
-        	if (is != null) {
-        		try {
-        			is.close();
-        		} catch (IOException e) {
-        		}
-        	}
-		}
+        }
     	
     	stats = new HashMap<String, Integer>();
     }
@@ -92,7 +82,6 @@ public class SqlManager
 	    		} else {
 	    			stats.put(query, stats.get(query) + 1);
 	    		}
-	    		// System.out.println(query);
 			}
        	    if (resultSetType != -1 && resultSetConcurrency != -1) {
                 return conn.prepareStatement(query, resultSetType, resultSetConcurrency);
@@ -107,6 +96,7 @@ public class SqlManager
     
     public synchronized void close() {
     	properties = null;
+    	stats.clear();
     	_instance = null;
     }
 }
