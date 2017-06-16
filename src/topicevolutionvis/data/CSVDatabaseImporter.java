@@ -161,7 +161,7 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 						filename = path.toString() + separator + data;
 
 						// Get file's description
-						chunks = data.split(separator);
+						chunks = data.split(Pattern.quote(separator));
 						pathDescriptionExercise = new String(chunks[1].trim()); 
 						pathExercise = path.toString() + separator + chunks[0].trim() + separator + chunks[1].trim();
 						description = readDescriptionExerciseFile(pathExercise, separator);
