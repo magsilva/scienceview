@@ -26,6 +26,12 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
+import com.ironiacorp.computer.ComputerSystem;
+import com.ironiacorp.computer.Filesystem;
+import com.ironiacorp.computer.OperationalSystem;
+import com.ironiacorp.computer.OperationalSystemDetector;
+import com.ironiacorp.computer.OperationalSystemType;
+
 import topicevolutionvis.database.ConnectionManager;
 import topicevolutionvis.database.SqlManager;
 import topicevolutionvis.matrix.SparseMatrix;
@@ -148,9 +154,10 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 					Iterator<Integer> otherFieldIterator = othersFields.iterator();
 					while (otherFieldIterator.hasNext()) {
 						int otherFieldIndex = otherFieldIterator.next();
-						String data = record.get(otherFieldIndex);
+						String data = getCodePath(record.get(otherFieldIndex));
 
 						// Get file's name
+						
 						filename = path.toString() + separator + data;
 
 						// Get file's description
@@ -259,12 +266,17 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 	}
 	
 	private String getCodePath(String file){
-		String path_separator = System.getProperty("path.separator");
-		if (path_separator.compareTo("\\")==0){
-			file = file.replace("/", "\\");
+		OperationalSystem currentOS = ComputerSystem.getCurrentOperationalSystem();
+		Filesystem fs = currentOS.getFilesystem();
+		OperationalSystemDetector osd = new OperationalSystemDetector();
+		OperationalSystemType fileOSType = osd.detectOSfromFilename(file);
+		OperationalSystem fileOS;
+		
+		if (fileOSType == null || fileOSType.os == null) {
+			throw new RuntimeException("Cannot detect filesystem type and properly convert the filename");
 		}
-		File teste = new File(System.getProperty("user.dir")+File.separator+file);
-		return teste.getAbsolutePath();
+		fileOS = fileOSType.os;
+		return fs.convertFilename(file, fileOS);
 	}
 	
 	private String readDescriptionExerciseFile(String path, String separator) throws IOException {
