@@ -150,8 +150,6 @@ public class NeighborhoodPreservation extends javax.swing.JDialog implements Lis
         this.backup_xyseriescollection = new XYSeriesCollection();
         for (Entry<Integer, ArrayList<TemporalGraph>> entry : graphs.entrySet()) {
             TemporalGraph graph = entry.getValue().get(entry.getValue().size() - 1);
-            System.out.println("Year " + graph.getYear());
-
             int n_vertex = graph.getVertex().keys().length;
             // TODO: improve calculation
             if (n_vertex > 2) {
@@ -161,11 +159,11 @@ public class NeighborhoodPreservation extends javax.swing.JDialog implements Lis
                 }
                 System.out.println("Nro de vizinhos: " + neigh);
                 double[] values = npe.neighborhood(ndata, graph, neigh);
-                XYSeries xyseries = this.createSerie("Year " + graph.getYear(), values);
+                XYSeries xyseries = this.createSerie("" + graph.getYear(), values);
                 xyseriescollection.addSeries(xyseries);
                 this.backup_xyseriescollection.addSeries(xyseries);
 
-                String ano = ("Year " + graph.getYear());
+                String ano = ""  + graph.getYear();
                 lista.addElement(ano);
                 this.jList1.setModel(lista);
 

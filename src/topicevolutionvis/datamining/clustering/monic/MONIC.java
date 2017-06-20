@@ -392,7 +392,6 @@ public class MONIC extends SwingWorker<Void, Void> {
 
         for (Integer year : projection.getYears()) {
             ArrayList<Topic> topics_year = projection.getMainGraph(year).getTopics();
-            System.out.println("Year " + year + ": " + topics_year.size() + " clusters");
             for (Topic t : topics_year) {
                 System.out.println(t.getId() + "(" + t.size() + ") & " + t.toString());
             }
