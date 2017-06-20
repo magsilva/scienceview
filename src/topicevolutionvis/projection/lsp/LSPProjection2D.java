@@ -182,16 +182,12 @@ public class LSPProjection2D extends Projection {
     private double[][] createFinalProjection(Pair[][] neighbors) throws IOException {
 
         double projection[][] = new double[matrix.getRowsCount()][];
-//        if (System.getProperty("os.name").toLowerCase().equals("windows xp")
-//                || System.getProperty("os.name").toLowerCase().equals("windows vista")
-//                || System.getProperty("os.name").toLowerCase().indexOf("linux") > -1) {
-       // this.projectUsingColt(neighbors, projection);
-        this.projectUsingProgram(neighbors, projection);
-//        }
-//        else {
-//            this.projectUsingColt(neighbors, projection);
-//        }
-
+        try { 
+            projectUsingProgram(neighbors, projection);
+        } catch (Throwable e) {
+        	projectUsingColt(neighbors, projection);
+        }
+        
         return projection;
     }
 
