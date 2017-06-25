@@ -132,8 +132,8 @@ public class DBScanCluster extends SwingWorker<Void, Void> {
     @Override
     public void done() {
     	try {
-    		get();
-    		if (! this.isCancelled()) {
+    		if (! isCancelled()) {
+        		get();
     			view.dispose();
     			viewer.repaint();
         		projection.updateScalarForIntermediates(sdbscan, false);

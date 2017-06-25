@@ -703,10 +703,11 @@ public class SaveTemporalProjection extends SwingWorker<Void, Void> {
     @Override
     public void done() {
     	try {
-    		get();
-    		view.setStatus(false);
-    		JOptionPane.showMessageDialog(view, "Temporal Projection and Database successfully saved", "Message", JOptionPane.INFORMATION_MESSAGE);
-    		view.dispose();
+    		if (! isCancelled())  {
+    			get();
+    			JOptionPane.showMessageDialog(view, "Temporal Projection and Database successfully saved", "Message", JOptionPane.INFORMATION_MESSAGE);
+    			view.dispose();
+    		}
 		} catch (ExecutionException e) {
 			Throwable realException = e.getCause();
 			throw new RuntimeException(realException);
@@ -714,7 +715,6 @@ public class SaveTemporalProjection extends SwingWorker<Void, Void> {
 			throw new RuntimeException(e);
 		} finally {
 			view.setStatus(false);
-    		JOptionPane.showMessageDialog(view, "Temporal Projection and Database could not be saved", "Message", JOptionPane.INFORMATION_MESSAGE);
 		}
     }
 }

@@ -516,7 +516,9 @@ public class OpenTemporalProjection extends SwingWorker<Void, Void> {
     @Override
     public void done() {
     	try {
-    		get();
+    		if (! isCancelled()) {
+    			get();
+    		}
 		} catch (ExecutionException e) {
 			Throwable realException = e.getCause();
 			throw new RuntimeException(realException);

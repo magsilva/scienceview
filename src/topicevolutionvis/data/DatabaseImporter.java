@@ -16,7 +16,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import opennlp.tools.postag.POSModel;
@@ -72,9 +71,8 @@ public abstract class DatabaseImporter extends SwingWorker<Void, Void> {
     @Override
     public void done() {
     	try {
-    		get();
-    		if (isCancelled()) {
-                JOptionPane.showMessageDialog(view, msg, "Warning", JOptionPane.WARNING_MESSAGE);
+    		if (! isCancelled()) {
+        		get();
             }
     	} catch (ExecutionException e) {
     		Throwable realException = e.getCause();

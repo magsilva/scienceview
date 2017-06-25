@@ -373,7 +373,9 @@ public class MONIC extends SwingWorker<Void, Void> {
     public void done() {
 
         try {
-            get();
+        	if (! isCancelled()) {
+        		get();
+        	}
         } catch (ExecutionException e) {
             // Exception occurred, deal with it
             Logger.getLogger(MONIC.class.getName()).log(Level.SEVERE, null, e.getCause());
