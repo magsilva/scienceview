@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -701,8 +702,19 @@ public class SaveTemporalProjection extends SwingWorker<Void, Void> {
 
     @Override
     public void done() {
-        this.view.setStatus(false);
-        JOptionPane.showMessageDialog(view, "Temporal Projection and Database successfully saved", "Message", JOptionPane.INFORMATION_MESSAGE);
-        this.view.dispose();
+    	try {
+    		get();
+    		view.setStatus(false);
+    		JOptionPane.showMessageDialog(view, "Temporal Projection and Database successfully saved", "Message", JOptionPane.INFORMATION_MESSAGE);
+    		view.dispose();
+		} catch (ExecutionException e) {
+			Throwable realException = e.getCause();
+			throw new RuntimeException(realException);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		} finally {
+			view.setStatus(false);
+    		JOptionPane.showMessageDialog(view, "Temporal Projection and Database could not be saved", "Message", JOptionPane.INFORMATION_MESSAGE);
+		}
     }
 }

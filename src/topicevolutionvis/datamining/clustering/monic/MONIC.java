@@ -373,16 +373,15 @@ public class MONIC extends SwingWorker<Void, Void> {
     public void done() {
 
         try {
-            if (!isCancelled()) {
-                get();
-            }
+            get();
         } catch (ExecutionException e) {
             // Exception occurred, deal with it
-            Logger.getLogger(MONIC.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(MONIC.class.getName()).log(Level.SEVERE, null, e.getCause());
+        	throw new RuntimeException(e.getCause());
         } catch (InterruptedException e) {
             Logger.getLogger(MONIC.class.getName()).log(Level.SEVERE, null, e);
             // Shouldn't happen, we're invoked when computation is finished
-            throw new AssertionError(e);
+        	throw new RuntimeException(e);
         }
         System.out.println("DBSCAN time: " + this.dbscan_time);
         System.out.println("Topic extraction time: " + this.topic_time);

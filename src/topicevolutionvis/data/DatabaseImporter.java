@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -70,14 +71,21 @@ public abstract class DatabaseImporter extends SwingWorker<Void, Void> {
 
     @Override
     public void done() {
-       if (! isCancelled()) {
+    	try {
+    		get();
+    		if (isCancelled()) {
+                JOptionPane.showMessageDialog(view, msg, "Warning", JOptionPane.WARNING_MESSAGE);
+            }
+    	} catch (ExecutionException e) {
+    		Throwable realException = e.getCause();
+    		throw new RuntimeException(realException);
+    	} catch (InterruptedException e) {
+    		throw new RuntimeException(e);
+		} finally {
             view.setStatus("Finished", false);
-        } else {
-            view.setStatus("", false);
-            JOptionPane.showMessageDialog(view, msg, "Warning", JOptionPane.WARNING_MESSAGE);
-        }
+            view.finishedLoadingCollection(collection, isCancelled());
+		}
        
-        view.finishedLoadingCollection(collection, isCancelled());
     }
 
     public boolean isLoadingDatabase() {

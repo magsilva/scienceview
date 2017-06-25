@@ -9,6 +9,7 @@ import gnu.trove.list.array.TIntArrayList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.SwingWorker;
 
@@ -130,13 +131,21 @@ public class DBScanCluster extends SwingWorker<Void, Void> {
 
     @Override
     public void done() {
-
-        if (!this.isCancelled()) {
-            view.setStatus("Finished", false);
-            view.dispose();
-            viewer.repaint();
-        }
-        projection.updateScalarForIntermediates(sdbscan, false);
-        viewer.updateScalars(sdbscan);
+    	try {
+    		get();
+    		if (! this.isCancelled()) {
+    			view.dispose();
+    			viewer.repaint();
+        		projection.updateScalarForIntermediates(sdbscan, false);
+        		viewer.updateScalars(sdbscan);
+    		}
+    	} catch (ExecutionException e) {
+    		Throwable realException = e.getCause();
+    		throw new RuntimeException(realException);
+    	} catch (InterruptedException e) {
+    		throw new RuntimeException(e);
+		} finally {
+			view.setStatus("Finished", false);
+		}
     }
 }

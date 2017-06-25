@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipInputStream;
@@ -514,7 +515,16 @@ public class OpenTemporalProjection extends SwingWorker<Void, Void> {
 
     @Override
     public void done() {
-        this.view.setStatus(false);
-        this.view.dispose();
+    	try {
+    		get();
+		} catch (ExecutionException e) {
+			Throwable realException = e.getCause();
+			throw new RuntimeException(realException);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		} finally {
+        	this.view.setStatus(false);
+        	this.view.dispose();
+		}
     }
 }

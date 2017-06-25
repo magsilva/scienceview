@@ -291,7 +291,7 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 		
 	}
 
-	public List<Ngram> getNgramsFromCSVRecord(CSVRecord record, List<String> header, List<Integer> numericFields) {
+	private List<Ngram> getNgramsFromCSVRecord(CSVRecord record, List<String> header, List<Integer> numericFields) {
 		List<Ngram> ngrams = new ArrayList<Ngram>();
 		Iterator<Integer> numericFieldsIterator = numericFields.iterator();
 		while (numericFieldsIterator.hasNext()) {
