@@ -1162,8 +1162,10 @@ public class ScienceViewMainFrame extends javax.swing.JFrame implements TreeSele
     }
 
     private void wizardmenu(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wizardmenu
+    	String options[] = {"Document Projection", "Code Projection"};
+    	int documentOrCode = JOptionPane.showOptionDialog(null, "What Projection you want to create?", "Projection Choice", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
         TemporalProjection tproj = new TemporalProjection();
-        ProjectionWizardView wizard = new ProjectionWizardView(tproj);
+        new ProjectionWizardView(tproj, documentOrCode);
         addTemporalProjectionViewer(tproj);
     }//GEN-LAST:event_wizardmenu
 

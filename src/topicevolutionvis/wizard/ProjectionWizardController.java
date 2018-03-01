@@ -59,6 +59,7 @@ import topicevolutionvis.projection.temporal.TemporalProjection;
 public class ProjectionWizardController {
 
     private TemporalProjection tproj;
+    private int codeSource;
     
     //Possible directions to follow in the wizard
     public static final int NEXT_STATE = 0;
@@ -77,6 +78,8 @@ public class ProjectionWizardController {
     //Views of each state
     private DataSourceChoiceWizard sourceView;
     
+    private SourceCodeWizard sourceCodeView;
+    
     private PreprocessingWizard preprocessView;
     
     private ProjectionDistanceChoiceWizard projDistView;
@@ -87,8 +90,9 @@ public class ProjectionWizardController {
     
     private ProjectionViewWizard projView;
 
-    public ProjectionWizardController(TemporalProjection tproj) {
+    public ProjectionWizardController(TemporalProjection tproj, int documentOrCode) {
     	currentState = INITIAL_STATE;
+    	this.codeSource = documentOrCode;
         this.tproj = tproj;
         this.tproj.setProjectionData(new ProjectionData());
         
@@ -101,8 +105,15 @@ public class ProjectionWizardController {
                 //initial -> source
                 if (direction == ProjectionWizardController.NEXT_STATE) {
                 	currentState = ProjectionWizardController.SOURCE_STATE;
-                	if (sourceView == null) {
-                		sourceView = new DataSourceChoiceWizard(tproj.getProjectionData());
+                	if (codeSource == 1) {
+                		if (sourceCodeView == null) {
+                			sourceCodeView = new SourceCodeWizard(tproj.getProjectionData());
+                		}
+                		return sourceCodeView;
+            		}
+                	
+            		if (sourceView == null) {
+                		sourceView = new DataSourceChoiceWizard(tproj.getProjectionData()); 
                 	}
                 	return sourceView;
                 }
@@ -123,10 +134,17 @@ public class ProjectionWizardController {
                 //pre-processing -> projection+distance
                 if (direction == ProjectionWizardController.PREVIOUS_STATE) {
                     currentState = ProjectionWizardController.SOURCE_STATE;
-                    if (sourceView == null) {
-                    	sourceView = new DataSourceChoiceWizard(tproj.getProjectionData());
-                    }
-                    return sourceView;
+                	if (codeSource == 1) {
+                		if (sourceCodeView == null) {
+                			sourceCodeView = new SourceCodeWizard(tproj.getProjectionData());
+                		}
+                		return sourceCodeView;
+            		}
+                	
+            		if (sourceView == null) {
+                		sourceView = new DataSourceChoiceWizard(tproj.getProjectionData()); 
+                	}
+                	return sourceView;
                 }
                 if (direction == ProjectionWizardController.NEXT_STATE) {
                     currentState = ProjectionWizardController.DIMEN_RED_STATE;

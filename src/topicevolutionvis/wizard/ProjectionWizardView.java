@@ -84,11 +84,11 @@ public class ProjectionWizardView extends JDialog
 
     private JButton nextButton; 
     
-    public ProjectionWizardView(TemporalProjection project) {
+    public ProjectionWizardView(TemporalProjection project, int documentOrCode) {
         super(ScienceViewMainFrame.getInstance());
         initComponents();
 
-        wizardController = new ProjectionWizardController(project);
+        wizardController = new ProjectionWizardController(project, documentOrCode);
         definePanel(ProjectionWizardController.NEXT_STATE);
         setLocationRelativeTo(getParent());
         setVisible(true);
