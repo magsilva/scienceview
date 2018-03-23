@@ -8,10 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -22,11 +20,11 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
+import com.github.opendevl.JFlat;
 import com.mashape.unirest.http.Unirest;
 
 import org.apache.commons.io.FileUtils;
+import org.json.JSONArray;
 
 import topicevolutionvis.data.*;
 import topicevolutionvis.database.CollectionManager;
@@ -40,10 +38,16 @@ import topicevolutionvis.wizard.WizardPanel;
  * Wizard to create and select code collections.
  * @author Danilo Sambugaro
  */
+
 public class SourceCodeWizard extends WizardPanel implements ActionListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private ProjectionData pdata;
 	
-	private DatabaseImporter importer;
+	private CSVSourceCodeImporter importer;
 
 	private CollectionManager collectionManager;
 
@@ -65,16 +69,12 @@ public class SourceCodeWizard extends WizardPanel implements ActionListener {
 	private JLabel newCorpusInputPathLabel;
 	private JTextField newCorpusInputPathTextField;
 	private JButton newCorpusInputPathSearchButton;
-	private JLabel newCorpusNgramLabel;
-	private JComboBox<Integer> newCorpusNgramDropbox;
 	private JComboBox<String> newCorpusLanguageComboBox;
 	private JLabel newCorpusLanguageLabel;
 	private JButton newCorpusFilenameLoadCancelButton;
 	private JProgressBar newCorpusProgressBar;
 
 	private JPanel corpusInformationPanel;
-	private JLabel corpusNgramsLabel;
-	private JTextField corpusNgramsTextField;
 	private JLabel corpusNumberDocumentsLabel;
 	private JTextField corpusNumberDocumentsTextField;
 	private JLabel corpusLanguageLabel;
@@ -200,7 +200,7 @@ public class SourceCodeWizard extends WizardPanel implements ActionListener {
 		corpusServiceRefresh = new JButton("Run");
 		corpusServiceRefresh.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
-				runServices(evt);
+							runServices(evt);
 			}
 		});
 		bc.anchor = GridBagConstraints.LINE_END;
@@ -219,26 +219,38 @@ public class SourceCodeWizard extends WizardPanel implements ActionListener {
 			if (corpusServices[i].isSelected()) {
 	            File folder = new File(path);
 	            File[] listOfFiles = folder.listFiles();
-	            List<HttpResponse<JsonNode>> results = new ArrayList<HttpResponse<JsonNode>>();
+	            JSONArray results = new JSONArray();
+	            JFlat parse;
 	            for (int j=0; j < listOfFiles.length; j++ ) {
 	            	String extension = listOfFiles[j].getName().substring(listOfFiles[j].getName().lastIndexOf(".")+1);
 	                if ((listOfFiles[j].isFile()) && (checkFileExtension(extension, newCorpusLanguageComboBox.getSelectedItem().toString()))) {
 	                    try {
-	                    	results.add(Unirest.post((URL_SERVICES[i].concat(extension))).body(FileUtils.readFileToString(listOfFiles[j])).asJson());
-	                    	String message = listOfFiles[j].getName() +"\n"+ results.get(results.size()-1).getBody() + "\n";
-	                    	JOptionPane.showMessageDialog(corpusServicesPanel, message, "Result", JOptionPane.INFORMATION_MESSAGE);
-	                    	System.out.println(listOfFiles[j].getName() +"\n"+ results.get(results.size()-1).getBody() + "\n");
+	                    	results.put(Unirest.post((URL_SERVICES[i].concat(listOfFiles[j].getName()))).body(FileUtils.readFileToString(listOfFiles[j])).asJson().getBody().getObject());
+	                    	System.out.println(listOfFiles[j].getName() +"\n"+ results.getJSONObject(results.length()-1) + "\n");	                    	
+	                    	
 	            		} catch (Exception e) {
 	            			String error = "Falha com o arquivo " + listOfFiles[j].getName()+"\nErro: " + e;
 	            			JOptionPane.showMessageDialog(corpusServicesPanel, error, "error", JOptionPane.ERROR_MESSAGE);
 	            			System.out.println("Falha com o arquivo " + listOfFiles[j].getName()+"\nErro: " + e);
 	            		}
 	                }
+	        
 	            }
+	            
+	            System.out.println(results.toString());
+	            parse = new JFlat(results.toString());
+	            try {
+					parse.json2Sheet().headerSeparator("_").write2csv("/home/dsambugaro/UTFPR/IC/Teste/teste.csv",':');
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	            
 			}
 		}
 		
 	}
+	
 
 	private boolean checkFileExtension(String extension, String language) {
 		if((language.intern() == "C") && (extension.intern() == "c")) {
@@ -378,25 +390,6 @@ public class SourceCodeWizard extends WizardPanel implements ActionListener {
 		bc.gridx = 1;
 		bc.gridwidth = 1;
 		corpusInformationPanel.add(corpusLanguageTextField, bc);
-
-		corpusNgramsLabel = new JLabel();
-		corpusNgramsLabel.setText("NGrams");
-		bc.anchor = GridBagConstraints.LINE_START;
-		bc.fill = GridBagConstraints.NONE;
-		bc.gridy = 2;
-		bc.gridx = 0;
-		bc.gridwidth = 1;
-		corpusInformationPanel.add(corpusNgramsLabel, bc);
-
-		corpusNgramsTextField = new JTextField();
-		corpusNgramsTextField.setEditable(false);
-		corpusNgramsTextField.setText("");
-		bc.fill = GridBagConstraints.HORIZONTAL;
-		bc.anchor = GridBagConstraints.LINE_START;
-		bc.gridy = 2;
-		bc.gridx = 1;
-		bc.gridwidth = 1;
-		corpusInformationPanel.add(corpusNgramsTextField, bc);
 	}
 
 	private void initNewCorpusPanel() {
@@ -447,64 +440,44 @@ public class SourceCodeWizard extends WizardPanel implements ActionListener {
 		bc.gridwidth = 3;
 		newCorpusPanel.add(newCorpusDescriptionTextField, bc);
 
-		// N-grams
-		newCorpusNgramLabel = new JLabel();
-		newCorpusNgramLabel.setText("Number of grams:");
+		// Input file
+		newCorpusInputFilenameLabel = new JLabel();
+		newCorpusInputFilenameLabel.setText("Input file:");
 		bc.anchor = GridBagConstraints.LINE_START;
 		bc.fill = GridBagConstraints.NONE;
 		bc.gridy = 2;
 		bc.gridx = 0;
 		bc.gridwidth = 1;
-		newCorpusPanel.add(newCorpusNgramLabel, bc);
+		newCorpusPanel.add(newCorpusInputFilenameLabel, bc);
 
-		newCorpusNgramDropbox = new JComboBox<Integer>();
-		newCorpusNgramDropbox.setEditable(false);
-		newCorpusNgramDropbox.setModel(new DefaultComboBoxModel<Integer>(new Integer[] { 1, 2, 3, 4, 5 }));
+		newCorpusFilenameTextField = new JTextField();
+		newCorpusFilenameTextField.setColumns(30);
+		newCorpusFilenameTextField.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				corpusFilenameActionPerformed();
+			}
+		});
 		bc.fill = GridBagConstraints.HORIZONTAL;
 		bc.anchor = GridBagConstraints.LINE_START;
 		bc.gridy = 2;
 		bc.gridx = 1;
-		bc.gridwidth = 1;
-		newCorpusPanel.add(newCorpusNgramDropbox, bc);
+		bc.gridwidth = 2;
+		newCorpusPanel.add(newCorpusFilenameTextField, bc);
 
-		// Input file
-//		newCorpusInputFilenameLabel = new JLabel();
-//		newCorpusInputFilenameLabel.setText("Input file:");
-//		bc.anchor = GridBagConstraints.LINE_START;
-//		bc.fill = GridBagConstraints.NONE;
-//		bc.gridy = 3;
-//		bc.gridx = 0;
-//		bc.gridwidth = 1;
-//		newCorpusPanel.add(newCorpusInputFilenameLabel, bc);
-//
-//		newCorpusFilenameTextField = new JTextField();
-//		newCorpusFilenameTextField.setColumns(30);
-//		newCorpusFilenameTextField.addActionListener(new ActionListener() {
-//			@Override
-//			public void actionPerformed(ActionEvent evt) {
-//				corpusFilenameActionPerformed();
-//			}
-//		});
-//		bc.fill = GridBagConstraints.HORIZONTAL;
-//		bc.anchor = GridBagConstraints.LINE_START;
-//		bc.gridy = 3;
-//		bc.gridx = 1;
-//		bc.gridwidth = 2;
-//		newCorpusPanel.add(newCorpusFilenameTextField, bc);
-//
-//		newCorpusFilenameSearchButton = new JButton();
-//		newCorpusFilenameSearchButton.setText("Select file");
-//		newCorpusFilenameSearchButton.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent evt) {
-//				searchButtonActionPerformed();
-//			}
-//		});
-//		bc.fill = GridBagConstraints.HORIZONTAL;
-//		bc.anchor = GridBagConstraints.LINE_START;
-//		bc.gridy = 3;
-//		bc.gridx = 3;
-//		bc.gridwidth = 1;
-//		newCorpusPanel.add(newCorpusFilenameSearchButton, bc);
+		newCorpusFilenameSearchButton = new JButton();
+		newCorpusFilenameSearchButton.setText("Select file");
+		newCorpusFilenameSearchButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				searchButtonActionPerformed();
+			}
+		});
+		bc.fill = GridBagConstraints.HORIZONTAL;
+		bc.anchor = GridBagConstraints.LINE_START;
+		bc.gridy = 2;
+		bc.gridx = 3;
+		bc.gridwidth = 1;
+		newCorpusPanel.add(newCorpusFilenameSearchButton, bc);
 
 		// Input path
 		newCorpusInputPathLabel = new JLabel();
@@ -595,16 +568,14 @@ public class SourceCodeWizard extends WizardPanel implements ActionListener {
 		newCorpusDescriptionLabel.setEnabled(Enable);
 		newCorpusDescriptionTextField.setEnabled(Enable);
 		newCorpusFilenameLoadCancelButton.setEnabled(Enable);
-//		newCorpusFilenameSearchButton.setEnabled(Enable);
-//		newCorpusFilenameTextField.setEnabled(Enable);
-//		newCorpusInputFilenameLabel.setEnabled(Enable);
+		newCorpusFilenameSearchButton.setEnabled(Enable);
+		newCorpusFilenameTextField.setEnabled(Enable);
+		newCorpusInputFilenameLabel.setEnabled(Enable);
 		newCorpusInputPathLabel.setEnabled(Enable);
 		newCorpusInputPathSearchButton.setEnabled(Enable);
 		newCorpusInputPathTextField.setEnabled(Enable);
 		newCorpusNameLabel.setEnabled(Enable);
 		newCorpusNameTextField.setEnabled(Enable);
-		newCorpusNgramDropbox.setEnabled(Enable);
-		newCorpusNgramLabel.setEnabled(Enable);
 		newCorpusLanguageComboBox.setEnabled(Enable);
 		newCorpusLanguageLabel.setEnabled(Enable);
 		newCorpusPanel.setEnabled(Enable);
@@ -697,28 +668,14 @@ public class SourceCodeWizard extends WizardPanel implements ActionListener {
 			String collectionName = newCorpusNameTextField.getText().trim();
 			String filename = newCorpusFilenameTextField.getText().trim();
 			String path = newCorpusInputPathTextField.getText().trim();
+			String language =newCorpusLanguageComboBox.getSelectedItem().toString().trim();
 			File inputFile = new File(filename);
 			if (!filename.isEmpty() && inputFile.isFile() && inputFile.exists() && inputFile.canRead()
 					&& !collectionName.isEmpty()) {
 				pdata.setSourceFile(filename);
 				String corpusType = filename.substring(filename.lastIndexOf(".") + 1);
-				int nrGrams = newCorpusNgramDropbox.getItemAt(newCorpusNgramDropbox.getSelectedIndex());
-				if (corpusType.equalsIgnoreCase("bib")) {
-					BibTeX2RIS bib = null;
-					bib = new BibTeX2RIS();
-					bib.setInputFile(new File(filename));
-					bib.readData();
-					bib.convert();
-					importer = new ISICorpusDatabaseImporter(bib.getOutputFile().getAbsolutePath(), collectionName,
-							path, nrGrams, this, false);
-				} else if (corpusType.equalsIgnoreCase("isi")) {
-					importer = new ISICorpusDatabaseImporter(filename, collectionName, path, nrGrams, this, false);
-				} else if (corpusType.equalsIgnoreCase("enw")) {
-					importer = new EndnoteDatabaseImporter(filename, collectionName, path, nrGrams, this, false);
-				} else if (corpusType.equalsIgnoreCase("db")) {
-					importer = new DumpDatabaseImporter(filename, path, this, false);
-				} else if (corpusType.equalsIgnoreCase("csv")) {
-					importer = new CSVDatabaseImporter(filename, collectionName, path, this);
+				if (corpusType.equalsIgnoreCase("csv")) {
+					importer = new CSVSourceCodeImporter(filename, collectionName, path, language, this);
 				}
 				if (importer != null) {
 					newCorpusFilenameLoadCancelButton.setText("Cancel");
@@ -742,7 +699,7 @@ public class SourceCodeWizard extends WizardPanel implements ActionListener {
     	if (selectCorpusNameComboBox.getSelectedIndex() > 0) {
     		String collectionName = selectCorpusNameComboBox.getItemAt(selectCorpusNameComboBox.getSelectedIndex());
 			getInformations(collectionName);
-			setEnableNewCorpus(false);
+//			setEnableNewCorpus(false);
         } else {
         	setEnableNewCorpus(true);
         }
@@ -754,7 +711,6 @@ public class SourceCodeWizard extends WizardPanel implements ActionListener {
         newCorpusFilenameTextField.setEnabled(false);
         newCorpusNameTextField.setEnabled(false);
         newCorpusFilenameSearchButton.setEnabled(false);
-        newCorpusNgramDropbox.setEnabled(false);
         selectCorpusRemoveButton.setEnabled(false);
     }
 
@@ -768,7 +724,6 @@ public class SourceCodeWizard extends WizardPanel implements ActionListener {
         newCorpusFilenameTextField.setEnabled(true);
         newCorpusNameTextField.setEnabled(true);
         newCorpusFilenameSearchButton.setEnabled(true);
-        newCorpusNgramDropbox.setEnabled(true);
         newCorpusFilenameLoadCancelButton.setEnabled(true);
         selectCorpusRemoveButton.setEnabled(true);
     }
@@ -779,13 +734,13 @@ public class SourceCodeWizard extends WizardPanel implements ActionListener {
 
     @Override
     public void refreshData() {
-    	/*
+    	
     	if (selectCorpusNameComboBox.getSelectedIndex() > 0) {
     		String collectionName = selectCorpusNameComboBox.getItemAt(selectCorpusNameComboBox.getSelectedIndex());
     		pdata.setCollectionName(collectionName);
     		pdata.setDatabaseCorpus(new DatabaseCorpus(collectionName));
         }
-        */
+       
     }
     
     @Override
@@ -795,9 +750,7 @@ public class SourceCodeWizard extends WizardPanel implements ActionListener {
     private void getInformations(String collectionName) {
     	if (! collectionManager.isUnique(collectionName)) {
             DatabaseCorpus corpus = new DatabaseCorpus(collectionName);
-            Integer ngrams = corpus.getNumberGrams();
             Integer numberDocs = corpus.getNumberOfDocuments();
-            corpusNgramsTextField.setText(ngrams.toString());
             corpusNumberDocumentsTextField.setText(numberDocs.toString());
     		pdata.setCollectionName(collectionName);
     		pdata.setDatabaseCorpus(corpus);

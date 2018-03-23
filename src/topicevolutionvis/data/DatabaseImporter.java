@@ -80,8 +80,11 @@ public abstract class DatabaseImporter extends SwingWorker<Void, Void> {
     	} catch (InterruptedException e) {
     		throw new RuntimeException(e);
 		} finally {
-            view.setStatus("Finished", false);
-            view.finishedLoadingCollection(collection, isCancelled());
+			if (view != null) {
+				view.setStatus("Finished", false);
+	            view.finishedLoadingCollection(collection, isCancelled());
+			}
+            
 		}
        
     }

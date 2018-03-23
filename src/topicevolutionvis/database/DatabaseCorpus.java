@@ -71,8 +71,8 @@ public class DatabaseCorpus {
             retrieveNrDocuments(conn);
             retrieveDocumentsIds(conn);
             retrievetAscendingDates(conn);
-            matchCoreCitations(conn);
-            generateCoreCitationsHistogram(conn);
+//            matchCoreCitations(conn);
+//            generateCoreCitationsHistogram(conn);
             getNumberOfUniqueReferences_Query(conn);
         } catch (SQLException e) {
             throw new RuntimeException("Error loading corpus from database", e);

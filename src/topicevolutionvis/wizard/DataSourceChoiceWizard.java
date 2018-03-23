@@ -432,23 +432,6 @@ public class DataSourceChoiceWizard extends WizardPanel implements ActionListene
 		bc.gridwidth = 3;
 		newCorpusPanel.add(newCorpusProgressBar, bc);
 	}
-	
-	protected void setEnableNewCorpus(boolean Enable) {
-		newCorpusDescriptionLabel.setEnabled(Enable);
-		newCorpusDescriptionTextField.setEnabled(Enable);
-		newCorpusFilenameLoadCancelButton.setEnabled(Enable);
-		newCorpusFilenameSearchButton.setEnabled(Enable);
-		newCorpusFilenameTextField.setEnabled(Enable);
-		newCorpusInputFilenameLabel.setEnabled(Enable);
-		newCorpusInputPathLabel.setEnabled(Enable);
-		newCorpusInputPathSearchButton.setEnabled(Enable);
-		newCorpusInputPathTextField.setEnabled(Enable);
-		newCorpusNameLabel.setEnabled(Enable);
-		newCorpusNameTextField.setEnabled(Enable);
-		newCorpusNgramDropbox.setEnabled(Enable);
-		newCorpusNgramLabel.setEnabled(Enable);
-		newCorpusPanel.setEnabled(Enable);
-	}
 
 	protected void corpusFilenameActionPerformed() {
 		File file = new File(newCorpusFilenameTextField.getText().trim());
@@ -579,14 +562,8 @@ public class DataSourceChoiceWizard extends WizardPanel implements ActionListene
 	}
 
     private void corpusComboBoxActionPerformed(ActionEvent evt) {
-    	if (selectCorpusNameComboBox.getSelectedIndex() > 0) {
     		String collectionName = selectCorpusNameComboBox.getItemAt(selectCorpusNameComboBox.getSelectedIndex());
 			getInformations(collectionName);
-			setEnableNewCorpus(false);
-        } else {
-        	setEnableNewCorpus(true);
-        }
-    		
     }
     
     private void loadingCollection() {

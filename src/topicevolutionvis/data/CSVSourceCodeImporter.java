@@ -13,12 +13,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,9 +31,7 @@ import com.ironiacorp.computer.OperationalSystemType;
 import topicevolutionvis.database.ConnectionManager;
 import topicevolutionvis.database.SqlManager;
 import topicevolutionvis.matrix.SparseMatrix;
-import topicevolutionvis.preprocessing.Ngram;
 import topicevolutionvis.projection.ProjectionData;
-import topicevolutionvis.wizard.DataSourceChoiceWizard;
 import topicevolutionvis.wizard.SourceCodeWizard;
 
 /**
@@ -47,10 +41,10 @@ import topicevolutionvis.wizard.SourceCodeWizard;
  * If any text field is found, it will be ignored when creating the bag of words (but it can be stored
  * within the document class).
  */
-public class CSVDatabaseImporter extends DatabaseImporter {
+public class CSVSourceCodeImporter extends SourceCodeImporter {
 
-	public CSVDatabaseImporter(String filename, String collection, String path, DataSourceChoiceWizard view) {
-		super(filename, collection, path, 1, view, false);
+	public CSVSourceCodeImporter(String filename, String collection, String path, String language, SourceCodeWizard sourceCodeWizard) {
+		super(filename, collection, path, language,sourceCodeWizard, false);
 	}
 
 	@Override
@@ -73,7 +67,7 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 		try (PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "INSERT.COLLECTION")) {
 			stmt.setString(1, collection);
 			stmt.setString(2, filename);
-			stmt.setInt(3, nrGrams);
+			stmt.setInt(3, 1);
 			stmt.setString(4, "csv");
 			stmt.executeUpdate();
 			try (ResultSet rs = stmt.getGeneratedKeys()) {
@@ -88,7 +82,6 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 	private void readCSVFile(Connection conn) throws IOException, SQLException {
 		CSVFormat format = CSVFormat.newFormat(':');
 		SparseMatrix sm = new SparseMatrix();
-		Map<String, Double> corpusNgrams = new HashMap<String, Double>();
 		List<String> header = new ArrayList<String>();
 		List<Integer> numericFields = new ArrayList<Integer>();
 		List<Integer> othersFields = new ArrayList<Integer>();
@@ -116,7 +109,6 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 					String description = null;
 					double[] featuresVector;
 					int year = -1;
-					List<Ngram> ngrams;
 
 					// Discover quantity of fields that are numeric or that are string
 					if (currentLine == 2) {
@@ -134,9 +126,9 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 					}
 
 					// Aux variables
-					String pathExercise = null;
-					String pathDescriptionExercise = null;
-					String[] chunks;
+//					String pathExercise = null;
+//					String pathDescriptionExercise = null;
+//					String[] chunks;
 					
 					// TODO: check if csv is valid (fields at header equals to fields at rows)
 					// Read values, skipping columns with text (for now, just the first column)
@@ -158,22 +150,21 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 						String data = getCodePath(record.get(otherFieldIndex));
 
 						// Get file's name
+						filename = path.toString() + data;
 						
-						filename = path.toString() + separator + data;
 
 						// Get file's description
-						chunks = data.split(Pattern.quote(separator));
-						pathDescriptionExercise = new String(chunks[1].trim()); 
-						pathExercise = path.toString() + separator + chunks[0].trim() + separator + chunks[1].trim();
-						description = readDescriptionExerciseFile(pathExercise, separator);
+//						chunks = data.split(Pattern.quote(separator));
+//						pathDescriptionExercise = new String(chunks[1].trim());
+//						pathExercise = path.toString() + separator + chunks[0].trim() + separator + chunks[1].trim();
 
 						// Guess "year"
-						Matcher yearMatcher = yearPattern.matcher(pathDescriptionExercise);
-						if (yearMatcher.matches()) {
-							year = Integer.parseInt(yearMatcher.group(1));
-						} else {
-							System.out.println("Could not find a year for: " + record.toString());
-						}
+//						Matcher yearMatcher = yearPattern.matcher(pathDescriptionExercise);
+//						if (yearMatcher.matches()) {
+//							year = Integer.parseInt(yearMatcher.group(1));
+//						} else {
+//							System.out.println("Could not find a year for: " + record.toString());
+//						}
 						
 						// Read file's content
 						try (BufferedReader bf = new BufferedReader(new FileReader(filename))) {
@@ -183,35 +174,16 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 								rawContent = rawContent + line;
 								rawContent = rawContent + "\n";
 							}
+							System.out.println(rawContent);
 						}
+						
 
 					}
-
-					saveToDataBase(conn, recordId, 0, record.get(0), null, null, rawContent, description, null, null, year, 0, null, null, null, "", null, null, null, 0);
 					
-					// Add record ngrams to the collection's ngram.
-					ngrams = getNgramsFromCSVRecord(record, header, numericFields);
-					for (Ngram n : ngrams) {
-	                    if (corpusNgrams.containsKey(n.ngram)) {
-	                        corpusNgrams.put(n.ngram, corpusNgrams.get(n.ngram) + n.frequency);
-	                    } else {
-	                        corpusNgrams.put(n.ngram, n.frequency);
-	                    }
-	                }
-										
-					// Insert ngrams on document's table
-					try (
-							ByteArrayOutputStream baos = new ByteArrayOutputStream();
-							ObjectOutputStream oos = new ObjectOutputStream(baos);
-							PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "UPDATE.NGRAMS.DOCUMENT");
-					) {
-						oos.writeObject(ngrams);
-						oos.flush();
-						stmt.setBytes(1, baos.toByteArray());
-						stmt.setInt(2, recordId);
-						stmt.setInt(3, id_collection);
-						stmt.executeUpdate();
-					}
+//					rawContent = "teste";
+					description = "teste";
+					year = 99;
+					saveToDataBase(conn, recordId, 0, record.get(0), null, null, rawContent, description, null, null, year, 0, null, null, null, "", null, null, null, 0);
 					
 					// TODO: it should be a SparseVector. However, the SELECT.SPARSEMATRIX.DOCUMENT is never required (we just need the sparsematrix of the collection)
 					// Insert SparseMatrix on the document's table
@@ -229,29 +201,15 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 					}
 				}
 			}
+		} catch (Exception e) {
+			System.out.println(e);
 		}
-		
-		// Save collection's ngrams
-		List<Ngram> collectionNgrams = new ArrayList<Ngram>(corpusNgrams.size());
-        for (Entry<String, Double> e : corpusNgrams.entrySet()) {
-        	collectionNgrams.add(new Ngram(e.getKey(), e.getValue()));
-        }
-		Collections.sort(collectionNgrams);
-		try (
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ObjectOutputStream oos = new ObjectOutputStream(baos);
-			PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "UPDATE.NGRAMS.COLLECTION");
-		) {
-			oos.writeObject(collectionNgrams);
-			oos.flush();
-			stmt.setBytes(1, baos.toByteArray());
-			stmt.setInt(2, id_collection);
-			stmt.executeUpdate();
-		}
+			
 
 		// Save collection's sparse matrix
-		ProjectionData pData = this.view.getPdata();
-		pData.setMatrix(sm);
+		// TODO: Remove view dependence
+//		ProjectionData pData = this.view.getPdata();
+//		pData.setMatrix(sm);
 
 		try (
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -280,29 +238,16 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 		return fs.convertFilename(file, fileOS);
 	}
 	
-	private String readDescriptionExerciseFile(String path, String separator) throws IOException {
-		File file = new File(path);
-		String folderName = file.getName();
-		file = new File(file.getAbsolutePath() + separator + folderName + ".txt");
-		try (FileInputStream fis = new FileInputStream(file)) {
-			byte[] data = new byte[(int) file.length()];
-			fis.read(data);
-			return new String(data, "UTF-8");
-		}
-		
-	}
-
-	private List<Ngram> getNgramsFromCSVRecord(CSVRecord record, List<String> header, List<Integer> numericFields) {
-		List<Ngram> ngrams = new ArrayList<Ngram>();
-		Iterator<Integer> numericFieldsIterator = numericFields.iterator();
-		while (numericFieldsIterator.hasNext()) {
-			int numericFieldIndex = numericFieldsIterator.next();
-			String fieldName = header.get(numericFieldIndex);
-			double fieldValue = Double.parseDouble(record.get(numericFieldIndex));
-			Ngram ngram = new Ngram(fieldName, fieldValue); 
-			ngrams.add(ngram);
-		}
-		return ngrams;
-	}
+//	private String readDescriptionExerciseFile(String path, String separator) throws IOException {
+//		File file = new File(path);
+//		String folderName = file.getName();
+//		file = new File(file.getAbsolutePath() + separator + folderName + ".txt");
+//		try (FileInputStream fis = new FileInputStream(file)) {
+//			byte[] data = new byte[(int) file.length()];
+//			fis.read(data);
+//			return new String(data, "UTF-8");
+//		}
+//		
+//	}
 
 }
