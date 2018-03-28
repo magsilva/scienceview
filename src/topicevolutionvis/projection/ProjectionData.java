@@ -7,7 +7,8 @@ package topicevolutionvis.projection;
 import java.util.List;
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeriesCollection;
-import topicevolutionvis.database.DatabaseCorpus;
+
+import topicevolutionvis.database.Corpus;
 import topicevolutionvis.dimensionreduction.DimensionalityReductionType;
 import topicevolutionvis.dimensionreduction.lda.LDAOutput;
 import topicevolutionvis.matrix.SparseMatrix;
@@ -25,7 +26,7 @@ import topicevolutionvis.projection.lsp.ControlPointsType;
  */
 public class ProjectionData implements Cloneable {
     private String collectionName = null;
-    private DatabaseCorpus corpus = null;
+    private Corpus corpus = null;
     private String sourceFile = null;
     //cuts for terms
     private int lunhLowerCut = 10;
@@ -92,11 +93,11 @@ public class ProjectionData implements Cloneable {
     private double ldaModelLogLikelihood = 0;
     private double LLToken = 0;
 
-    public DatabaseCorpus getDatabaseCorpus() {
+    public Corpus getDatabaseCorpus() {
         return this.corpus;
     }
 
-    public void setDatabaseCorpus(DatabaseCorpus corpus) {
+    public void setDatabaseCorpus(Corpus corpus) {
         this.corpus = corpus;
     }
 

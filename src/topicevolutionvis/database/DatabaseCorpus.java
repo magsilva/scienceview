@@ -28,7 +28,7 @@ import topicevolutionvis.util.Pair;
  *
  * @author Aretha
  */
-public class DatabaseCorpus {
+public class DatabaseCorpus implements Corpus {
 
     protected float[] cdata;
 
@@ -79,23 +79,43 @@ public class DatabaseCorpus {
         }
     }
 
-    public String getCollectionName() {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getCollectionName()
+	 */
+    @Override
+	public String getCollectionName() {
         return this.name;
     }
 
-    public float[] getClassData() {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getClassData()
+	 */
+    @Override
+	public float[] getClassData() {
         return this.cdata;
     }
 
-    public int[] getDocumentsIds() {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getDocumentsIds()
+	 */
+    @Override
+	public int[] getDocumentsIds() {
         return this.documents_ids;
     }
 
-    public int[] getDocumentsIds(boolean include_only_documents_with_abstract, boolean include_only_documents_with_keywords, boolean include_only_documents_with_citations) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getDocumentsIds(boolean, boolean, boolean)
+	 */
+    @Override
+	public int[] getDocumentsIds(boolean include_only_documents_with_abstract, boolean include_only_documents_with_keywords, boolean include_only_documents_with_citations) {
         return null;
     }
 
-    public void updateClasses(ArrayList<Integer> ids_docs, int class_docs) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#updateClasses(java.util.ArrayList, int)
+	 */
+    @Override
+	public void updateClasses(ArrayList<Integer> ids_docs, int class_docs) {
         StringBuilder query = new StringBuilder("UPDATE Documents SET class=? WHERE id_doc IN (");
         String docs = ids_docs.toString();
         query.append(docs.substring(1, docs.length() - 1)).append(") AND id_collection=?");
@@ -110,15 +130,27 @@ public class DatabaseCorpus {
         }
     }
 
-    public TIntObjectHashMap<ArrayList<Pair>> getCoreReferences() {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getCoreReferences()
+	 */
+    @Override
+	public TIntObjectHashMap<ArrayList<Pair>> getCoreReferences() {
         return this.citation_core;
     }
 
-    public int getLocalCitationCount(int id_doc) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getLocalCitationCount(int)
+	 */
+    @Override
+	public int getLocalCitationCount(int id_doc) {
         return this.citation_core.get(id_doc).size();
     }
 
-    public int getNumberOfCitationsAtYear(int id_doc, int year) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getNumberOfCitationsAtYear(int, int)
+	 */
+    @Override
+	public int getNumberOfCitationsAtYear(int id_doc, int year) {
         Integer value = (Integer) coreCitationHistogram.get(id_doc, year);
         if (value != null) {
             return value;
@@ -169,11 +201,19 @@ public class DatabaseCorpus {
         }
     }
 
-    public int getCollectionId() {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getCollectionId()
+	 */
+    @Override
+	public int getCollectionId() {
         return this.id_collection;
     }
 
-    public String getCollectionFilename() {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getCollectionFilename()
+	 */
+    @Override
+	public String getCollectionFilename() {
         try (Connection conn = connManager.getConnection();
                 PreparedStatement stmt = sqlManager.getSqlStatement(conn, "SELECT.COLLECTION.FILENAME");) {
             // Get the collection id
@@ -210,7 +250,11 @@ public class DatabaseCorpus {
         }
     }
 
-    public int getNumberOfDocuments() {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getNumberOfDocuments()
+	 */
+    @Override
+	public int getNumberOfDocuments() {
         return this.nrDocuments;
     }
 
@@ -256,7 +300,11 @@ public class DatabaseCorpus {
         }
     }
 
-    public String getFullContent(int id) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getFullContent(int)
+	 */
+    @Override
+	public String getFullContent(int id) {
         StringBuilder content = new StringBuilder();
         try (
                 Connection conn = connManager.getConnection();
@@ -292,11 +340,19 @@ public class DatabaseCorpus {
         return content.toString();
     }
 
-    public int getNumberOfUniqueReferences() {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getNumberOfUniqueReferences()
+	 */
+    @Override
+	public int getNumberOfUniqueReferences() {
         return this.n_unique_references;
     }
 
-    public int getMinIdCitation() {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getMinIdCitation()
+	 */
+    @Override
+	public int getMinIdCitation() {
         int min_id;
         try (Connection conn = connManager.getConnection();
                 PreparedStatement stmt = sqlManager.getSqlStatement(conn, "SELECT.MIN.ID.CITATION");) {
@@ -346,7 +402,11 @@ public class DatabaseCorpus {
         }
     }
 
-    public double getBibliographicCoupling_Log(int id1, int id2) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getBibliographicCoupling_Log(int, int)
+	 */
+    @Override
+	public double getBibliographicCoupling_Log(int id1, int id2) {
         if (id1 > id2) {
             return this.norm_bc[id1][id2];
         } else {
@@ -372,7 +432,11 @@ public class DatabaseCorpus {
         }
     }
 
-    public String getViewContent(int id) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getViewContent(int)
+	 */
+    @Override
+	public String getViewContent(int id) {
         StringBuilder content = new StringBuilder();
         try (
                 Connection conn = connManager.getConnection();
@@ -466,7 +530,11 @@ public class DatabaseCorpus {
         return content.toString();
     }
 
-    public void saveToPExFormat(String filename, boolean individual, int yearStep, ProjectionData pdata) throws Exception {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#saveToPExFormat(java.lang.String, boolean, int, topicevolutionvis.projection.ProjectionData)
+	 */
+    @Override
+	public void saveToPExFormat(String filename, boolean individual, int yearStep, ProjectionData pdata) throws Exception {
         byte[] buffer = new byte[1024];
         File file;
         BufferedWriter bufferedWriter, bufferedWriterScalar = null;
@@ -660,7 +728,11 @@ public class DatabaseCorpus {
         }
     }
 
-    public ArrayList<Ngram> getNgrams(int id)  {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getNgrams(int)
+	 */
+    @Override
+	public ArrayList<Ngram> getNgrams(int id)  {
         ArrayList<Ngram> ngrams = null;
 
         try (
@@ -681,7 +753,11 @@ public class DatabaseCorpus {
         }
     }
 
-    public boolean doesThisDocumentCitesThisReference(int id_doc, int index_citation) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#doesThisDocumentCitesThisReference(int, int)
+	 */
+    @Override
+	public boolean doesThisDocumentCitesThisReference(int id_doc, int index_citation) {
         try (
                 Connection conn = connManager.getConnection();
                 PreparedStatement stmt = sqlManager.getSqlStatement(conn, "DOES.THIS.DOCUMENT.CITES.THIS.REFERENCE");) {
@@ -700,7 +776,11 @@ public class DatabaseCorpus {
         }
     }
 
-    public ArrayList<Reference> getCorpusReferences(int lower, int upper) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getCorpusReferences(int, int)
+	 */
+    @Override
+	public ArrayList<Reference> getCorpusReferences(int lower, int upper) {
         ArrayList<Reference> references = new ArrayList<>();
         int id_citation;
         boolean lower_ok = false, upper_ok = false;
@@ -744,7 +824,11 @@ public class DatabaseCorpus {
         return references;
     }
 
-    public ArrayList<Ngram> getCorpusNgrams() {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getCorpusNgrams()
+	 */
+    @Override
+	public ArrayList<Ngram> getCorpusNgrams() {
         ArrayList<Ngram> ngrams = null;
 
         try (
@@ -765,7 +849,11 @@ public class DatabaseCorpus {
         return ngrams;
     }
 
-    public int getNumberGrams() {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getNumberGrams()
+	 */
+    @Override
+	public int getNumberGrams() {
         int nrGrams = 0;
 
         try (
@@ -783,11 +871,19 @@ public class DatabaseCorpus {
         return nrGrams;
     }
 
-    public int[] getAscendingDates() {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getAscendingDates()
+	 */
+    @Override
+	public int[] getAscendingDates() {
         return this.ascending_dates;
     }
 
-    public SparseMatrix getCorpusSparseMatrix() {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getCorpusSparseMatrix()
+	 */
+    @Override
+	public SparseMatrix getCorpusSparseMatrix() {
     	SparseMatrix sm = new SparseMatrix();
     	try (
     		Connection conn = connManager.getConnection();
@@ -827,7 +923,11 @@ public class DatabaseCorpus {
         }
     }
 
-    public int[] getDocumentsWithLCC(int value, String comparison) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getDocumentsWithLCC(int, java.lang.String)
+	 */
+    @Override
+	public int[] getDocumentsWithLCC(int value, String comparison) {
         int[] ids = null;
         StringBuilder sql_statement = new StringBuilder("SELECT ID_DOC FROM DOCUMENTS WHERE LCC ");
         sql_statement = sql_statement.append(comparison).append(" ").append(value);
@@ -850,7 +950,11 @@ public class DatabaseCorpus {
         return ids;
     }
 
-    public int[] getDocumentsWithGCC(int value, String comparison) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getDocumentsWithGCC(int, java.lang.String)
+	 */
+    @Override
+	public int[] getDocumentsWithGCC(int value, String comparison) {
         int[] ids = null;
         StringBuilder sql_statement = new StringBuilder("SELECT ID_DOC FROM DOCUMENTS WHERE GCC ");
         sql_statement = sql_statement.append(comparison).append(" ").append(value);
@@ -873,7 +977,11 @@ public class DatabaseCorpus {
         return ids;
     }
 
-    public TIntArrayList getDocumentsIdsFromYearToYear(int begin_year, int end_year) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getDocumentsIdsFromYearToYear(int, int)
+	 */
+    @Override
+	public TIntArrayList getDocumentsIdsFromYearToYear(int begin_year, int end_year) {
         TIntArrayList ids = new TIntArrayList();
         try (
                 Connection conn = connManager.getConnection();
@@ -893,7 +1001,11 @@ public class DatabaseCorpus {
         return ids;
     }
 
-    public int[] getDocumentsIdsSortedByTitle(int year) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getDocumentsIdsSortedByTitle(int)
+	 */
+    @Override
+	public int[] getDocumentsIdsSortedByTitle(int year) {
         int[] ids = null;
 
         try (
@@ -917,7 +1029,11 @@ public class DatabaseCorpus {
         return ids;
     }
 
-    public int[] getDocumentsFromAuthor(String author_name, int year) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getDocumentsFromAuthor(java.lang.String, int)
+	 */
+    @Override
+	public int[] getDocumentsFromAuthor(String author_name, int year) {
         int[] ids = null;
         try (
                 Connection conn = connManager.getConnection();
@@ -942,7 +1058,11 @@ public class DatabaseCorpus {
         return ids;
     }
 
-    public Object[][] getMainAuthors(TIntArrayList docs_ids) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getMainAuthors(gnu.trove.list.array.TIntArrayList)
+	 */
+    @Override
+	public Object[][] getMainAuthors(TIntArrayList docs_ids) {
         StringBuilder docs = new StringBuilder(docs_ids.size() * 2);
         for (int i = 0; i < docs_ids.size() - 1; i++) {
             docs = docs.append(docs_ids.get(i)).append(", ");
@@ -971,7 +1091,11 @@ public class DatabaseCorpus {
         }
     }
 
-    public TIntIntHashMap searchTerm(String term) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#searchTerm(java.lang.String)
+	 */
+    @Override
+	public TIntIntHashMap searchTerm(String term) {
         TIntIntHashMap aux = new TIntIntHashMap();
         try (
                 Connection conn = connManager.getConnection();
@@ -991,7 +1115,11 @@ public class DatabaseCorpus {
         }
     }
 
-    public int[] getDocumentsIds(int year) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getDocumentsIds(int)
+	 */
+    @Override
+	public int[] getDocumentsIds(int year) {
         int[] ids = null;
         try (
                 Connection conn = connManager.getConnection();
@@ -1014,7 +1142,11 @@ public class DatabaseCorpus {
         return ids;
     }
 
-    public String getAbstract(int id) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getAbstract(int)
+	 */
+    @Override
+	public String getAbstract(int id) {
         String abstractText = null;
         try (
                 Connection conn = connManager.getConnection();
@@ -1033,7 +1165,11 @@ public class DatabaseCorpus {
         return abstractText;
     }
 
-    public String getTitle(int id) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getTitle(int)
+	 */
+    @Override
+	public String getTitle(int id) {
         String title = null;
 
         try (
@@ -1052,7 +1188,11 @@ public class DatabaseCorpus {
         return title;
     }
 
-    public int getYear(int id) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getYear(int)
+	 */
+    @Override
+	public int getYear(int id) {
         int year = -1;
 
         try (
@@ -1071,7 +1211,11 @@ public class DatabaseCorpus {
         return year;
     }
 
-    public String getPDFFile(int id) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getPDFFile(int)
+	 */
+    @Override
+	public String getPDFFile(int id) {
         String pdfFile = "";
 
         try (
@@ -1090,7 +1234,11 @@ public class DatabaseCorpus {
         return pdfFile;
     }
 
-    public String getKeywords(int id) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getKeywords(int)
+	 */
+    @Override
+	public String getKeywords(int id) {
         String keywords = null;
 
         try (
@@ -1128,7 +1276,11 @@ public class DatabaseCorpus {
         return text;
     }
 
-    public ArrayList<String> getReferences(int id) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getReferences(int)
+	 */
+    @Override
+	public ArrayList<String> getReferences(int id) {
         ArrayList<String> references = new ArrayList<>();
 
         try (
@@ -1193,7 +1345,11 @@ public class DatabaseCorpus {
         }
     }
 
-    public TIntObjectHashMap<ArrayList<Pair>> getCoAuthorship() {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getCoAuthorship()
+	 */
+    @Override
+	public TIntObjectHashMap<ArrayList<Pair>> getCoAuthorship() {
         TIntObjectHashMap<ArrayList<Pair>> coauthorship = new TIntObjectHashMap<>();
         for (int i = 0; i < this.documents_ids.length; i++) {
             coauthorship.put(documents_ids[i], new ArrayList<Pair>());
@@ -1207,7 +1363,11 @@ public class DatabaseCorpus {
         return coauthorship;
     }
 
-    public boolean uniqueName(String collection) throws IOException {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#uniqueName(java.lang.String)
+	 */
+    @Override
+	public boolean uniqueName(String collection) throws IOException {
         boolean aux = true;
         try (
                 Connection conn = connManager.getConnection();
@@ -1224,7 +1384,11 @@ public class DatabaseCorpus {
         return aux;
     }
 
-    public TIntObjectHashMap<TIntIntHashMap> getBibliographicCoupling() {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getBibliographicCoupling()
+	 */
+    @Override
+	public TIntObjectHashMap<TIntIntHashMap> getBibliographicCoupling() {
         TIntObjectHashMap<TIntIntHashMap> bibliographic_coupling = new TIntObjectHashMap<>();
         bibliographic_coupling.put(documents_ids[0], new TIntIntHashMap());
         int bc;
@@ -1240,7 +1404,11 @@ public class DatabaseCorpus {
         return bibliographic_coupling;
     }
 
-    public int getGlobalCitationCount(int id) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getGlobalCitationCount(int)
+	 */
+    @Override
+	public int getGlobalCitationCount(int id) {
         try (Connection conn = connManager.getConnection();
                 PreparedStatement stmt = sqlManager.getSqlStatement(conn, "SELECT.TIMESCITED.DOCUMENT")) {
             stmt.setInt(1, id);
@@ -1258,7 +1426,11 @@ public class DatabaseCorpus {
         }
     }
 
-    public String getAuthors(int id) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getAuthors(int)
+	 */
+    @Override
+	public String getAuthors(int id) {
         String authors = null;
 
         try (
@@ -1278,7 +1450,11 @@ public class DatabaseCorpus {
         return authors;
     }
 
-    public String getDOI(int id) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getDOI(int)
+	 */
+    @Override
+	public String getDOI(int id) {
         try (
                 Connection conn = connManager.getConnection();
                 PreparedStatement stmt = sqlManager.getSqlStatement(conn, "SELECT.DOCUMENT.DOI");) {
@@ -1296,7 +1472,11 @@ public class DatabaseCorpus {
         }
     }
 
-    public int getClass(int id) {
+    /* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getClass(int)
+	 */
+    @Override
+	public int getClass(int id) {
         int classId = -1;
 
         try (
@@ -1315,10 +1495,18 @@ public class DatabaseCorpus {
         }
     }
 
+	/* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#getNormalizedSm()
+	 */
+	@Override
 	public SparseMatrix getNormalizedSm() {
 		return normalizedSm;
 	}
 
+	/* (non-Javadoc)
+	 * @see topicevolutionvis.database.Corpus#setNormalizedSm(topicevolutionvis.matrix.SparseMatrix)
+	 */
+	@Override
 	public void setNormalizedSm(SparseMatrix normalizedSm) {
 		this.normalizedSm = normalizedSm;
 	}

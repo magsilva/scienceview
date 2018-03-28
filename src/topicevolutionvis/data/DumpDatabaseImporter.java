@@ -1,73 +1,78 @@
 package topicevolutionvis.data;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.sql.Connection;
+import java.io.IOException;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
-import javax.swing.JOptionPane;
-
-import topicevolutionvis.database.CollectionManager;
-import topicevolutionvis.database.ConnectionManager;
+import topicevolutionvis.database.Corpus;
 import topicevolutionvis.database.SqlManager;
-import topicevolutionvis.wizard.DataSourceChoiceWizard;
+import topicevolutionvis.wizard.DataImportWizard;
 
 /**
  *
  * @author Aretha
  */
-public class DumpDatabaseImporter extends DatabaseImporter {
+public class DumpDatabaseImporter extends AbstractDatabaseImporter {
 
-    public DumpDatabaseImporter(String filename, String path, DataSourceChoiceWizard view, boolean removeStopwordsByTagging) {
-        super(filename, path, null, -1, view, removeStopwordsByTagging);
+    public DumpDatabaseImporter(String filename, DataImportWizard view, boolean removeStopwordsByTagging) {
+        super(filename, null, -1, view, removeStopwordsByTagging);
     }
 
-    @Override
-    protected Void doInBackground() throws Exception {
+	@Override
+	public boolean isDataValid() {
+		return true;
+	}
+
+	@Override
+	public int getNumberOfDocuments() {
+		return 0;
+	}
+
+	@Override
+	protected String getDataType() {
+		return "dump";
+	}
+
+	@Override
+	protected void readData() {
+
+    	
         String line;
         StringBuilder command = new StringBuilder();
-        PreparedStatement stmt;
-        BufferedReader in = new BufferedReader(new FileReader(this.filename));
-        boolean search_collection_name = false;
-        String collectionName;
-        int begin, end;
+        String collectionName = "";
         
-        ConnectionManager connManager = ConnectionManager.getInstance();
-        Connection conn = connManager.getConnection();
+        try (BufferedReader in = new BufferedReader(new FileReader(filename))) {
+        	boolean search_collection_name = false;
+	        int begin, end;
         
-        while (((line = in.readLine().trim()) != null)) {
-            if (search_collection_name) {
-                begin = line.indexOf("'");
-                end = line.indexOf("'", begin + 1);
-                collectionName = line.substring(begin + 1, end);
-                if (! collectionManager.isUnique(collection)) {
-                    int answer = JOptionPane.showOptionDialog(view, "A collection intitled \"" + collectionName + "\" already exists. Do you wish to replace this collection?", "Save Warning",
-                            JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, null, null);
-                    if (answer == JOptionPane.YES_OPTION) {
-                        CollectionManager collectionManager = new CollectionManager();
-                        collectionManager.removeCollection(collection);
-                    }
+	        while (((line = in.readLine().trim()) != null)) {
+	            if (search_collection_name) {
+	                begin = line.indexOf("'");
+	                end = line.indexOf("'", begin + 1);
+	                collectionName = line.substring(begin + 1, end);
+	            }
+	            if (! search_collection_name && line.contains("INSERT INTO PUBLIC.COLLECTIONS(ID_COLLECTION, NAME, NRGRAMS, FORMAT, GRAMS)")) {
+	                search_collection_name = true;
+	            }
+	            command.append(line);
+                if (line.length() > 1 && line.endsWith(";")) {
+	                try (PreparedStatement stmt = SqlManager.getInstance().createSqlStatement(connection, command.toString())) {
+	                	stmt.execute();
+	                } catch (SQLException e) {
+	                }
                 }
-            }
-            if (! search_collection_name && line.contains("INSERT INTO PUBLIC.COLLECTIONS(ID_COLLECTION, NAME, NRGRAMS, FORMAT, GRAMS)")) {
-                search_collection_name = true;
-            }
-            command.append(line);
-            if (line.compareTo(";") != 0) {
-                if (line.endsWith(";")) {
-                	stmt = SqlManager.getInstance().createSqlStatement(conn, command.toString());
-                    stmt.execute();
-                    stmt.close();
-                    command.setLength(0);
-                }
-            } else {
-                command.setLength(0);
-            }
-
+	            command.setLength(0);
+	        }
+        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
         }
-        in.close();
-        conn.close();
-        
-        return null;
-    }
+	}
+
+	@Override
+	protected Corpus createCollection() {
+		return null;
+	}
 }

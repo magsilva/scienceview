@@ -30,13 +30,7 @@ import setvis.SetOutline;
 import setvis.bubbleset.BubbleSet;
 import setvis.shape.AbstractShapeGenerator;
 import setvis.shape.BSplineShapeGenerator;
-/*
-import signalprocesser.voronoi.VPoint;
-import signalprocesser.voronoi.VoronoiAlgorithm;
-import signalprocesser.voronoi.representation.RepresentationFactory;
-import signalprocesser.voronoi.representation.triangulation.TriangulationRepresentation;
-*/
-import topicevolutionvis.database.DatabaseCorpus;
+import topicevolutionvis.database.Corpus;
 import topicevolutionvis.graph.TemporalGraph;
 import topicevolutionvis.graph.Vertex;
 import topicevolutionvis.projection.temporal.TemporalProjection;
@@ -66,7 +60,7 @@ public abstract class Topic {
     protected ArrayList<Coordinate> fake_vertex = new ArrayList<>();
     protected TIntArrayList vertex_next_added = new TIntArrayList();
     protected TemporalGraph graph;
-    protected DatabaseCorpus corpus;
+    protected Corpus corpus;
     protected TemporalProjection tprojection;
     public static final int USE_CONCAVE = 1;
     public static final int USE_CONVEX = 2;

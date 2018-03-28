@@ -34,7 +34,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import topicevolutionvis.database.ConnectionManager;
-import topicevolutionvis.database.DatabaseCorpus;
+import topicevolutionvis.database.Corpus;
 import topicevolutionvis.database.SqlManager;
 import topicevolutionvis.graph.*;
 import topicevolutionvis.projection.ProjectionData;
@@ -110,7 +110,7 @@ public class SaveTemporalProjection extends SwingWorker<Void, Void> {
 
     private void save_projection() {
         try {
-            DatabaseCorpus database = tproj.getDatabaseCorpus();
+            Corpus database = tproj.getDatabaseCorpus();
             ProjectionData pdata = tproj.getProjectionData();
             TopicData tdata = tproj.getTopicData();
             Attr attr;

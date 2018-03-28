@@ -10,7 +10,7 @@
  */
 package topicevolutionvis.projection.lsp;
 
-import topicevolutionvis.database.DatabaseCorpus;
+import topicevolutionvis.database.Corpus;
 import topicevolutionvis.projection.ProjectionData;
 import topicevolutionvis.projection.ProjectorType;
 import topicevolutionvis.projection.distance.DissimilarityType;
@@ -22,7 +22,7 @@ import topicevolutionvis.wizard.ProjectionViewWizard;
  */
 public class LSPProjectionParametersView extends ProjectionViewWizard {
 
-    private DatabaseCorpus corpus;
+    private Corpus corpus;
 
     /**
      * Creates new form TemporalProjectionParametersView

@@ -5,7 +5,8 @@
 package topicevolutionvis.preprocessing;
 
 import java.io.IOException;
-import topicevolutionvis.database.DatabaseCorpus;
+
+import topicevolutionvis.database.Corpus;
 
 /**
  *
@@ -13,7 +14,7 @@ import topicevolutionvis.database.DatabaseCorpus;
  */
 public class RepresentationFactory {
 
-    public static Representation getInstance(RepresentationType type, DatabaseCorpus corpus) throws IOException {
+    public static Representation getInstance(RepresentationType type, Corpus corpus) throws IOException {
         Representation representation = null;
         if (type.equals(RepresentationType.VECTOR_SPACE_MODEL) || type.equals(RepresentationType.VECTOR_SPACE_REFERENCES)) {
             representation = new VectorSpaceRepresentation(corpus);

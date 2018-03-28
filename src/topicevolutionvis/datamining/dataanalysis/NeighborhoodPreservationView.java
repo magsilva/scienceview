@@ -22,7 +22,8 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import topicevolutionvis.database.DatabaseCorpus;
+
+import topicevolutionvis.database.Corpus;
 import topicevolutionvis.graph.TemporalGraph;
 import topicevolutionvis.graph.Vertex;
 import topicevolutionvis.matrix.SparseMatrix;
@@ -181,7 +182,7 @@ public class NeighborhoodPreservationView extends javax.swing.JDialog {
         try {
             // Representation of documents in a multi-dimensional space and representatio of the matrix of distances within the multi-dimensional space
             TreeMap<Integer, ArrayList<TemporalGraph>> graphs = this.getTemporalGraphs(projection_viewer);
-            DatabaseCorpus corpus = this.projection_viewer.getCorpus();
+            Corpus corpus = this.projection_viewer.getCorpus();
             ProjectionData pdata = projection_viewer.getProjectionData();
             SparseMatrix complete_matrix = RepresentationFactory.getInstance(pdata.getRepresentationType(), corpus).getMatrix(pdata);
             Dissimilarity diss = DissimilarityFactory.getInstance(DissimilarityType.EUCLIDEAN);

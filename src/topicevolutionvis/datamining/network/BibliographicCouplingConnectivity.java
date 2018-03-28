@@ -9,7 +9,8 @@ import gnu.trove.iterator.TIntObjectIterator;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import java.util.ArrayList;
-import topicevolutionvis.database.DatabaseCorpus;
+
+import topicevolutionvis.database.Corpus;
 import topicevolutionvis.graph.Connectivity;
 import topicevolutionvis.graph.ConnectivityType;
 import topicevolutionvis.graph.Vertex;
@@ -23,7 +24,7 @@ public class BibliographicCouplingConnectivity {
 
     TIntObjectHashMap<TIntIntHashMap> neigh_aux;
 
-    public BibliographicCouplingConnectivity(DatabaseCorpus corpus) {
+    public BibliographicCouplingConnectivity(Corpus corpus) {
         neigh_aux = corpus.getBibliographicCoupling();
     }
 

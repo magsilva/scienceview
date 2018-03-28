@@ -38,7 +38,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.DefaultFormatter;
 import javax.swing.tree.DefaultMutableTreeNode;
-import topicevolutionvis.database.DatabaseCorpus;
+
+import topicevolutionvis.database.Corpus;
 import topicevolutionvis.graph.*;
 import topicevolutionvis.projection.ProjectionData;
 import topicevolutionvis.projection.temporal.TemporalProjection;
@@ -1077,7 +1078,7 @@ private void previous_graphButtonActionPerformed(java.awt.event.ActionEvent evt)
         this.view.setUpdatingTopics(value);
     }
 
-    public DatabaseCorpus getCorpus() {
+    public Corpus getCorpus() {
         return this.projection.getDatabaseCorpus();
     }
 

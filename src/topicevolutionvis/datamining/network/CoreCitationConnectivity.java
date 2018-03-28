@@ -7,7 +7,8 @@ package topicevolutionvis.datamining.network;
 import gnu.trove.iterator.TIntObjectIterator;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import java.util.ArrayList;
-import topicevolutionvis.database.DatabaseCorpus;
+
+import topicevolutionvis.database.Corpus;
 import topicevolutionvis.graph.Connectivity;
 import topicevolutionvis.graph.ConnectivityType;
 import topicevolutionvis.graph.Vertex;
@@ -21,7 +22,7 @@ public class CoreCitationConnectivity {
 
     TIntObjectHashMap<ArrayList<Pair>> neigh_aux;
 
-    public CoreCitationConnectivity(DatabaseCorpus corpus) {
+    public CoreCitationConnectivity(Corpus corpus) {
         this.neigh_aux = corpus.getCoreReferences();
     }
 

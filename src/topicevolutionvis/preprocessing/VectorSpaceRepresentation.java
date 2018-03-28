@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import topicevolutionvis.database.DatabaseCorpus;
+import topicevolutionvis.database.Corpus;
 import topicevolutionvis.matrix.SparseMatrix;
 import topicevolutionvis.matrix.SparseVector;
 import topicevolutionvis.projection.ProjectionData;
@@ -20,7 +20,7 @@ import topicevolutionvis.projection.ProjectionData;
  */
 public class VectorSpaceRepresentation extends Representation {
     
-    public VectorSpaceRepresentation(DatabaseCorpus corpus) {
+    public VectorSpaceRepresentation(Corpus corpus) {
         super(corpus);
     }
 

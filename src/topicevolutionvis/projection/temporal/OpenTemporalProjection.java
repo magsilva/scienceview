@@ -27,6 +27,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import topicevolutionvis.database.CollectionManager;
 import topicevolutionvis.database.ConnectionManager;
+import topicevolutionvis.database.Corpus;
 import topicevolutionvis.database.DatabaseCorpus;
 import topicevolutionvis.dimensionreduction.DimensionalityReductionType;
 import topicevolutionvis.graph.*;
@@ -154,7 +155,7 @@ public class OpenTemporalProjection extends SwingWorker<Void, Void> {
                                 Logger.getLogger(OpenTemporalProjection.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
-                        DatabaseCorpus databaseCorpus = new DatabaseCorpus(collection_name);
+                        Corpus databaseCorpus = new DatabaseCorpus(collection_name);
                         this.pdata.setDatabaseCorpus(databaseCorpus);
                     } else {
                         this.pdata.setCollectionName(collection_name);
@@ -173,7 +174,7 @@ public class OpenTemporalProjection extends SwingWorker<Void, Void> {
                                 Logger.getLogger(OpenTemporalProjection.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
-                        DatabaseCorpus databaseCorpus = new DatabaseCorpus(collection_name);
+                        Corpus databaseCorpus = new DatabaseCorpus(collection_name);
                         this.pdata.setDatabaseCorpus(databaseCorpus);
                     }
                 }

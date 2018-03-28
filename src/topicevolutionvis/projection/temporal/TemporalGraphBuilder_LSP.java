@@ -14,7 +14,8 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.math3.analysis.interpolation.LinearInterpolator;
-import topicevolutionvis.database.DatabaseCorpus;
+
+import topicevolutionvis.database.Corpus;
 import topicevolutionvis.datamining.network.BibliographicCouplingConnectivity;
 import topicevolutionvis.datamining.network.CoAuthorshipConnectivy;
 import topicevolutionvis.datamining.network.CoreCitationConnectivity;
@@ -49,7 +50,7 @@ public class TemporalGraphBuilder_LSP {
     private TIntObjectHashMap<TIntArrayList> fixedDocuments = new TIntObjectHashMap<>();
     private TIntObjectHashMap<TIntArrayList> newDocuments = new TIntObjectHashMap<>();
     private TIntObjectHashMap<TIntArrayList> updatedDocuments = new TIntObjectHashMap<>();
-    private DatabaseCorpus corpus = null;
+    private Corpus corpus = null;
     private int min_cp = 10; //número minimo de pontos de controle para cada projeção
     double area_fullprojection = 0;
 //    private SimilarityConnectivy similarityCon;
@@ -64,7 +65,7 @@ public class TemporalGraphBuilder_LSP {
      * @param corpus
      * @param graph
      */
-    public TemporalGraphBuilder_LSP(ProjectionViewWizard view, TemporalProjection tproj, DatabaseCorpus corpus) {
+    public TemporalGraphBuilder_LSP(ProjectionViewWizard view, TemporalProjection tproj, Corpus corpus) {
         this.view = view;
         this.tproj = tproj;
         this.exception = null;
@@ -214,7 +215,7 @@ public class TemporalGraphBuilder_LSP {
 //        }
 //
 //    }
-    private void createGraph(TemporalProjection tproj, double[][] projection, SparseMatrix matrix, DatabaseCorpus corpus, int year) {
+    private void createGraph(TemporalProjection tproj, double[][] projection, SparseMatrix matrix, Corpus corpus, int year) {
         TemporalGraph graph = new TemporalGraph(tproj, year, 0);
 
 

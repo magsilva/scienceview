@@ -10,7 +10,8 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.TreeMap;
-import topicevolutionvis.database.DatabaseCorpus;
+
+import topicevolutionvis.database.Corpus;
 import topicevolutionvis.datamining.clustering.monic.ExternalTransitions;
 import topicevolutionvis.graph.*;
 import topicevolutionvis.graph.scalar.QuerySolver;
@@ -88,7 +89,7 @@ public class TemporalProjection implements Cloneable {
         this.tdata = tdata;
     }
 
-    public DatabaseCorpus getDatabaseCorpus() {
+    public Corpus getDatabaseCorpus() {
         return this.pdata.getDatabaseCorpus();
     }
 

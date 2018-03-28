@@ -61,7 +61,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.table.DefaultTableModel;
-import topicevolutionvis.database.DatabaseCorpus;
+
+import topicevolutionvis.database.Corpus;
 import topicevolutionvis.preprocessing.Ngram;
 import topicevolutionvis.preprocessing.Stopwords;
 import topicevolutionvis.preprocessing.VectorSpaceRepresentation;
@@ -82,7 +83,7 @@ public class LuhnCutAnalizer extends javax.swing.JDialog {
     private ProjectionData pdata;
     private static LuhnCutAnalizer instance;
     private DefaultTableModel tableModel;
-    private DatabaseCorpus corpus = null;
+    private Corpus corpus = null;
 
     /**
      * Creates new form LuhnCutAnalizer

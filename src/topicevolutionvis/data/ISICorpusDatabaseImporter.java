@@ -1,97 +1,65 @@
 package topicevolutionvis.data;
 
 import java.io.*;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import topicevolutionvis.database.ConnectionManager;
+import opennlp.tools.tokenize.Tokenizer;
+import opennlp.tools.tokenize.TokenizerME;
+import opennlp.tools.tokenize.TokenizerModel;
 import topicevolutionvis.database.SqlManager;
-import topicevolutionvis.database.SqlUtil;
 import topicevolutionvis.preprocessing.Ngram;
 import topicevolutionvis.util.PExConstants;
-import topicevolutionvis.wizard.DataSourceChoiceWizard;
+import topicevolutionvis.wizard.DataImportWizard;
 
 /**
+ * Import data from ISI format
  *
  * @author Aretha
  */
-public class ISICorpusDatabaseImporter extends DatabaseImporter
+public class ISICorpusDatabaseImporter extends AbstractDatabaseImporter
 {
-    private Pattern authorP = Pattern.compile("[a-zA-Z\\-\\s]{2,}, [A-Z][a-z]+");
-    
-    private Pattern authorPattern2 = Pattern.compile("[a-zA-Z\\-\\s]{2,}, [A-Z]+");
-    
-    private Pattern authorPattern3 = Pattern.compile("[a-zA-Z\\-\\s]{2,}, [[A-Z\\.][\\s]?]+");
+	private static final Pattern isiPattern = Pattern.compile("FN\\s.*|VR\\s.*\\s*|PT\\s.*\\s*|AU\\s.*\\s*|AF\\s.*\\s*|ED\\s.*\\s*|C1\\s.*\\s*|TI\\s.*\\s*|RID\\s.*\\s*|SO\\s.*\\s*|LA\\s.*\\s*|DI\\s.*\\s*|DT\\s.*\\s*|NR\\s.*\\s*|SN\\s.*\\s*|PU\\s.*\\s*|C1\\s.*\\s*|DE\\s.*\\s*|ID\\s.*\\s*|AB\\s.*\\s*|CR\\s.*\\s*|TC\\s.*\\s*|BP\\s.*\\s*|EP\\s.*\\s*|PG\\s.*\\s*|JI\\s.*\\s*|SE\\s.*\\s*|BS\\s.*\\s*|PY\\s.*\\s*|CY\\s.*\\s*|PD\\s.*\\s*|VL\\s.*\\s*|IS\\s.*\\s*|PN\\s.*\\s*|SU\\s.*\\s*|SI\\s.*\\s*|GA\\s.*\\s*|PI\\s.*\\s*|WP\\s.*\\s*|RP\\s.*\\s*|CP\\s.*\\s*|J9\\s.*\\s*|PA\\s.*\\s*|UT\\s.*\\s*|MH\\s.*\\s*|SS\\s.*\\s*|JC\\s.*\\s*|PS\\s.*\\s?\\s*|RC\\s.*\\s?\\s*|SC\\s.*\\s?\\s*|PE\\s.*\\s?\\s*|ER\\s?\\s*|EF\\s?");
 
+	private static final Pattern referencePattern = Pattern.compile("\\*?([\\w\\s-\\.'()]{2,50})(,\\s(\\d{4}))?,(\\s(UNPUB|INPRESS))?\\s([\\w\\d\\s-\\.\\+\\&():\\d]+){1}(,\\s?[Vv]([\\w\\d-]+))?(,\\sCH([\\d\\w]+))?(,\\s(\\w([\\w\\d]+)))?(,\\sUNSP\\s[\\d\\w\\-/\\.()]+|,\\sARTN\\s([\\d\\w\\.]+))?(,\\sDOI\\s(.{5,100}))?");
 	
+    private static final Pattern authorP = Pattern.compile("[a-zA-Z\\-\\s]{2,}, [A-Z][a-z]+");
+    
+    private static final Pattern authorPattern2 = Pattern.compile("[a-zA-Z\\-\\s]{2,}, [A-Z]+");
+    
+    private static final Pattern authorPattern3 = Pattern.compile("[a-zA-Z\\-\\s]{2,}, [[A-Z\\.][\\s]?]+");
+
 	// TODO: Move this to JabRef
 	public static final String FILE_EXTENSION = ".isi";
 
-    public ISICorpusDatabaseImporter(String filename, String collection, String path, int nrGrams, DataSourceChoiceWizard view, boolean removeStopwordsByTagging) {
-        super(filename, collection, path, nrGrams, view, removeStopwordsByTagging);
-    }
-
-    @Override
-    protected Void doInBackground()
-    {
-        // Check if the collection name already exist
-        if (! collectionManager.isUnique(collection)) {
-            this.cancel(true);
-            this.msg = "A collection intitled \"" + collection + "\" already exists. Please choose another name.";
-        }
-
-        // Create the collection
-        ConnectionManager connManager = ConnectionManager.getInstance();
-        Connection conn = null;
-        try {
-        	conn = connManager.getConnection();
-
-            dropIndexForBibliographicCoupling(conn);
-            createISICollection(conn);
-            readISIFile(conn);
-            matchReferencesToPapers(conn);
-            createIndexForBibliographicCoupling(conn);
-        } catch (Exception e) {
-        	throw new RuntimeException("Could not save collection to database", e);
-        } finally {
-        	SqlUtil.close(conn);
-        }
-        return null;
-    }
-
-    private void createISICollection(Connection conn) {
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        try {
-        	stmt = SqlManager.getInstance().getSqlStatement(conn, "INSERT.COLLECTION");
-            stmt.setString(1, collection);
-            stmt.setString(2, filename);
-            stmt.setInt(3, nrGrams);
-            stmt.setString(4, "isi");
-            stmt.executeUpdate();
-            rs = stmt.getGeneratedKeys();
-            rs.next();
-            id_collection = rs.getInt(1);
-        } catch (SQLException e) {
-        	throw new RuntimeException("Could not create and initialize collection into database", e);
-        } finally {
-        	SqlUtil.close(rs);
-        	SqlUtil.close(stmt);
-        }
-    	
+    public ISICorpusDatabaseImporter(String filename, String collection, int nrGrams, DataImportWizard view, boolean removeStopwordsByTagging) {
+        super(filename, collection, nrGrams, view, removeStopwordsByTagging);
     }
     
-    private void readISIFile(Connection conn) {
-        PreparedStatement stmt = null;
+	@Override
+	public boolean isDataValid() {
+		return true;
+	}
 
+	@Override
+	public int getNumberOfDocuments() {
+		return 0;
+	}
+
+	@Override
+	protected String getDataType() {
+		return "ISI";
+	}
+	
+	@Override
+	protected void readData() {
         String line = "";
         try {
             HashMap<String, Double> corpusNgrams = new HashMap<String, Double>();
@@ -176,7 +144,7 @@ public class ISICorpusDatabaseImporter extends DatabaseImporter
                 } else if (tag.compareTo("EP") == 0) {
                     end_page = line.substring(3);
                 } else if (tag.compareTo("ER") == 0) {
-                    saveToDataBase(conn, index, type, title, research_address, authors, abs, keywords, author_keywords, references, year, times_cited, doi, begin_page, end_page, "", journal, journal_abbrev, volume, 0);
+                    saveToDataBase(connection, index, type, title, research_address, authors, abs, keywords, author_keywords, references, year, times_cited, doi, begin_page, end_page, "", journal, journal_abbrev, volume, 0);
                     fngrams = getNgramsFromFile(content.toString());
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -184,12 +152,12 @@ public class ISICorpusDatabaseImporter extends DatabaseImporter
                     oos.flush();
 
                     //inserting the ngrams
-                    stmt = SqlManager.getInstance().getSqlStatement(conn, "UPDATE.NGRAMS.DOCUMENT");
-                    stmt.setBytes(1, baos.toByteArray());
-                    stmt.setInt(2, index);
-                    stmt.setInt(3, id_collection);
-                    stmt.executeUpdate();
-                    stmt.close();
+                    try (PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(connection, "UPDATE.NGRAMS.DOCUMENT")) {
+                    	stmt.setBytes(1, baos.toByteArray());
+                    	stmt.setInt(2, index);
+                    	stmt.setInt(3, id_collection);
+                    	stmt.executeUpdate();
+                    }
                     
                     for (Ngram n : fngrams) {
                         if (corpusNgrams.containsKey(n.ngram)) {
@@ -217,16 +185,14 @@ public class ISICorpusDatabaseImporter extends DatabaseImporter
             oos.writeObject(ngrams);
             oos.flush();
 
-            stmt = SqlManager.getInstance().getSqlStatement(conn, "UPDATE.NGRAMS.COLLECTION");
-            stmt.setBytes(1, baos.toByteArray());
-            stmt.setInt(2, id_collection);
-            stmt.executeUpdate();
-            stmt.close();
+            try (PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(connection, "UPDATE.NGRAMS.COLLECTION")) {
+            	stmt.setBytes(1, baos.toByteArray());
+            	stmt.setInt(2, id_collection);
+            	stmt.executeUpdate();
+            }
         } catch (Exception e) {
         	throw new RuntimeException("Could not save collection to database", e);
-        } finally {
-        	SqlUtil.close(stmt);
-    	}
+        }
     }
 
     private String processReferences(BufferedReader in, String line) {
@@ -244,7 +210,7 @@ public class ISICorpusDatabaseImporter extends DatabaseImporter
             in.mark(300);
             String previous;
             while ((line = in.readLine().trim()) != null) {
-                if (this.isiPattern.matcher(line).matches()) {
+                if (isiPattern.matcher(line).matches()) {
                     in.reset();
                     break;
                 } else {
@@ -310,6 +276,27 @@ public class ISICorpusDatabaseImporter extends DatabaseImporter
         return value.toString();
     }
 
+    private String multipleLines(BufferedReader in, String line) {
+        StringBuilder content = new StringBuilder(line.substring(3).trim());
+        try {
+            in.mark(10000);
+            while ((line = in.readLine()) != null) {
+                if (! line.startsWith("   ")) {
+                    in.reset();
+                    break;
+                } else {
+                    content = content.append(" ").append(line.trim());
+                    in.mark(10000);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error loading data from text", e);
+        }
+
+        return content.toString();
+    }
+
+    
     private String multipleLinesWithDelimiter(BufferedReader in, String line) {
         try {
             if (line.contains("C1")) {
@@ -318,7 +305,7 @@ public class ISICorpusDatabaseImporter extends DatabaseImporter
             StringBuilder value = new StringBuilder(line);
             in.mark(1000);
             while (((line = in.readLine()) != null)) {
-                if (this.isiPattern.matcher(line).matches()) {
+                if (isiPattern.matcher(line).matches()) {
                     in.reset();
                     break;
                 } else {
@@ -331,4 +318,90 @@ public class ISICorpusDatabaseImporter extends DatabaseImporter
         	throw new RuntimeException("Could not split lines", e);
         }
     }
+    
+    // TODO: rewrite this to let stopwords removal, either by tagging or by natural language analysis, to another class at pre-processing
+    private ArrayList<Ngram> getNgramsFromFile(String content) {
+        if (this.removeStopwordsByTagging) {
+            return this.getNgramsFromFileRemovingStopwordsByTagging(content);
+        } else {
+            return this.getNgramsFromFileWithStopwordsListOnly(content);
+        }
+    }
+    
+    // TODO: rewrite this to let stopwords removal, either by tagging or by natural language analysis, to another class at pre-processing
+    public ArrayList<Ngram> getNgramsFromFileWithStopwordsListOnly(String content) {
+        HashMap<String, Integer> ngramsTable = new HashMap<>();
+        InputStream modelIn = null; //rules_POS = null;
+        if (content != null) {
+            try {
+
+                modelIn = new FileInputStream("resources/en-token.bin");
+                TokenizerModel model = new TokenizerModel(modelIn);
+                Tokenizer tokenizer = new TokenizerME(model);
+                String paras[] = tokenizer.tokenize(content);
+
+                //create the first ngram
+                String[] ngram = new String[nrGrams];
+                int i = 0, count = 0;
+                while (count < nrGrams && i < paras.length) {
+                    if (paras[i].trim().length() > 0 && !paras[i].matches("[\\p{Punct}\\p{Digit}]+|'s")) {
+                        String word = paras[i].toLowerCase();
+                        if (word.trim().length() > 0) {
+                            ngram[count] = word;
+                            count++;
+                        }
+                    }
+                    i++;
+                }
+
+                StringBuilder sb = new StringBuilder();
+                for (int j = 0; j < ngram.length - 1; j++) {
+                    sb.append(ngram[j]).append("<>");
+                }
+                sb.append(ngram[ngram.length - 1]);
+
+                //adding to the frequencies table
+                ngramsTable.put(sb.toString(), 1);
+
+                //creating the remaining ngrams
+                String word;
+                while (i < paras.length) {
+                    if (paras[i].trim().length() > 0 && !paras[i].matches("[\\p{Punct}\\p{Digit}']+|'s")) {
+                        word = paras[i].toLowerCase();
+
+                        if (word.trim().length() > 0) {
+                            String ng = addNextWord(ngram, word);
+
+                            //verify if the ngram already exist on the document
+                            if (ngramsTable.containsKey(ng)) {
+                                ngramsTable.put(ng, ngramsTable.get(ng) + 1);
+                            } else {
+                                ngramsTable.put(ng, 1);
+                            }
+                        }
+                    }
+                    i++;
+                }
+            } catch (IOException e) {
+                Logger.getLogger(AbstractDatabaseImporter.class.getName()).log(Level.SEVERE, null, e);
+            } finally {
+                if (modelIn != null) {
+                    try {
+                        modelIn.close();
+                    } catch (IOException e) {
+                    }
+                }
+            }
+        }
+
+
+
+
+        ArrayList<Ngram> ngrams = new ArrayList<>();
+        for (Entry<String, Integer> entry : ngramsTable.entrySet()) {
+            ngrams.add(new Ngram(entry.getKey(), entry.getValue()));
+        }
+        Collections.sort(ngrams);
+        return ngrams;
+    }    
 }

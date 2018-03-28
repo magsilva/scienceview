@@ -15,7 +15,8 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.math3.analysis.interpolation.LinearInterpolator;
-import topicevolutionvis.database.DatabaseCorpus;
+
+import topicevolutionvis.database.Corpus;
 import topicevolutionvis.datamining.network.BibliographicCouplingConnectivity;
 import topicevolutionvis.datamining.network.CoAuthorshipConnectivy;
 import topicevolutionvis.datamining.network.CoreCitationConnectivity;
@@ -59,7 +60,7 @@ public class TemporalGraphBuilder {
 	private final TIntObjectHashMap<TIntArrayList> newDocuments = new TIntObjectHashMap<>();
 	private final TIntObjectHashMap<TIntArrayList> updatedDocuments = new TIntObjectHashMap<>();
 	private final TIntObjectHashMap<TIntArrayList> usedCPDocuments = new TIntObjectHashMap<>();
-	private DatabaseCorpus corpus = null;
+	private Corpus corpus = null;
 	private final boolean reduced_number_of_control_points = false;
 	private int min_cp = 10; // número minimo de pontos de controle para cada
 								// projeção
@@ -74,7 +75,7 @@ public class TemporalGraphBuilder {
 	 * @param tproj
 	 * @param corpus
 	 */
-	public TemporalGraphBuilder(ProjectionViewWizard view, TemporalProjection tproj, DatabaseCorpus corpus) {
+	public TemporalGraphBuilder(ProjectionViewWizard view, TemporalProjection tproj, Corpus corpus) {
 		this.view = view;
 		this.tproj = tproj;
 		this.exception = null;
@@ -468,7 +469,7 @@ public class TemporalGraphBuilder {
 	//
 	// }
 	private void createGraph(TemporalProjection tproj, double[][] projection, SparseMatrix matrix,
-			DatabaseCorpus corpus, int year) {
+			Corpus corpus, int year) {
 		TemporalGraph graph = new TemporalGraph(tproj, year, 0);
 		this.graphs.put(graph.getYear(), graph);
 
@@ -996,7 +997,7 @@ public class TemporalGraphBuilder {
 	// null, ex);
 	// }
 	// }
-	private void saveData(ProjectionData pdata, SparseMatrix matrix, DatabaseCorpus corpus) throws Exception {
+	private void saveData(ProjectionData pdata, SparseMatrix matrix, Corpus corpus) throws Exception {
 		// saving the points matrix
 		if (matrix != null && pdata.getDocsTermsFilename().trim().length() > 0) {
 			matrix.save(pdata.getDocsTermsFilename());

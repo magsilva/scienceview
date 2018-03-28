@@ -26,7 +26,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 
-import topicevolutionvis.database.DatabaseCorpus;
+import topicevolutionvis.database.Corpus;
 import topicevolutionvis.matrix.SparseMatrix;
 import topicevolutionvis.preprocessing.Ngram;
 
@@ -61,7 +61,7 @@ public class MultipleDocumentViewer extends JDialog
     /**
      * Database corpus.
      */
-    private DatabaseCorpus corpus;
+    private Corpus corpus;
     
     /**
      * Maximum size for document title when shown at the tab title. If the title is larger than
@@ -70,7 +70,7 @@ public class MultipleDocumentViewer extends JDialog
     private static final int MAX_TITLE_SIZE = 35;
 
     /** Creates new form MultipleDocumentViewer */
-    public MultipleDocumentViewer(int[] documents, DatabaseCorpus corpus) {
+    public MultipleDocumentViewer(int[] documents, Corpus corpus) {
         super(ScienceViewMainFrame.getInstance());
         initComponents();
         this.documents = documents;

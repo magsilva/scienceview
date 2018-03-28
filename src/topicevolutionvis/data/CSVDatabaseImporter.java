@@ -1,16 +1,34 @@
+/*
+***** BEGIN LICENSE BLOCK *****
+Copyright (c) 2018 Marco Aurélio Graciotto Silva, UTFPR, Campo Mourão/PR, Brazil
+
+This is free software: you can redistribute it and/or modify it under 
+the terms of the GNU General Public License as published by the Free 
+Software Foundation, either version 3 of the License, or (at your option) 
+any later version.
+
+It is distributed in the hope that it will be useful, but WITHOUT 
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
+for more details.
+
+You should have received a copy of the GNU General Public License along 
+with this software. If not, see <http://www.gnu.org/licenses/>.
+***** END LICENSE BLOCK *****
+*/
+
 package topicevolutionvis.data;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Reader;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,13 +50,11 @@ import com.ironiacorp.computer.OperationalSystem;
 import com.ironiacorp.computer.OperationalSystemDetector;
 import com.ironiacorp.computer.OperationalSystemType;
 
-import topicevolutionvis.database.ConnectionManager;
 import topicevolutionvis.database.SqlManager;
 import topicevolutionvis.matrix.SparseMatrix;
 import topicevolutionvis.preprocessing.Ngram;
 import topicevolutionvis.projection.ProjectionData;
-import topicevolutionvis.wizard.DataSourceChoiceWizard;
-import topicevolutionvis.wizard.SourceCodeWizard;
+import topicevolutionvis.wizard.DataImportWizard;
 
 /**
  * Importer of CSV data.
@@ -47,45 +63,23 @@ import topicevolutionvis.wizard.SourceCodeWizard;
  * If any text field is found, it will be ignored when creating the bag of words (but it can be stored
  * within the document class).
  */
-public class CSVDatabaseImporter extends DatabaseImporter {
-
-	public CSVDatabaseImporter(String filename, String collection, String path, DataSourceChoiceWizard view) {
-		super(filename, collection, path, 1, view, false);
-	}
-
-	@Override
-	protected Void doInBackground() {
-		ConnectionManager connManager = ConnectionManager.getInstance();
-		setLoadingDatabase(true);
-		
-		try (Connection conn = connManager.getConnection()) {
-			createCollection(conn);
-			readCSVFile(conn);
-		} catch (Exception e) {
-			throw new RuntimeException("Error loading CSV file", e);
-		} finally {
-			setLoadingDatabase(false);
-		}
-		return null;
-	}
-
-	private void createCollection(Connection conn) {
-		try (PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "INSERT.COLLECTION")) {
-			stmt.setString(1, collection);
-			stmt.setString(2, filename);
-			stmt.setInt(3, nrGrams);
-			stmt.setString(4, "csv");
-			stmt.executeUpdate();
-			try (ResultSet rs = stmt.getGeneratedKeys()) {
-				rs.next();
-				id_collection = rs.getInt(1);
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException("Could not create and initialize collection into database", e);
-		}
-	}
+public class CSVDatabaseImporter extends AbstractDatabaseImporter
+{
+	private String language;
 	
-	private void readCSVFile(Connection conn) throws IOException, SQLException {
+	private String path; 
+
+	public CSVDatabaseImporter(String filename, String collection, String path, String language, DataImportWizard view) {
+		super(filename, collection, 1, view, false);
+		this.language = language;
+		this.path = path;
+	}
+
+	protected String getDataType() {
+    	return "csv";
+    }
+
+	protected void readData() {
 		CSVFormat format = CSVFormat.newFormat(':');
 		SparseMatrix sm = new SparseMatrix();
 		Map<String, Double> corpusNgrams = new HashMap<String, Double>();
@@ -112,8 +106,8 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 					}
 				} else {
 					String filename = null;
-					String rawContent = null;
-					String description = null;
+					String rawContent = "";
+					String description = "";
 					double[] featuresVector;
 					int year = -1;
 					List<Ngram> ngrams;
@@ -133,10 +127,6 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 						sm.setDimensions(numericFields.size());
 					}
 
-					// Aux variables
-					String pathExercise = null;
-					String pathDescriptionExercise = null;
-					String[] chunks;
 					
 					// TODO: check if csv is valid (fields at header equals to fields at rows)
 					// Read values, skipping columns with text (for now, just the first column)
@@ -152,42 +142,43 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 					}
 					sm.addRow(featuresVector, recordId);
 
-					Iterator<Integer> otherFieldIterator = othersFields.iterator();
-					while (otherFieldIterator.hasNext()) {
-						int otherFieldIndex = otherFieldIterator.next();
-						String data = getCodePath(record.get(otherFieldIndex));
-
-						// Get file's name
-						
-						filename = path.toString() + separator + data;
-
-						// Get file's description
-						chunks = data.split(Pattern.quote(separator));
-						pathDescriptionExercise = new String(chunks[1].trim()); 
-						pathExercise = path.toString() + separator + chunks[0].trim() + separator + chunks[1].trim();
-						description = readDescriptionExerciseFile(pathExercise, separator);
-
-						// Guess "year"
-						Matcher yearMatcher = yearPattern.matcher(pathDescriptionExercise);
-						if (yearMatcher.matches()) {
-							year = Integer.parseInt(yearMatcher.group(1));
-						} else {
-							System.out.println("Could not find a year for: " + record.toString());
-						}
-						
-						// Read file's content
-						try (BufferedReader bf = new BufferedReader(new FileReader(filename))) {
-							String line = null;
-							rawContent = new String();
-							while ((line = bf.readLine()) != null) {
-								rawContent = rawContent + line;
-								rawContent = rawContent + "\n";
+					if (! "".equals(language)) {  // If no language is set, it is just plain data
+						Iterator<Integer> otherFieldIterator = othersFields.iterator();
+						while (otherFieldIterator.hasNext()) {
+							int otherFieldIndex = otherFieldIterator.next();
+							String data = getCodePath(record.get(otherFieldIndex));
+	
+							// Get file's name
+							filename = path.toString() + separator + data;
+	
+							/*
+							// Get file's description
+							String[] chunks = data.split(Pattern.quote(separator));
+							String pathDescriptionExercise = new String(chunks[1].trim()); 
+							String pathExercise = path.toString() + separator + chunks[0].trim() + separator + chunks[1].trim();
+							description = readDescriptionExerciseFile(pathExercise, separator);
+							*/
+	
+							// Guess "year"
+							// TODO: Pegar o ano do CSV (segundo campo) ou ano do arquivo
+							year = 2018;
+	
+							// Read file's content
+							try (BufferedReader bf = new BufferedReader(new FileReader(filename))) {
+								String line = null;
+								rawContent = new String();
+								while ((line = bf.readLine()) != null) {
+									rawContent = rawContent + line;
+									rawContent = rawContent + "\n";
+								}
 							}
+	
 						}
-
+					} else {
+						// TODO: define some way to define a year when no language is set.
 					}
 
-					saveToDataBase(conn, recordId, 0, record.get(0), null, null, rawContent, description, null, null, year, 0, null, null, null, "", null, null, null, 0);
+					saveToDataBase(connection, recordId, 0, record.get(0), null, null, rawContent, description, null, null, year, 0, null, null, null, "", null, null, null, 0);
 					
 					// Add record ngrams to the collection's ngram.
 					ngrams = getNgramsFromCSVRecord(record, header, numericFields);
@@ -203,7 +194,7 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 					try (
 							ByteArrayOutputStream baos = new ByteArrayOutputStream();
 							ObjectOutputStream oos = new ObjectOutputStream(baos);
-							PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "UPDATE.NGRAMS.DOCUMENT");
+							PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(connection, "UPDATE.NGRAMS.DOCUMENT");
 					) {
 						oos.writeObject(ngrams);
 						oos.flush();
@@ -218,7 +209,7 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 					try (
 							ByteArrayOutputStream baos = new ByteArrayOutputStream();
 							ObjectOutputStream oos = new ObjectOutputStream(baos);
-							PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "UPDATE.SPARSEMATRIX.DOCUMENT");
+							PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(connection, "UPDATE.SPARSEMATRIX.DOCUMENT");
 					) {
 						oos.writeObject(sm);
 						oos.flush();
@@ -229,6 +220,12 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 					}
 				}
 			}
+		} catch (FileNotFoundException e) {
+			
+		} catch (IOException e) {
+			
+		} catch (SQLException e) {
+			
 		}
 		
 		// Save collection's ngrams
@@ -240,29 +237,38 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 		try (
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ObjectOutputStream oos = new ObjectOutputStream(baos);
-			PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "UPDATE.NGRAMS.COLLECTION");
+			PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(connection, "UPDATE.NGRAMS.COLLECTION");
 		) {
 			oos.writeObject(collectionNgrams);
 			oos.flush();
 			stmt.setBytes(1, baos.toByteArray());
 			stmt.setInt(2, id_collection);
 			stmt.executeUpdate();
+		} catch (IOException e) {
+			System.out.println(e);
+		} catch (SQLException e) {		
+			System.out.println(e);
 		}
-
+		
+		// TODO: remove dependency to projection from here! It does not make sense to setup projection data before even creating it!
 		// Save collection's sparse matrix
-		ProjectionData pData = this.view.getPdata();
-		pData.setMatrix(sm);
+		if (view != null) {
+			ProjectionData pData = this.view.getPdata();
+			pData.setMatrix(sm);
+		}
 
 		try (
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ObjectOutputStream oos = new ObjectOutputStream(baos);
-			PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(conn, "UPDATE.SPARSEMATRIX.COLLECTION");
+			PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(connection, "UPDATE.SPARSEMATRIX.COLLECTION");
 		) {
 			oos.writeObject(sm);
 			oos.flush();
 			stmt.setBytes(1, baos.toByteArray());
 			stmt.setInt(2, id_collection);
 			stmt.executeUpdate();
+		} catch (IOException e) {
+		} catch (SQLException e) {		
 		}
 	}
 	
@@ -305,4 +311,15 @@ public class CSVDatabaseImporter extends DatabaseImporter {
 		return ngrams;
 	}
 
+	@Override
+	public boolean isDataValid() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public int getNumberOfDocuments() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

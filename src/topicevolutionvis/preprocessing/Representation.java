@@ -9,7 +9,8 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import topicevolutionvis.database.DatabaseCorpus;
+
+import topicevolutionvis.database.Corpus;
 import topicevolutionvis.graph.Vertex;
 import topicevolutionvis.matrix.SparseMatrix;
 import topicevolutionvis.matrix.SparseVector;
@@ -27,7 +28,7 @@ import topicevolutionvis.projection.temporal.TemporalProjection;
  */
 public abstract class Representation {
 
-    protected DatabaseCorpus corpus;
+    protected Corpus corpus;
     protected StemmerType.Type stemmerType;
     protected MatrixTransformationType mattype;
     protected int numberGrams;
@@ -37,7 +38,7 @@ public abstract class Representation {
     protected SparseMatrix sm;
     protected ProjectionData pdata;
 
-    public Representation(DatabaseCorpus corpus) {
+    public Representation(Corpus corpus) {
         this.corpus = corpus;
     }
 

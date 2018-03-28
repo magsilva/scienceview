@@ -20,7 +20,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
-import topicevolutionvis.database.DatabaseCorpus;
+
+import topicevolutionvis.database.Corpus;
 import topicevolutionvis.dimensionreduction.lda.LDAOutput;
 import topicevolutionvis.matrix.SparseMatrix;
 import topicevolutionvis.matrix.SparseVector;
@@ -38,7 +39,7 @@ public class LDARepresentation extends Representation {
     private double beta = 0.01d;
     private ParallelTopicModel lda = null;
 
-    public LDARepresentation(DatabaseCorpus corpus) {
+    public LDARepresentation(Corpus corpus) {
         super(corpus);
     }
 

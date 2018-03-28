@@ -1,6 +1,22 @@
+/*
+***** BEGIN LICENSE BLOCK *****
+This is free software: you can redistribute it and/or modify it under 
+the terms of the GNU General Public License as published by the Free 
+Software Foundation, either version 3 of the License, or (at your option) 
+any later version.
+
+It is distributed in the hope that it will be useful, but WITHOUT 
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
+for more details.
+
+You should have received a copy of the GNU General Public License along 
+with this software. If not, see <http://www.gnu.org/licenses/>.
+***** END LICENSE BLOCK *****
+*/
+
 package topicevolutionvis.data;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,15 +24,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map.Entry;
-import java.util.concurrent.ExecutionException;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.swing.SwingWorker;
 
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
@@ -25,26 +42,30 @@ import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import topicevolutionvis.database.CollectionManager;
 import topicevolutionvis.database.ConnectionManager;
+import topicevolutionvis.database.Corpus;
 import topicevolutionvis.database.SqlManager;
 import topicevolutionvis.database.SqlUtil;
 import topicevolutionvis.preprocessing.Ngram;
-import topicevolutionvis.wizard.SourceCodeWizard;
+import topicevolutionvis.wizard.DataImportWizard;
 
 /**
- *
- * @authorReference Danilo Sambugaro
+ * DatabaseImporter that stores data into a database.
+ * 
+ * @author Aretha Barbosa Alencar
+ * @author Marco Aurélio Graciotto Silva
  */
-public abstract class SourceCodeImporter extends SwingWorker<Void, Void> {
+public abstract class AbstractDatabaseImporter implements DatabaseImporter {
+// public abstract class AbstractDatabaseImporter implements DatabaseImporter {
 
-    protected String collection, filename, language, path, msg = "";
+    protected String collection, filename, msg = "";
     
-    protected int id_collection;
+    protected int nrGrams, id_collection;
     
     protected boolean removeStopwordsByTagging;
     
     protected boolean loadingDatabase = false;
     
-	protected SourceCodeWizard view = null;
+	protected DataImportWizard view = null;
     
     protected CollectionManager collectionManager;
     
@@ -54,13 +75,14 @@ public abstract class SourceCodeImporter extends SwingWorker<Void, Void> {
 
     private ConnectionManager connManager;
     
+    protected Connection connection;
+    
     private SqlManager sqlManager;
     
-    public SourceCodeImporter(String filename, String collection, String path, String language, SourceCodeWizard view, boolean removeStopwordsByTagging) {
+    public AbstractDatabaseImporter(String filename, String collection, int nrGrams, DataImportWizard view, boolean removeStopwordsByTagging) {
         this.filename = filename;
         this.collection = collection;
-        this.path = path;
-        this.language = language;
+        this.nrGrams = nrGrams;
         this.removeStopwordsByTagging = removeStopwordsByTagging;
         this.view = view;
         connManager = ConnectionManager.getInstance();
@@ -70,34 +92,32 @@ public abstract class SourceCodeImporter extends SwingWorker<Void, Void> {
 
     @Override
     public void done() {
-    	try {
-    		if (! isCancelled()) {
-        		get();
-            }
-    	} catch (ExecutionException e) {
-    		Throwable realException = e.getCause();
-    		throw new RuntimeException(realException);
-    	} catch (InterruptedException e) {
-    		throw new RuntimeException(e);
-		} finally {
-			if (view != null) {
-				view.setStatus("Finished", false);
-	            view.finishedLoadingCollection(collection, isCancelled());
-			}
-		}
-       
+    	if (view != null) {
+			view.setStatus("Finished", false);
+			view.finishedLoadingCollection(collection, true);
+		}      
     }
 
     public boolean isLoadingDatabase() {
 		return loadingDatabase;
 	}
 
-	public void setLoadingDatabase(boolean loadingDatabase) {
+	public synchronized void setLoadingDatabase(boolean loadingDatabase) {
 		this.loadingDatabase = loadingDatabase;
+		if (loadingDatabase == false) {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (Exception e) {
+				} finally {
+					connection = null;
+				}
+			}
+		}
 	}
     
-    protected void matchReferencesToPapers(Connection conn) {
-        try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "MATCH.CORE.REFERENCES")) {
+    protected void matchReferencesToPapers() {
+        try (PreparedStatement stmt = sqlManager.getSqlStatement(connection, "MATCH.CORE.REFERENCES")) {
             stmt.setInt(1, id_collection);
             stmt.setInt(2, id_collection);
             stmt.setInt(3, id_collection);
@@ -107,7 +127,7 @@ public abstract class SourceCodeImporter extends SwingWorker<Void, Void> {
 	                int id_doc, id_ref;
 	                id_doc = result.getInt(1);
 	                id_ref = result.getInt(2);
-	                try (PreparedStatement stmt2 = sqlManager.getSqlStatement(conn, "UPDATE.REFERENCE")) {
+	                try (PreparedStatement stmt2 = sqlManager.getSqlStatement(connection, "UPDATE.REFERENCE")) {
 		                stmt2.setInt(1, id_doc);
 		                stmt2.setInt(2, id_ref);
 		                stmt2.setInt(3, id_collection);
@@ -139,40 +159,121 @@ public abstract class SourceCodeImporter extends SwingWorker<Void, Void> {
     }
 
 
-    protected void createIndexForBibliographicCoupling(Connection conn) {
-        try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "CREATE.INDEX.BC")) {
+    protected void createIndexForBibliographicCoupling() {
+        try (PreparedStatement stmt = sqlManager.getSqlStatement(connection, "CREATE.INDEX.BC")) {
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Error creating index for bibliographic coupling", e);
         }
     }
 
-    protected void dropIndexForBibliographicCoupling(Connection conn) {
-        try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "DROP.INDEX.BC")) {
+    protected void dropIndexForBibliographicCoupling() {
+        try (PreparedStatement stmt = sqlManager.getSqlStatement(connection, "DROP.INDEX.BC")) {
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Error reseting index for bibliographic coupling", e);
         }
     }
 
-    public String multipleLines(BufferedReader in, String line) {
-        StringBuilder content = new StringBuilder(line.substring(3).trim());
-        try {
-            in.mark(10000);
-            while ((line = in.readLine()) != null) {
-                if (! line.startsWith("   ")) {
-                    in.reset();
-                    break;
-                } else {
-                    content = content.append(" ").append(line.trim());
-                    in.mark(10000);
+    protected ArrayList<Ngram> getNgramsFromFileRemovingStopwordsByTagging(String content) {
+        HashMap<String, Integer> ngramsTable = new HashMap<>();
+        InputStream modelIn = null, rules_POS;
+        if (content != null) {
+            try {
+
+                modelIn = new FileInputStream("resources/en-token.bin");
+                TokenizerModel model = new TokenizerModel(modelIn);
+                Tokenizer tokenizer = new TokenizerME(model);
+                String paras[] = tokenizer.tokenize(content);
+
+                rules_POS = new FileInputStream("resources/en-pos-maxent.bin");
+                POSModel modelPOS = new POSModel(rules_POS);
+                POSTaggerME tagger = new POSTaggerME(modelPOS);
+                String tags[] = tagger.tag(paras);
+                ArrayList<String> words = new ArrayList<>();
+                for (int i = 0; i < tags.length; i++) {
+                    if (tags[i].compareTo("CC") != 0 && tags[i].compareTo("CD") != 0
+                            && tags[i].compareTo("DT") != 0 && tags[i].compareTo("EX") != 0
+                            && tags[i].compareTo("IN") != 0 && tags[i].compareTo("JJR") != 0
+                            && tags[i].compareTo("JJS") != 0 && tags[i].compareTo("LS") != 0
+                            && tags[i].compareTo("MD") != 0 && tags[i].compareTo("PDT") != 0
+                            && tags[i].compareTo("POS") != 0 && tags[i].compareTo("PRP") != 0
+                            && tags[i].compareTo("PRP$") != 0 && tags[i].compareTo("RB") != 0
+                            && tags[i].compareTo("RBR") != 0 && tags[i].compareTo("RBS") != 0
+                            && tags[i].compareTo("RP") != 0 && tags[i].compareTo("SYM") != 0
+                            && tags[i].compareTo("TO") != 0 && tags[i].compareTo("UH") != 0
+                            && tags[i].compareTo("VB") != 0 && tags[i].compareTo("VBD") != 0
+                            && tags[i].compareTo("VBG") != 0 && tags[i].compareTo("VBN") != 0
+                            && tags[i].compareTo("VBP") != 0 && tags[i].compareTo("VBZ") != 0
+                            && tags[i].compareTo("WDT") != 0 && tags[i].compareTo("WP") != 0
+                            && tags[i].compareTo("WP$") != 0 && tags[i].compareTo("WRB") != 0) {
+                        words.add(paras[i]);
+                    }
+                }
+
+                //create the first ngram
+                String[] ngram = new String[nrGrams];
+                int i = 0, count = 0;
+                while (count < nrGrams && i < words.size()) {
+                    if (words.get(i).trim().length() > 0 && !words.get(i).matches("[\\p{Punct}\\p{Digit}]+|'s")) {
+                        String word = words.get(i).toLowerCase();
+                        if (word.trim().length() > 0) {
+                            ngram[count] = word;
+                            count++;
+                        }
+                    }
+                    i++;
+                }
+
+                StringBuilder sb = new StringBuilder();
+                for (int j = 0; j < ngram.length - 1; j++) {
+                    sb.append(ngram[j]).append("<>");
+                }
+                sb.append(ngram[ngram.length - 1]);
+
+                //adding to the frequencies table
+                ngramsTable.put(sb.toString(), 1);
+
+                //creating the remaining ngrams
+                String word;
+                while (i < words.size()) {
+                    if (words.get(i).trim().length() > 0 && !words.get(i).matches("[\\p{Punct}\\p{Digit}']+|'s")) {
+                        word = words.get(i).toLowerCase();
+
+                        if (word.trim().length() > 0) {
+                            String ng = this.addNextWord(ngram, word);
+
+                            //verify if the ngram already exist on the document
+                            if (ngramsTable.containsKey(ng)) {
+                                ngramsTable.put(ng, ngramsTable.get(ng) + 1);
+                            } else {
+                                ngramsTable.put(ng, 1);
+                            }
+                        }
+                    }
+                    i++;
+                }
+            } catch (IOException e) {
+                Logger.getLogger(AbstractDatabaseImporter.class.getName()).log(Level.SEVERE, null, e);
+            } finally {
+                if (modelIn != null) {
+                    try {
+                        modelIn.close();
+                    } catch (IOException e) {
+                    }
                 }
             }
-        } catch (IOException e) {
-            throw new RuntimeException("Error loading data from text", e);
         }
 
-        return content.toString();
+
+
+
+        ArrayList<Ngram> ngrams = new ArrayList<>();
+        for (Entry<String, Integer> entry : ngramsTable.entrySet()) {
+            ngrams.add(new Ngram(entry.getKey(), entry.getValue()));
+        }
+        Collections.sort(ngrams);
+        return ngrams;
     }
 
     
@@ -455,4 +556,113 @@ public abstract class SourceCodeImporter extends SwingWorker<Void, Void> {
             SqlUtil.close(stmt);
         }
     }
+
+    protected String addNextWord(String[] ngram, String word) {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < ngram.length - 1; i++) {
+            ngram[i] = ngram[i + 1];
+            sb.append(ngram[i]).append("<>");
+        }
+
+        ngram[ngram.length - 1] = word;
+        sb.append(word);
+
+        return sb.toString();
+    }
+    
+    private synchronized void setConnection(Connection conn) {
+    	if (this.connection != null) {
+    		throw new UnsupportedOperationException("Trying to set connection when on is already defined");
+    	}
+    	this.connection = conn;
+    }
+
+	protected Corpus createCollection() {
+        // Check if the collection name already exist
+        if (! collectionManager.isUnique(collection)) {
+            throw new UnsupportedOperationException("A collection intitled \"" + collection + "\" already exists. Please choose another name.");
+        }
+        /*
+        if (! collectionManager.isUnique(collection)) {
+            int answer = JOptionPane.showOptionDialog(view, "A collection intitled \"" + collectionName + "\" already exists. Do you wish to replace this collection?", "Save Warning",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, null, null);
+            if (answer == JOptionPane.YES_OPTION) {
+                CollectionManager collectionManager = new CollectionManager();
+                collectionManager.removeCollection(collection);
+            }
+        }
+        */
+
+		
+		try (PreparedStatement stmt = SqlManager.getInstance().getSqlStatement(connection, "INSERT.COLLECTION")) {
+			stmt.setString(1, collection);
+			stmt.setString(2, filename);
+			stmt.setInt(3, nrGrams);
+			stmt.setString(4, getDataType());
+			stmt.executeUpdate();
+			try (ResultSet rs = stmt.getGeneratedKeys()) {
+				rs.next();
+				id_collection = rs.getInt(1);
+			}
+			return null; // TODO: return Corpus 
+		} catch (SQLException e) {
+			throw new RuntimeException("Could not create and initialize collection into database", e);
+		}
+	}
+	
+    /**
+     * Get short name to identify the type of data source (CSV, Json, BibTeX, ISI, etc).
+     * 
+     * @return String with name of the type of data imported.
+     */
+    protected abstract String getDataType();
+    
+    /**
+     * Read data from source.
+     */
+    protected abstract void readData();
+
+	@Override
+	public Corpus getCollection() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+
+	@Override
+	public boolean canImportData() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean importData() {
+		ConnectionManager connManager = ConnectionManager.getInstance();
+		setLoadingDatabase(true);
+				
+		try (Connection conn = connManager.getConnection()) {
+			setConnection(conn);
+            dropIndexForBibliographicCoupling();
+			createCollection();
+			readData();
+            matchReferencesToPapers();
+            createIndexForBibliographicCoupling();
+		} catch (Exception e) {
+			throw new RuntimeException("Error importing data", e);
+		} finally {
+			setLoadingDatabase(false);
+		}
+		return true;
+	}
+
+	@Override
+	public boolean isImportingData() {
+		return isLoadingDatabase();
+	}
+	
+	@Override
+	public boolean cancel() {
+		return true;
+	}
 }

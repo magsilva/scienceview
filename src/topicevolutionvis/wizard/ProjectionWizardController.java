@@ -76,7 +76,7 @@ public class ProjectionWizardController {
     private static final int FINAL_STATE = 10;
     
     //Views of each state
-    private DataSourceChoiceWizard sourceView;
+    private DataImportWizard sourceView;
     
     private SourceCodeWizard sourceCodeView;
     
