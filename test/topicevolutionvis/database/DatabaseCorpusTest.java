@@ -13,7 +13,7 @@ public class DatabaseCorpusTest {
 
 	@Test
 	public void testGetNgrams() throws IOException {
-		DatabaseCorpus corpus = new DatabaseCorpus("teste");
+		Corpus corpus = new DatabaseCorpus("teste");
 		
 		ArrayList<Ngram> ngrams = new ArrayList<Ngram>();
 		ngrams = corpus.getNgrams(56);
