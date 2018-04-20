@@ -6,6 +6,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.text.SimpleDateFormat;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -19,6 +20,8 @@ import javax.swing.JTextField;
 
 import com.github.opendevl.JFlat;
 import com.mashape.unirest.http.Unirest;
+
+import cc.mallet.pipe.Filename2CharSequence;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
@@ -103,7 +106,7 @@ public class SourceCodeWizard extends DataImportWizard implements ActionListener
 			bc.gridx = x++;
 			bc.gridwidth = 1;
 			corpusServicesPanel.add(corpusServices[i], bc);
-			corpusServices[i].setEnabled(checkServiceState(URL_SERVICES[i].concat("check")));
+			corpusServices[i].setEnabled(checkServiceState(URL_SERVICES[i].concat("0/check")));
 			if (x == 5) {
 				y++;
 				x = 0;
@@ -147,6 +150,11 @@ public class SourceCodeWizard extends DataImportWizard implements ActionListener
 	 */
 	
 	protected void runServices(ActionEvent evt) {
+		String fileName = null;
+		String fileContent = null;
+		String URL = null;
+		String fileYear = null;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
 		String path = newCorpusInputPathTextField.getText();
 		for (int i = 0; i < LABEL_SERVICES.length; i++) {
 			if (corpusServices[i].isSelected()) {
@@ -158,7 +166,11 @@ public class SourceCodeWizard extends DataImportWizard implements ActionListener
 	            	String extension = listOfFiles[j].getName().substring(listOfFiles[j].getName().lastIndexOf(".")+1);
 	                if ((listOfFiles[j].isFile()) && (checkFileExtension(extension, newCorpusLanguageComboBox.getSelectedItem().toString()))) {
 	                    try {
-	                    	results.put(Unirest.post((URL_SERVICES[i].concat(listOfFiles[j].getName()))).body(FileUtils.readFileToString(listOfFiles[j])).asJson().getBody().getObject());
+	                    	fileName = listOfFiles[j].getName();
+	                    	fileContent = FileUtils.readFileToString(listOfFiles[j]);
+	                    	fileYear = sdf.format(listOfFiles[j].lastModified()).concat("/");
+	                    	URL = URL_SERVICES[i].concat(fileYear).concat(fileName);
+	                    	results.put(Unirest.post(URL).body(fileContent).asJson().getBody().getObject());
 	                    	System.out.println(listOfFiles[j].getName() +"\n"+ results.getJSONObject(results.length()-1) + "\n");	                    	
 	                    	
 	            		} catch (Exception e) {
@@ -173,7 +185,7 @@ public class SourceCodeWizard extends DataImportWizard implements ActionListener
 	            System.out.println(results.toString());
 	            parse = new JFlat(results.toString());
 	            try {
-					parse.json2Sheet().headerSeparator("_").write2csv("/home/dsambugaro/UTFPR/IC/Teste/teste.csv",':');
+					parse.json2Sheet().headerSeparator("_").write2csv("/home/dsambugaro/UTFPR/IC/teste/dados.csv",':');
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -254,7 +266,7 @@ public class SourceCodeWizard extends DataImportWizard implements ActionListener
 		newCorpusInputPathLabel.setText("Input path:");
 		bc.anchor = GridBagConstraints.LINE_START;
 		bc.fill = GridBagConstraints.NONE;
-		bc.gridy = 3;
+		bc.gridy = 4;
 		bc.gridx = 0;
 		bc.gridwidth = 1;
 		newCorpusPanel.add(newCorpusInputPathLabel, bc);
@@ -269,7 +281,7 @@ public class SourceCodeWizard extends DataImportWizard implements ActionListener
 		});
 		bc.fill = GridBagConstraints.HORIZONTAL;
 		bc.anchor = GridBagConstraints.LINE_START;
-		bc.gridy = 3;
+		bc.gridy = 4;
 		bc.gridx = 1;
 		bc.gridwidth = 2;
 		newCorpusPanel.add(newCorpusInputPathTextField, bc);
@@ -283,7 +295,7 @@ public class SourceCodeWizard extends DataImportWizard implements ActionListener
 		});
 		bc.fill = GridBagConstraints.HORIZONTAL;
 		bc.anchor = GridBagConstraints.LINE_START;
-		bc.gridy = 3;
+		bc.gridy = 4;
 		bc.gridx = 3;
 		bc.gridwidth = 1;
 		newCorpusPanel.add(newCorpusInputPathSearchButton, bc);
@@ -293,7 +305,7 @@ public class SourceCodeWizard extends DataImportWizard implements ActionListener
 		newCorpusLanguageLabel.setText("Language:");
 		bc.anchor = GridBagConstraints.LINE_START;
 		bc.fill = GridBagConstraints.NONE;
-		bc.gridy = 4;
+		bc.gridy = 5;
 		bc.gridx = 0;
 		bc.gridwidth = 1;
 		newCorpusPanel.add(newCorpusLanguageLabel, bc);
@@ -303,7 +315,7 @@ public class SourceCodeWizard extends DataImportWizard implements ActionListener
 		
 		bc.fill = GridBagConstraints.HORIZONTAL;
 		bc.anchor = GridBagConstraints.LINE_START;
-		bc.gridy = 4;
+		bc.gridy = 5;
 		bc.gridx = 1;
 		bc.gridwidth = 1;
 		newCorpusPanel.add(newCorpusLanguageComboBox, bc);
