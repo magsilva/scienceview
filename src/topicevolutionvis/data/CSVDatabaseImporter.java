@@ -65,6 +65,8 @@ import topicevolutionvis.wizard.DataImportWizard;
  */
 public class CSVDatabaseImporter extends AbstractDatabaseImporter
 {
+	private String filename;
+	
 	private String language;
 	
 	private String path; 
@@ -72,6 +74,7 @@ public class CSVDatabaseImporter extends AbstractDatabaseImporter
 	public CSVDatabaseImporter(String filename, String collection, String path, String language, DataImportWizard view) {
 		super(filename, collection, 1, view, false);
 		this.language = language;
+		this.filename = filename;
 		this.path = path;
 	}
 
@@ -79,6 +82,7 @@ public class CSVDatabaseImporter extends AbstractDatabaseImporter
     	return "csv";
     }
 
+	@Override
 	protected void readData() {
 		CSVFormat format = CSVFormat.newFormat(':');
 		SparseMatrix sm = new SparseMatrix();
@@ -105,7 +109,7 @@ public class CSVDatabaseImporter extends AbstractDatabaseImporter
 						header.add(label);
 					}
 				} else {
-					String filename = null;
+					String fileName = filename;
 					String rawContent = "";
 					String description = "";
 					double[] featuresVector;
@@ -135,9 +139,21 @@ public class CSVDatabaseImporter extends AbstractDatabaseImporter
 					int currentFeaturesVectorIndex = 0;
 					while (numericFieldIterator.hasNext()) {
 						int numericFieldIndex = numericFieldIterator.next();
+						int pass = 1;
 						String data = record.get(numericFieldIndex);
 						double value = Double.parseDouble(data);
-						featuresVector[currentFeaturesVectorIndex] = value;
+						if ("".equals(language)) {
+							pass = 2;
+						}
+						if (numericFieldIndex == pass) {
+							if ("".equals(language)) {
+								
+							} else {
+								year = (int) value;
+							}
+						} else {
+							featuresVector[currentFeaturesVectorIndex] = value;
+						}
 						currentFeaturesVectorIndex++;
 					}
 					sm.addRow(featuresVector, recordId);
@@ -146,10 +162,11 @@ public class CSVDatabaseImporter extends AbstractDatabaseImporter
 						Iterator<Integer> otherFieldIterator = othersFields.iterator();
 						while (otherFieldIterator.hasNext()) {
 							int otherFieldIndex = otherFieldIterator.next();
-							String data = getCodePath(record.get(otherFieldIndex));
-	
-							// Get file's name
-							filename = path.toString() + separator + data;
+							if ("Python".equals(language)) {
+								String data = getCodePath(record.get(otherFieldIndex));
+								// Get file's name
+								fileName = path.toString() + separator + data;
+							}
 	
 							/*
 							// Get file's description
@@ -159,12 +176,8 @@ public class CSVDatabaseImporter extends AbstractDatabaseImporter
 							description = readDescriptionExerciseFile(pathExercise, separator);
 							*/
 	
-							// Guess "year"
-							// TODO: Pegar o ano do CSV (segundo campo) ou ano do arquivo
-							year = 2018;
-	
 							// Read file's content
-							try (BufferedReader bf = new BufferedReader(new FileReader(filename))) {
+							try (BufferedReader bf = new BufferedReader(new FileReader(fileName))) {
 								String line = null;
 								rawContent = new String();
 								while ((line = bf.readLine()) != null) {
@@ -172,13 +185,13 @@ public class CSVDatabaseImporter extends AbstractDatabaseImporter
 									rawContent = rawContent + "\n";
 								}
 							}
-	
 						}
 					} else {
 						// TODO: define some way to define a year when no language is set.
+						year = 2018;
 					}
 
-					saveToDataBase(connection, recordId, 0, record.get(0), null, null, rawContent, description, null, null, year, 0, null, null, null, "", null, null, null, 0);
+					saveToDataBase(connection, recordId, 0, record.get(0).replaceAll("\"", ""), null, null, rawContent, description, null, null, year, 0, null, null, null, "", null, null, null, 0);
 					
 					// Add record ngrams to the collection's ngram.
 					ngrams = getNgramsFromCSVRecord(record, header, numericFields);

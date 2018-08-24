@@ -172,7 +172,6 @@ public class DataSourceChoiceWizard extends DataImportWizard  {
 		} else {
 			importer.cancel();
 			setStatus("", true);
-	
 		}
 	}
 	

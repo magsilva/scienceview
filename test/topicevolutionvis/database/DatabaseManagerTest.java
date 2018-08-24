@@ -23,12 +23,12 @@ public class DatabaseManagerTest
 	@Test
 	public void testOpenDatabaseDoesNotExist() {
 		db.eraseDatabase();
-		assertFalse(db.checkDatabase());
+		assertFalse(db.isDatabaseReady());
 	}
 
 	@Test
 	public void testOpenDatabaseOk() {
 		db.createDatabase();
-		assertTrue(db.checkDatabase());
+		assertTrue(db.isDatabaseReady());
 	}
 }

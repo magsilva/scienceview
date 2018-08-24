@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -25,6 +27,7 @@ import cc.mallet.pipe.Filename2CharSequence;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import topicevolutionvis.data.*;
 import topicevolutionvis.database.CollectionManager;
@@ -35,7 +38,7 @@ import topicevolutionvis.projection.ProjectionData;
  * @author Danilo Sambugaro
  */
 
-public class SourceCodeWizard extends DataImportWizard implements ActionListener {
+public class SourceCodeWizard extends DataImportWizard {
 	/**
 	 * 
 	 */
@@ -46,7 +49,6 @@ public class SourceCodeWizard extends DataImportWizard implements ActionListener
 	private JButton newCorpusInputPathSearchButton;
 	private JComboBox<String> newCorpusLanguageComboBox;
 	private JLabel newCorpusLanguageLabel;
-	private JButton newCorpusFilenameLoadCancelButton;
 
 	private JLabel corpusLanguageLabel;
 	private JTextField corpusLanguageTextField;
@@ -55,8 +57,8 @@ public class SourceCodeWizard extends DataImportWizard implements ActionListener
 	private JPanel corpusServicesPanel;
 	private JCheckBox[] corpusServices;
 	private JButton corpusServiceRefresh;
-	private static String LABEL_SERVICES[] = {"CCCC","CCSM"};
-	private static String URL_SERVICES[] = {"http://localhost:5000/cccc/default/run/","http://teste_service.com/"};
+	private static String LABEL_SERVICES[] = {"CCCC","Halstead"};
+	private static String URL_SERVICES[] = {"http://localhost:5000/cccc/run/default/","http://localhost:5000/halstead/run/"};
 	private static String languagesSupported[] = {"C", "C++"};
 	
 
@@ -106,7 +108,7 @@ public class SourceCodeWizard extends DataImportWizard implements ActionListener
 			bc.gridx = x++;
 			bc.gridwidth = 1;
 			corpusServicesPanel.add(corpusServices[i], bc);
-			corpusServices[i].setEnabled(checkServiceState(URL_SERVICES[i].concat("0/check")));
+			corpusServices[i].setEnabled(checkServiceState(URL_SERVICES[i]));
 			if (x == 5) {
 				y++;
 				x = 0;
@@ -156,41 +158,83 @@ public class SourceCodeWizard extends DataImportWizard implements ActionListener
 		String fileYear = null;
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
 		String path = newCorpusInputPathTextField.getText();
-		for (int i = 0; i < LABEL_SERVICES.length; i++) {
-			if (corpusServices[i].isSelected()) {
-	            File folder = new File(path);
-	            File[] listOfFiles = folder.listFiles();
-	            JSONArray results = new JSONArray();
-	            JFlat parse;
-	            for (int j=0; j < listOfFiles.length; j++ ) {
-	            	String extension = listOfFiles[j].getName().substring(listOfFiles[j].getName().lastIndexOf(".")+1);
-	                if ((listOfFiles[j].isFile()) && (checkFileExtension(extension, newCorpusLanguageComboBox.getSelectedItem().toString()))) {
-	                    try {
-	                    	fileName = listOfFiles[j].getName();
-	                    	fileContent = FileUtils.readFileToString(listOfFiles[j]);
-	                    	fileYear = sdf.format(listOfFiles[j].lastModified()).concat("/");
-	                    	URL = URL_SERVICES[i].concat(fileYear).concat(fileName);
-	                    	results.put(Unirest.post(URL).body(fileContent).asJson().getBody().getObject());
-	                    	System.out.println(listOfFiles[j].getName() +"\n"+ results.getJSONObject(results.length()-1) + "\n");	                    	
-	                    	
-	            		} catch (Exception e) {
-	            			String error = "Falha com o arquivo " + listOfFiles[j].getName()+"\nErro: " + e;
-	            			JOptionPane.showMessageDialog(corpusServicesPanel, error, "error", JOptionPane.ERROR_MESSAGE);
-	            			System.out.println("Falha com o arquivo " + listOfFiles[j].getName()+"\nErro: " + e);
-	            		}
-	                }
-	        
-	            }
-	            
-	            System.out.println(results.toString());
-	            parse = new JFlat(results.toString());
-	            try {
-					parse.json2Sheet().headerSeparator("_").write2csv("/home/dsambugaro/UTFPR/IC/teste/dados.csv",':');
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+//		for (int i = 0; i < LABEL_SERVICES.length; i++) {
+//			if (corpusServices[i].isSelected()) {
+//	            File folder = new File(path);
+//	            File[] listOfFiles = folder.listFiles();
+//	            JSONArray results = new JSONArray();
+//	            JFlat parse;
+//	            for (int j=0; j < listOfFiles.length; j++ ) {
+//	            	String extension = listOfFiles[j].getName().substring(listOfFiles[j].getName().lastIndexOf(".")+1);
+//	                if ((listOfFiles[j].isFile()) && (checkFileExtension(extension, newCorpusLanguageComboBox.getSelectedItem().toString()))) {
+//	                    try {
+//	                    	fileName = listOfFiles[j].getName();
+//	                    	fileContent = FileUtils.readFileToString(listOfFiles[j]);
+//	                    	fileYear = sdf.format(listOfFiles[j].lastModified()).concat("/");
+//	                    	URL = URL_SERVICES[i].concat(fileYear).concat(fileName);
+//	                    	results.put(Unirest.post(URL).body(fileContent).asJson().getBody().getObject());
+//	            		} catch (Exception e) {
+//	            			String error = "Falha com o arquivo " + listOfFiles[j].getName()+"\nErro: " + e;
+//	            			JOptionPane.showMessageDialog(corpusServicesPanel, error, "error", JOptionPane.ERROR_MESSAGE);
+//	            			System.out.println("Falha com o arquivo " + listOfFiles[j].getName()+"\nErro: " + e);
+//	            		}
+//	                }
+//	            }
+//	            System.out.println(results.toString());
+//	            parse = new JFlat(results.toString());
+//	            try {
+//					parse.json2Sheet().headerSeparator("_").write2csv("/home/dsambugaro/UTFPR/IC/teste/dados.csv",':');
+//				} catch (Exception e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
+//		}
+		JFlat parse;
+		File folder = new File(path);
+        File[] listOfFiles = folder.listFiles();
+        JSONArray results = new JSONArray();
+		for (int j = 0; j < listOfFiles.length; j++) {
+			String extension = listOfFiles[j].getName().substring(listOfFiles[j].getName().lastIndexOf(".")+1);
+			if ((listOfFiles[j].isFile()) && (checkFileExtension(extension, newCorpusLanguageComboBox.getSelectedItem().toString()))) {
+				ArrayList<JSONObject> aux_results = new ArrayList<JSONObject>();
+				for (int i=0; i < LABEL_SERVICES.length; i++ ) {
+					if (corpusServices[i].isSelected()) {
+						try {
+							fileName = listOfFiles[j].getName();
+							fileContent = FileUtils.readFileToString(listOfFiles[j]);
+							fileYear = sdf.format(listOfFiles[j].lastModified()).concat("/");
+							URL = URL_SERVICES[i].concat(fileYear).concat(fileName);
+							aux_results.add(Unirest.post(URL).body(fileContent).asJson().getBody().getObject());
+						} catch (Exception e) {
+							String error = "Falha com o arquivo " + listOfFiles[j].getName()+"\nErro: " + e;
+							JOptionPane.showMessageDialog(corpusServicesPanel, error, "error", JOptionPane.ERROR_MESSAGE);
+							System.out.println("Falha com o arquivo " + listOfFiles[j].getName()+"\nErro: " + e);
+						}
+					}
 				}
+				JSONObject merged_results = new JSONObject();
+				JSONObject[] file_results = new JSONObject[aux_results.size()];
+				for (int k = 0; k < aux_results.size(); k++) {
+					file_results[k] = aux_results.get(k);
+				}
+				for (JSONObject result : file_results) {
+				    Iterator it = result.keys();
+				    while (it.hasNext()) {
+				        String key = it.next().toString();
+				        merged_results.put(key, result.get(key));
+				    }
+				}
+				results.put(merged_results);
 			}
+		}
+        System.out.println(results.toString());
+        parse = new JFlat(results.toString());
+        try {
+			parse.json2Sheet().headerSeparator("_").write2csv("/home/dsambugaro/UTFPR/IC/teste/dados.csv",':');
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 	}
@@ -221,7 +265,7 @@ public class SourceCodeWizard extends DataImportWizard implements ActionListener
 
 	protected void refreshServicesState(ActionEvent evt) {
 		for (int i = 0; i < LABEL_SERVICES.length; i++) {
-			corpusServices[i].setEnabled(checkServiceState(URL_SERVICES[i].concat("check")));
+			corpusServices[i].setEnabled(checkServiceState(URL_SERVICES[i]));
 		}
 	}
 
@@ -305,7 +349,7 @@ public class SourceCodeWizard extends DataImportWizard implements ActionListener
 		newCorpusLanguageLabel.setText("Language:");
 		bc.anchor = GridBagConstraints.LINE_START;
 		bc.fill = GridBagConstraints.NONE;
-		bc.gridy = 5;
+		bc.gridy = 6;
 		bc.gridx = 0;
 		bc.gridwidth = 1;
 		newCorpusPanel.add(newCorpusLanguageLabel, bc);
@@ -315,7 +359,7 @@ public class SourceCodeWizard extends DataImportWizard implements ActionListener
 		
 		bc.fill = GridBagConstraints.HORIZONTAL;
 		bc.anchor = GridBagConstraints.LINE_START;
-		bc.gridy = 5;
+		bc.gridy = 6;
 		bc.gridx = 1;
 		bc.gridwidth = 1;
 		newCorpusPanel.add(newCorpusLanguageComboBox, bc);
