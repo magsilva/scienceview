@@ -15,11 +15,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import scienceview.ui.desktop.wizard.DataImportWizard;
 import topicevolutionvis.data.AbstractDatabaseImporter;
 import topicevolutionvis.data.SqlManager;
 import topicevolutionvis.preprocessing.Ngram;
 import topicevolutionvis.util.PExConstants;
-import topicevolutionvis.wizard.DataImportWizard;
 
 /**
  *

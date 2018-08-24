@@ -1,9 +1,10 @@
 package topicevolutionvis.graph;
 
 import gnu.trove.list.array.TDoubleArrayList;
+import scienceview.ui.desktop.view.color.ColorTable;
+
 import java.awt.*;
 import topicevolutionvis.projection.temporal.TemporalProjection;
-import topicevolutionvis.view.color.ColorTable;
 
 /**
  * This class represents a vertex on the map.

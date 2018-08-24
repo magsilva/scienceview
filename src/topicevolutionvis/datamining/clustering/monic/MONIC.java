@@ -8,6 +8,7 @@ import gnu.trove.iterator.TIntObjectIterator;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import scienceview.ui.desktop.view.TemporalProjectionViewer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +28,6 @@ import topicevolutionvis.topic.Topic;
 import topicevolutionvis.topic.TopicEventsAnimation;
 import topicevolutionvis.topic.TopicFactory;
 import topicevolutionvis.util.Utils;
-import topicevolutionvis.view.TemporalProjectionViewer;
 import weka.clusterers.ClusterEvaluation;
 import weka.clusterers.DBSCAN;
 import weka.core.Attribute;

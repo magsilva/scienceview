@@ -7,6 +7,8 @@ import gnu.trove.iterator.TIntObjectIterator;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import scienceview.ui.desktop.view.TemporalProjectionViewer;
+
 import java.awt.*;
 import java.awt.Point;
 import java.awt.font.FontRenderContext;
@@ -35,7 +37,6 @@ import topicevolutionvis.graph.TemporalGraph;
 import topicevolutionvis.graph.Vertex;
 import topicevolutionvis.projection.temporal.TemporalProjection;
 import topicevolutionvis.topic.TopicData.TopicVisualization;
-import topicevolutionvis.view.TemporalProjectionViewer;
 
 /**
  *

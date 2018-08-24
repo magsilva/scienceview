@@ -16,6 +16,8 @@
 package topicevolutionvis.datamining.dataanalysis;
 
 import gnu.trove.iterator.TIntObjectIterator;
+import scienceview.ui.desktop.view.TemporalProjectionViewer;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map.Entry;
@@ -36,7 +38,6 @@ import topicevolutionvis.projection.distance.DissimilarityType;
 import topicevolutionvis.projection.distance.DistanceMatrix;
 import topicevolutionvis.util.KNN;
 import topicevolutionvis.util.Pair;
-import topicevolutionvis.view.TemporalProjectionViewer;
 
 /**
  *

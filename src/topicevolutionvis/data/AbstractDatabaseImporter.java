@@ -39,8 +39,8 @@ import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
+import scienceview.ui.desktop.wizard.DataImportWizard;
 import topicevolutionvis.preprocessing.Ngram;
-import topicevolutionvis.wizard.DataImportWizard;
 
 /**
  * DatabaseImporter that stores data into a database.

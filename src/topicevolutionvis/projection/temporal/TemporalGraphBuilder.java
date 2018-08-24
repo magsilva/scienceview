@@ -9,6 +9,8 @@ import gnu.trove.iterator.TIntIterator;
 import gnu.trove.iterator.TIntObjectIterator;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import scienceview.ui.desktop.wizard.ProjectionViewWizard;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
@@ -42,7 +44,6 @@ import topicevolutionvis.util.KNN;
 import topicevolutionvis.util.PExConstants;
 import topicevolutionvis.util.Pair;
 import topicevolutionvis.util.Utils;
-import topicevolutionvis.wizard.ProjectionViewWizard;
 
 /**
  *

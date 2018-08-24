@@ -49,12 +49,13 @@ package topicevolutionvis.projection.idmap;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import scienceview.ui.desktop.wizard.ProjectionViewWizard;
 import topicevolutionvis.matrix.SparseMatrix;
 import topicevolutionvis.projection.*;
 import topicevolutionvis.projection.distance.Dissimilarity;
 import topicevolutionvis.projection.distance.DissimilarityFactory;
 import topicevolutionvis.projection.distance.DistanceMatrix;
-import topicevolutionvis.wizard.ProjectionViewWizard;
 
 /**
  *

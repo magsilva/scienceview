@@ -36,7 +36,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import topicevolutionvis.utils.filefilter.StopwordsFileFilter;
+
+import scienceview.ui.desktop.view.filefilter.StopwordsFileFilter;
 
 /**
  * A stoprwords lists manager.

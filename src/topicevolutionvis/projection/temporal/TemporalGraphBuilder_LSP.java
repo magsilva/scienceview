@@ -8,6 +8,8 @@ import com.vividsolutions.jts.geom.*;
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import scienceview.ui.desktop.wizard.ProjectionViewWizard;
+
 import java.awt.HeadlessException;
 import java.io.IOException;
 import java.util.*;
@@ -35,7 +37,6 @@ import topicevolutionvis.projection.lsp.LSPProjection2D;
 import topicevolutionvis.projection.stress.LoetStress;
 import topicevolutionvis.util.PExConstants;
 import topicevolutionvis.util.Utils;
-import topicevolutionvis.wizard.ProjectionViewWizard;
 
 /**
  *

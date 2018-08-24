@@ -16,10 +16,11 @@ package topicevolutionvis.datamining.clustering.monic;
  */
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import scienceview.ui.desktop.view.ScienceViewMainFrame;
+import scienceview.ui.desktop.view.TemporalProjectionViewer;
 import topicevolutionvis.datamining.clustering.DBScanSettings;
 import topicevolutionvis.projection.ProjectionData;
-import topicevolutionvis.view.ScienceViewMainFrame;
-import topicevolutionvis.view.TemporalProjectionViewer;
 
 public class MONICSettings extends javax.swing.JDialog {
     private static final long serialVersionUID = 1L;

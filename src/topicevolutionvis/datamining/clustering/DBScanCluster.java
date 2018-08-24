@@ -6,6 +6,7 @@ package topicevolutionvis.datamining.clustering;
 
 import gnu.trove.iterator.TIntObjectIterator;
 import gnu.trove.list.array.TIntArrayList;
+import scienceview.ui.desktop.view.TemporalProjectionViewer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,7 +19,6 @@ import topicevolutionvis.graph.TemporalGraph;
 import topicevolutionvis.graph.Vertex;
 import topicevolutionvis.projection.temporal.TemporalProjection;
 import topicevolutionvis.topic.TopicFactory;
-import topicevolutionvis.view.TemporalProjectionViewer;
 import weka.clusterers.ClusterEvaluation;
 import weka.clusterers.DBSCAN;
 import weka.core.Attribute;

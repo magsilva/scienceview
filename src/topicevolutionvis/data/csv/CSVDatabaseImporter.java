@@ -49,12 +49,12 @@ import com.ironiacorp.computer.OperationalSystem;
 import com.ironiacorp.computer.OperationalSystemDetector;
 import com.ironiacorp.computer.OperationalSystemType;
 
+import scienceview.ui.desktop.wizard.DataImportWizard;
 import topicevolutionvis.data.AbstractDatabaseImporter;
 import topicevolutionvis.data.SqlManager;
 import topicevolutionvis.matrix.SparseMatrix;
 import topicevolutionvis.preprocessing.Ngram;
 import topicevolutionvis.projection.ProjectionData;
-import topicevolutionvis.wizard.DataImportWizard;
 
 /**
  * Importer of CSV data.

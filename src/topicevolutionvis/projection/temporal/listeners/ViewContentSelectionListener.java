@@ -5,9 +5,9 @@
 package topicevolutionvis.projection.temporal.listeners;
 
 import gnu.trove.list.array.TIntArrayList;
+import scienceview.ui.desktop.view.MultipleDocumentViewer;
+import scienceview.ui.desktop.view.TemporalProjectionViewer;
 import topicevolutionvis.graph.TemporalGraph;
-import topicevolutionvis.view.MultipleDocumentViewer;
-import topicevolutionvis.view.TemporalProjectionViewer;
 
 /**
  *

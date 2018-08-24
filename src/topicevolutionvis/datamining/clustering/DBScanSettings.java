@@ -12,8 +12,9 @@ package topicevolutionvis.datamining.clustering;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import topicevolutionvis.view.ScienceViewMainFrame;
-import topicevolutionvis.view.TemporalProjectionViewer;
+
+import scienceview.ui.desktop.view.ScienceViewMainFrame;
+import scienceview.ui.desktop.view.TemporalProjectionViewer;
 
 /**
  *

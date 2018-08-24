@@ -4,8 +4,8 @@
  */
 package topicevolutionvis.projection.temporal.listeners;
 
+import scienceview.ui.desktop.view.TemporalProjectionViewer;
 import topicevolutionvis.projection.temporal.ShowVertexLabelSelectionListener;
-import topicevolutionvis.view.TemporalProjectionViewer;
 
 /**
  *

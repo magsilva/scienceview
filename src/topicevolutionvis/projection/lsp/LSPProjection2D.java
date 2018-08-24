@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lspsolver.Solver;
+import scienceview.ui.desktop.wizard.ProjectionViewWizard;
 import topicevolutionvis.datamining.clustering.BKmeans;
 import topicevolutionvis.matrix.SparseMatrix;
 import topicevolutionvis.matrix.SparseVector;
@@ -25,7 +26,6 @@ import topicevolutionvis.projection.idmap.IDMAPProjection;
 import topicevolutionvis.util.ANN;
 import topicevolutionvis.util.KNN;
 import topicevolutionvis.util.Pair;
-import topicevolutionvis.wizard.ProjectionViewWizard;
 
 /**
  *

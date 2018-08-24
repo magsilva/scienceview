@@ -10,11 +10,11 @@
  */
 package topicevolutionvis.projection.lsp;
 
+import scienceview.ui.desktop.wizard.ProjectionViewWizard;
 import topicevolutionvis.data.Corpus;
 import topicevolutionvis.projection.ProjectionData;
 import topicevolutionvis.projection.ProjectorType;
 import topicevolutionvis.projection.distance.DissimilarityType;
-import topicevolutionvis.wizard.ProjectionViewWizard;
 
 /**
  *

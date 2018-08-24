@@ -6,6 +6,7 @@ package topicevolutionvis.projection.temporal;
 
 import gnu.trove.iterator.TIntObjectIterator;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import scienceview.ui.desktop.view.tools.OpenProjectionDialog;
 
 import java.io.*;
 import java.sql.Connection;
@@ -44,7 +45,6 @@ import topicevolutionvis.topic.TopicData;
 import topicevolutionvis.topic.TopicData.TopicType;
 import topicevolutionvis.topic.TopicData.TopicVisualization;
 import topicevolutionvis.util.PExConstants;
-import topicevolutionvis.view.tools.OpenProjectionDialog;
 
 /**
  *

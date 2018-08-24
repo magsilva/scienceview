@@ -10,11 +10,11 @@
  */
 package topicevolutionvis.projection.temporal;
 
+import scienceview.ui.desktop.wizard.ProjectionViewWizard;
 import topicevolutionvis.projection.ProjectionData;
 import topicevolutionvis.projection.ProjectorType;
 import topicevolutionvis.projection.distance.DissimilarityType;
 import topicevolutionvis.projection.lsp.ControlPointsType;
-import topicevolutionvis.wizard.ProjectionViewWizard;
 
 /**
  *

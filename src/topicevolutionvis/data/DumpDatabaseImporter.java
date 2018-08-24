@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import topicevolutionvis.wizard.DataImportWizard;
+import scienceview.ui.desktop.wizard.DataImportWizard;
 
 /**
  *

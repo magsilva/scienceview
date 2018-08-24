@@ -14,11 +14,11 @@ import java.util.regex.Pattern;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
+import scienceview.ui.desktop.wizard.DataImportWizard;
 import topicevolutionvis.data.AbstractDatabaseImporter;
 import topicevolutionvis.data.SqlManager;
 import topicevolutionvis.preprocessing.Ngram;
 import topicevolutionvis.util.PExConstants;
-import topicevolutionvis.wizard.DataImportWizard;
 
 /**
  * Import data from ISI format

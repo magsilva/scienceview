@@ -47,9 +47,9 @@ address = {Washington, DC, USA},
 
 package topicevolutionvis.projection.idmap;
 
+import scienceview.ui.desktop.wizard.ProjectionViewWizard;
 import topicevolutionvis.projection.ProjectionData;
 import topicevolutionvis.projection.ProjectorType;
-import topicevolutionvis.wizard.ProjectionViewWizard;
 
 /**
  *

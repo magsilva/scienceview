@@ -5,13 +5,13 @@
 package topicevolutionvis.projection.temporal.listeners;
 
 import gnu.trove.list.array.TIntArrayList;
+import scienceview.ui.desktop.view.ScienceViewMainFrame;
+import scienceview.ui.desktop.view.TemporalProjectionViewer;
 import topicevolutionvis.graph.TemporalGraph;
 import topicevolutionvis.projection.temporal.TemporalProjection;
 import topicevolutionvis.topic.Topic;
 import topicevolutionvis.topic.TopicFactory;
 import topicevolutionvis.topic.TopicNone;
-import topicevolutionvis.view.ScienceViewMainFrame;
-import topicevolutionvis.view.TemporalProjectionViewer;
 
 /**
  *
