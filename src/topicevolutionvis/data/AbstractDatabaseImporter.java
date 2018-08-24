@@ -28,10 +28,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,11 +39,6 @@ import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
-import topicevolutionvis.database.CollectionManager;
-import topicevolutionvis.database.ConnectionManager;
-import topicevolutionvis.database.Corpus;
-import topicevolutionvis.database.SqlManager;
-import topicevolutionvis.database.SqlUtil;
 import topicevolutionvis.preprocessing.Ngram;
 import topicevolutionvis.wizard.DataImportWizard;
 
@@ -54,12 +48,17 @@ import topicevolutionvis.wizard.DataImportWizard;
  * @author Aretha Barbosa Alencar
  * @author Marco Aurélio Graciotto Silva
  */
-public abstract class AbstractDatabaseImporter implements DatabaseImporter {
-// public abstract class AbstractDatabaseImporter implements DatabaseImporter {
-
-    protected String collection, filename, msg = "";
+public abstract class AbstractDatabaseImporter implements DatabaseImporter
+{
+    protected String collection;
     
-    protected int nrGrams, id_collection;
+    protected String filename;
+    
+    protected String msg = "";
+    
+    protected int nrGrams;
+    
+    protected int id_collection;
     
     protected boolean removeStopwordsByTagging;
     
@@ -69,10 +68,8 @@ public abstract class AbstractDatabaseImporter implements DatabaseImporter {
     
     protected CollectionManager collectionManager;
     
-    Pattern referencePattern = Pattern.compile("\\*?([\\w\\s-\\.'()]{2,50})(,\\s(\\d{4}))?,(\\s(UNPUB|INPRESS))?\\s([\\w\\d\\s-\\.\\+\\&():\\d]+){1}(,\\s?[Vv]([\\w\\d-]+))?(,\\sCH([\\d\\w]+))?(,\\s(\\w([\\w\\d]+)))?(,\\sUNSP\\s[\\d\\w\\-/\\.()]+|,\\sARTN\\s([\\d\\w\\.]+))?(,\\sDOI\\s(.{5,100}))?");
+    private static Pattern referencePattern = Pattern.compile("\\*?([\\w\\s-\\.'()]{2,50})(,\\s(\\d{4}))?,(\\s(UNPUB|INPRESS))?\\s([\\w\\d\\s-\\.\\+\\&():\\d]+){1}(,\\s?[Vv]([\\w\\d-]+))?(,\\sCH([\\d\\w]+))?(,\\s(\\w([\\w\\d]+)))?(,\\sUNSP\\s[\\d\\w\\-/\\.()]+|,\\sARTN\\s([\\d\\w\\.]+))?(,\\sDOI\\s(.{5,100}))?");
     
-    Pattern isiPattern = Pattern.compile("FN\\s.*|VR\\s.*\\s*|PT\\s.*\\s*|AU\\s.*\\s*|AF\\s.*\\s*|ED\\s.*\\s*|C1\\s.*\\s*|TI\\s.*\\s*|RID\\s.*\\s*|SO\\s.*\\s*|LA\\s.*\\s*|DI\\s.*\\s*|DT\\s.*\\s*|NR\\s.*\\s*|SN\\s.*\\s*|PU\\s.*\\s*|C1\\s.*\\s*|DE\\s.*\\s*|ID\\s.*\\s*|AB\\s.*\\s*|CR\\s.*\\s*|TC\\s.*\\s*|BP\\s.*\\s*|EP\\s.*\\s*|PG\\s.*\\s*|JI\\s.*\\s*|SE\\s.*\\s*|BS\\s.*\\s*|PY\\s.*\\s*|CY\\s.*\\s*|PD\\s.*\\s*|VL\\s.*\\s*|IS\\s.*\\s*|PN\\s.*\\s*|SU\\s.*\\s*|SI\\s.*\\s*|GA\\s.*\\s*|PI\\s.*\\s*|WP\\s.*\\s*|RP\\s.*\\s*|CP\\s.*\\s*|J9\\s.*\\s*|PA\\s.*\\s*|UT\\s.*\\s*|MH\\s.*\\s*|SS\\s.*\\s*|JC\\s.*\\s*|PS\\s.*\\s?\\s*|RC\\s.*\\s?\\s*|SC\\s.*\\s?\\s*|PE\\s.*\\s?\\s*|ER\\s?\\s*|EF\\s?");
-
     private ConnectionManager connManager;
     
     protected Connection connection;
@@ -98,22 +95,12 @@ public abstract class AbstractDatabaseImporter implements DatabaseImporter {
 		}      
     }
 
-    public boolean isLoadingDatabase() {
+    public synchronized boolean isLoadingDatabase() {
 		return loadingDatabase;
 	}
 
-	public synchronized void setLoadingDatabase(boolean loadingDatabase) {
+	private synchronized void setLoadingDatabase(boolean loadingDatabase) {
 		this.loadingDatabase = loadingDatabase;
-		if (loadingDatabase == false) {
-			if (connection != null) {
-				try {
-					connection.close();
-				} catch (Exception e) {
-				} finally {
-					connection = null;
-				}
-			}
-		}
 	}
     
     protected void matchReferencesToPapers() {
@@ -124,15 +111,13 @@ public abstract class AbstractDatabaseImporter implements DatabaseImporter {
             stmt.setInt(4, id_collection);
             try (ResultSet result = stmt.executeQuery()) {
 	            while (result.next()) {
-	                int id_doc, id_ref;
-	                id_doc = result.getInt(1);
-	                id_ref = result.getInt(2);
+	                int id_doc = result.getInt(1);
+	                int id_ref = result.getInt(2);
 	                try (PreparedStatement stmt2 = sqlManager.getSqlStatement(connection, "UPDATE.REFERENCE")) {
 		                stmt2.setInt(1, id_doc);
 		                stmt2.setInt(2, id_ref);
 		                stmt2.setInt(3, id_collection);
 		                stmt2.executeUpdate();
-		                stmt2.close();
 	                }
 	            }
             }
@@ -145,7 +130,6 @@ public abstract class AbstractDatabaseImporter implements DatabaseImporter {
         try (
         		Connection conn = connManager.getConnection();
         		PreparedStatement stmt = sqlManager.getSqlStatement(conn, "SELECT.NUMBER.OF.REFERENCES");
-        		
         ) { 
             stmt.setInt(1, id_collection);
             try (ResultSet result = stmt.executeQuery()) {
@@ -175,105 +159,89 @@ public abstract class AbstractDatabaseImporter implements DatabaseImporter {
         }
     }
 
+    // TODO: rewrite this using code from SysRevPEx
     protected ArrayList<Ngram> getNgramsFromFileRemovingStopwordsByTagging(String content) {
-        HashMap<String, Integer> ngramsTable = new HashMap<>();
-        InputStream modelIn = null, rules_POS;
-        if (content != null) {
-            try {
+    	throw new UnsupportedOperationException();
 
-                modelIn = new FileInputStream("resources/en-token.bin");
-                TokenizerModel model = new TokenizerModel(modelIn);
-                Tokenizer tokenizer = new TokenizerME(model);
-                String paras[] = tokenizer.tokenize(content);
-
-                rules_POS = new FileInputStream("resources/en-pos-maxent.bin");
-                POSModel modelPOS = new POSModel(rules_POS);
-                POSTaggerME tagger = new POSTaggerME(modelPOS);
-                String tags[] = tagger.tag(paras);
-                ArrayList<String> words = new ArrayList<>();
-                for (int i = 0; i < tags.length; i++) {
-                    if (tags[i].compareTo("CC") != 0 && tags[i].compareTo("CD") != 0
-                            && tags[i].compareTo("DT") != 0 && tags[i].compareTo("EX") != 0
-                            && tags[i].compareTo("IN") != 0 && tags[i].compareTo("JJR") != 0
-                            && tags[i].compareTo("JJS") != 0 && tags[i].compareTo("LS") != 0
-                            && tags[i].compareTo("MD") != 0 && tags[i].compareTo("PDT") != 0
-                            && tags[i].compareTo("POS") != 0 && tags[i].compareTo("PRP") != 0
-                            && tags[i].compareTo("PRP$") != 0 && tags[i].compareTo("RB") != 0
-                            && tags[i].compareTo("RBR") != 0 && tags[i].compareTo("RBS") != 0
-                            && tags[i].compareTo("RP") != 0 && tags[i].compareTo("SYM") != 0
-                            && tags[i].compareTo("TO") != 0 && tags[i].compareTo("UH") != 0
-                            && tags[i].compareTo("VB") != 0 && tags[i].compareTo("VBD") != 0
-                            && tags[i].compareTo("VBG") != 0 && tags[i].compareTo("VBN") != 0
-                            && tags[i].compareTo("VBP") != 0 && tags[i].compareTo("VBZ") != 0
-                            && tags[i].compareTo("WDT") != 0 && tags[i].compareTo("WP") != 0
-                            && tags[i].compareTo("WP$") != 0 && tags[i].compareTo("WRB") != 0) {
-                        words.add(paras[i]);
-                    }
-                }
-
-                //create the first ngram
-                String[] ngram = new String[nrGrams];
-                int i = 0, count = 0;
-                while (count < nrGrams && i < words.size()) {
-                    if (words.get(i).trim().length() > 0 && !words.get(i).matches("[\\p{Punct}\\p{Digit}]+|'s")) {
-                        String word = words.get(i).toLowerCase();
-                        if (word.trim().length() > 0) {
-                            ngram[count] = word;
-                            count++;
-                        }
-                    }
-                    i++;
-                }
-
-                StringBuilder sb = new StringBuilder();
-                for (int j = 0; j < ngram.length - 1; j++) {
-                    sb.append(ngram[j]).append("<>");
-                }
-                sb.append(ngram[ngram.length - 1]);
-
-                //adding to the frequencies table
-                ngramsTable.put(sb.toString(), 1);
-
-                //creating the remaining ngrams
-                String word;
-                while (i < words.size()) {
-                    if (words.get(i).trim().length() > 0 && !words.get(i).matches("[\\p{Punct}\\p{Digit}']+|'s")) {
-                        word = words.get(i).toLowerCase();
-
-                        if (word.trim().length() > 0) {
-                            String ng = this.addNextWord(ngram, word);
-
-                            //verify if the ngram already exist on the document
-                            if (ngramsTable.containsKey(ng)) {
-                                ngramsTable.put(ng, ngramsTable.get(ng) + 1);
-                            } else {
-                                ngramsTable.put(ng, 1);
-                            }
-                        }
-                    }
-                    i++;
-                }
-            } catch (IOException e) {
-                Logger.getLogger(AbstractDatabaseImporter.class.getName()).log(Level.SEVERE, null, e);
-            } finally {
-                if (modelIn != null) {
-                    try {
-                        modelIn.close();
-                    } catch (IOException e) {
-                    }
+    	/*
+    	if (content == null) {
+        	throw new IllegalArgumentException(new NullPointerException());
+        }
+    
+       	Map<String, Integer> ngramsTable = new HashMap<>();
+        try (
+        	InputStream rules_POS = new FileInputStream("resources/en-pos-maxent.bin");
+        	InputStream modelIn = new FileInputStream("resources/en-token.bin")
+        ) {
+            TokenizerModel model = new TokenizerModel(modelIn);
+            Tokenizer tokenizer = new TokenizerME(model);
+            String paras[] = tokenizer.tokenize(content);
+            POSModel modelPOS = new POSModel(rules_POS);
+            POSTaggerME tagger = new POSTaggerME(modelPOS);
+            String tags[] = tagger.tag(paras);
+            String stopTags[] = { "CC", "CD", "DT", "EX", "IN", "JJR", "JJS", "LS", "MD",
+            		"PDT", "POS", "PRP", "PRP$", "RB", "RBR", "RBS", "RP", "SYM", "TO", 
+            		"UH", "VB", "VBD", "VBG", "VBN", "VBP", "VBZ", "WDT", "WP", "WP$",
+            		"WRB"};
+            ArrayList<String> words = new ArrayList<>();
+            for (int i = 0; i < tags.length; i++) {
+            	boolean shouldIncludeWord = true;
+            	for (String stopTag : stopTags) {
+           			shouldIncludeWord &= (tags[i].compareTo(stopTag) == 0);
+            	}
+            	if (shouldIncludeWord) {
+            		String cleantWord = paras[i].trim().toLowerCase();
+            		if (cleantWord.length() > 0) {
+            			words.add(cleantWord);
+            		}
                 }
             }
+
+            // TODO: Rewrite the n-gram generation code
+            // For each word, create 1-gram
+            String[] ngram = new String[nrGrams];
+            for
+            int count = 0;
+            while (count < nrGrams && i < words.size()) {
+                // TODO: the old code was:
+            	// if (words.get(i).length() > 0 && ! words.get(i).matches("[\\p{Punct}\\p{Digit}]+|'s")) {
+            	// It was ignoring some words. Why? Shouldn't this be handled latter on?
+                ngram[count] = words.get(i);
+                count++;
+                i++;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            for (int j = 0; j < ngram.length - 1; j++) {
+                sb.append(ngram[j]).append("<>");
+            }
+            sb.append(ngram[ngram.length - 1]);
+
+            //adding to the frequencies table
+            ngramsTable.put(sb.toString(), 1);
+
+            // For each word, create 1-gram
+            //creating the remaining ngrams
+            for (String word : words) {
+                String ng = addNextWord(ngram, word);
+                //verify if the ngram already exist on the document
+                if (ngramsTable.containsKey(ng)) {
+                    ngramsTable.put(ng, ngramsTable.get(ng) + 1);
+                } else {
+                    ngramsTable.put(ng, 1);
+                }
+            }
+        } catch (IOException e) {
+           	throw new RuntimeException(e);
         }
-
-
-
-
+    
         ArrayList<Ngram> ngrams = new ArrayList<>();
         for (Entry<String, Integer> entry : ngramsTable.entrySet()) {
             ngrams.add(new Ngram(entry.getKey(), entry.getValue()));
         }
         Collections.sort(ngrams);
         return ngrams;
+        */
     }
 
     
@@ -313,55 +281,53 @@ public abstract class AbstractDatabaseImporter implements DatabaseImporter {
     private void saveAuthors(Connection conn, int id, String authors) {
         StringTokenizer authorsTokenizer = new StringTokenizer(authors, "|");
         String author;
-        int author_order = 0, index_author;
+        int author_order = 0;
+        int index_author;
 
-        try {
-            while (authorsTokenizer.hasMoreTokens()) {
-                author = authorsTokenizer.nextToken().trim().toUpperCase();
-                try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "SELECT.SAME.AUTHOR")) {
-	                stmt.setString(1, author);
-	                try (ResultSet result = stmt.executeQuery()) {
-		                author_order++;
-		                if (result.next()) {
-		                    index_author = result.getInt(1);
-		                    try (PreparedStatement stmt2 = sqlManager.getSqlStatement(conn, "INSERT.DOCUMENT.TO.AUTHOR")) {
-			                    stmt2.setInt(1, id);
-			                    stmt2.setInt(2, id_collection);
-			                    stmt2.setInt(3, index_author);
-			                    stmt2.setInt(4, author_order);
-			                    stmt2.executeUpdate();
+        while (authorsTokenizer.hasMoreTokens()) {
+            author = authorsTokenizer.nextToken().trim().toUpperCase();
+            try (PreparedStatement stmt = sqlManager.getSqlStatement(conn, "SELECT.SAME.AUTHOR")) {
+                stmt.setString(1, author);
+                try (ResultSet result = stmt.executeQuery()) {
+	                author_order++;
+	                if (result.next()) {
+	                    index_author = result.getInt(1);
+	                    try (PreparedStatement stmt2 = sqlManager.getSqlStatement(conn, "INSERT.DOCUMENT.TO.AUTHOR")) {
+		                    stmt2.setInt(1, id);
+		                    stmt2.setInt(2, id_collection);
+		                    stmt2.setInt(3, index_author);
+		                    stmt2.setInt(4, author_order);
+		                    stmt2.executeUpdate();
+	                    }
+	                } else {
+	                	try (PreparedStatement stmt2 = sqlManager.getSqlStatement(conn, "INSERT.AUTHOR")) {
+		                    stmt2.setString(1, author);
+		                    stmt2.setInt(2, id_collection);
+		                    stmt2.executeUpdate();
+		                    try (ResultSet result2 = stmt2.getGeneratedKeys()) {
+		                    	result2.next();
+		                    	index_author = result2.getInt(1);
 		                    }
-		                } else {
-		                	try (PreparedStatement stmt2 = sqlManager.getSqlStatement(conn, "INSERT.AUTHOR")) {
-			                    stmt2.setString(1, author);
-			                    stmt2.setInt(2, id_collection);
-			                    stmt2.executeUpdate();
-			                    try (ResultSet result2 = stmt2.getGeneratedKeys()) {
-			                    	result2.next();
-			                    	index_author = result2.getInt(1);
-			                    }
-		
-			                	try (PreparedStatement stmt3 = sqlManager.getSqlStatement(conn, "INSERT.DOCUMENT.TO.AUTHOR")) {
-				                    stmt3.setInt(1, id);
-				                    stmt3.setInt(2, id_collection);
-				                    stmt3.setInt(3, index_author);
-				                    stmt3.setInt(4, author_order);
-				                    stmt3.executeUpdate();
-			                	}
-		                	}
+	
+		                	try (PreparedStatement stmt3 = sqlManager.getSqlStatement(conn, "INSERT.DOCUMENT.TO.AUTHOR")) {
+				                stmt3.setInt(1, id);
+				                stmt3.setInt(2, id_collection);
+				                stmt3.setInt(3, index_author);
+				                stmt3.setInt(4, author_order);
+				                stmt3.executeUpdate();
+			                }
 		                }
-	                }
-                }
+		            }
+	            }
+            } catch (SQLException e) {
+            	throw new RuntimeException("Error loading data from database", e);
             }
-        } catch (SQLException e) {
-            throw new RuntimeException("Error loading data from database", e);
-        }
+       }
     }
 
     private void saveReferences(Connection conn, int id, String references) {
-        PreparedStatement stmt = null;
-        ResultSet result = null;
-        int id_author, id_ref = 0;
+        int id_author = 0;
+        int id_ref = 0;
         String reference = null, aux;
         Matcher referenceMatcher;
         try {
@@ -384,25 +350,23 @@ public abstract class AbstractDatabaseImporter implements DatabaseImporter {
                         if (aux != null && !aux.isEmpty()) {
                             authorReference = aux.trim().replace(". ", "").replace(".", "").toUpperCase();
                             //trying to find out if the author of this reference is already on the authors table
-                            stmt = sqlManager.getSqlStatement(conn, "SELECT.SAME.AUTHOR");
-                            stmt.setString(1, authorReference);
-                            result = stmt.executeQuery();
-                            if (result.next()) {
-                                id_author = result.getInt(1);
-                                result.close();
-                                stmt.close();
-                            } else {
-                            	result.close();
-                            	stmt.close();
-                                stmt = sqlManager.getSqlStatement(conn, "INSERT.AUTHOR");
-                                stmt.setString(1, authorReference);
-                                stmt.setInt(2, id_collection);
-                                stmt.executeUpdate();
-                                result = stmt.getGeneratedKeys();
-                                result.next();
-                                id_author = result.getInt(1);
-                                result.close();
-                                stmt.close();
+                            try ( PreparedStatement stmtSameAuthor = sqlManager.getSqlStatement(conn, "SELECT.SAME.AUTHOR")) {
+                            	stmtSameAuthor.setString(1, authorReference);
+                                try (ResultSet resultSameAuthor = stmtSameAuthor.executeQuery()) {
+                                	if (resultSameAuthor.next()) {
+                                        id_author = resultSameAuthor.getInt(1);
+                                    } else {
+                                    	try (PreparedStatement stmtInsertAuthor = sqlManager.getSqlStatement(conn, "INSERT.AUTHOR")) {
+                                    		stmtInsertAuthor.setString(1, authorReference);
+                                    		stmtInsertAuthor.setInt(2, id_collection);
+                                    		stmtInsertAuthor.executeUpdate();
+                                            try (ResultSet resultAuthorId = stmtInsertAuthor.getGeneratedKeys()) {
+                                            	resultAuthorId.next();
+                                                id_author = resultAuthorId.getInt(1);                                            	
+                                            }
+                                    	}
+                                    }    	
+                                }
                             }
                         } else {
                             id_author = -1;
@@ -449,15 +413,15 @@ public abstract class AbstractDatabaseImporter implements DatabaseImporter {
 
                         //descobrindo se esta referencia já apareceu antes na colecao
                         if (doiReference != null) {
-                            stmt = sqlManager.getSqlStatement(conn, "SELECT.CITATION.WITH.DOI");
-                            stmt.setString(1, doiReference);
-                            stmt.setInt(2, id_collection);
-                            result = stmt.executeQuery();
-                            if (result.next()) {
-                                id_ref = result.getInt(1);
+                            try (PreparedStatement stmtCitationWithDOI = sqlManager.getSqlStatement(conn, "SELECT.CITATION.WITH.DOI")) {
+                            	stmtCitationWithDOI.setString(1, doiReference);
+                            	stmtCitationWithDOI.setInt(2, id_collection);
+                            	try (ResultSet resultCitationWithDOI = stmtCitationWithDOI.executeQuery()) {
+                            		if (resultCitationWithDOI.next()) {
+                            			id_ref = resultCitationWithDOI.getInt(1);
+                            		}
+                            	}
                             }
-                            result.close();
-                            stmt.close();
                         }
 
                         if (id_ref == -1) {
@@ -495,51 +459,48 @@ public abstract class AbstractDatabaseImporter implements DatabaseImporter {
 
                             sqlStatement.append(" and id_collection=").append(this.id_collection);
 
-                            stmt = sqlManager.createSqlStatement(conn, sqlStatement.toString());
-                            result = stmt.executeQuery();
+                            try (
+                            		PreparedStatement stmtGetCitations = sqlManager.createSqlStatement(conn, sqlStatement.toString());
+                            		ResultSet resultCitations = stmtGetCitations.executeQuery()
+                            ) {
+                            	if (resultCitations.next()) {
+                            		id_ref = resultCitations.getInt(1);
+                            		try (PreparedStatement stmtInsertDocument2Reference = sqlManager.getSqlStatement(conn, "INSERT.DOCUMENT.TO.REFERENCE")) {
+                            			stmtInsertDocument2Reference.setInt(1, id);
+                            			stmtInsertDocument2Reference.setInt(2, id_collection);
+                            			stmtInsertDocument2Reference.setInt(3, id_ref);
+                            			stmtInsertDocument2Reference.executeUpdate();
+                            		}
+                            	} else {
+                            		// inserindo referencia na tabela de citacoes
+                            		try (PreparedStatement stmtInsertReference = sqlManager.getSqlStatement(conn, "INSERT.REFERENCE")) {
+                            			stmtInsertReference.setInt(1, id_collection);
+                            			stmtInsertReference.setInt(2, id_author);
+                            			stmtInsertReference.setString(3, typeReference);
+                            			stmtInsertReference.setInt(4, yearReference);
+                            			stmtInsertReference.setString(5, journalReference);
+                            			stmtInsertReference.setString(6, volumeReference);
+                            			stmtInsertReference.setString(7, chapterReference);
+                            			stmtInsertReference.setString(8, doiReference);
+                            			stmtInsertReference.setString(9, pagesReference);
+                            			stmtInsertReference.setString(10, artnReference);
+                            			stmtInsertReference.setString(11, reference);
+                            			stmtInsertReference.setInt(12, -1);
+                            			stmtInsertReference.executeUpdate();
+                            			try (ResultSet resultReferenceInsertion = stmtInsertReference.getGeneratedKeys()) {
+                            				resultReferenceInsertion.next();
+                            				id_ref = resultReferenceInsertion.getInt(1);
+                            			}
 
-                            if (result.next()) {
-                                id_ref = result.getInt(1);
-                                result.close();
-                                stmt.close();
-                                stmt = sqlManager.getSqlStatement(conn, "INSERT.DOCUMENT.TO.REFERENCE");
-                                stmt.setInt(1, id);
-                                stmt.setInt(2, id_collection);
-                                stmt.setInt(3, id_ref);
-                                stmt.executeUpdate();
-                                result.close();
-                                stmt.close();
-                            } else {
-                                //inserindo referencia na tabela de citacoes
-                                result.close();
-                                stmt.close();
-                                stmt = sqlManager.getSqlStatement(conn, "INSERT.REFERENCE");
-                                stmt.setInt(1, id_collection);
-                                stmt.setInt(2, id_author);
-                                stmt.setString(3, typeReference);
-                                stmt.setInt(4, yearReference);
-                                stmt.setString(5, journalReference);
-                                stmt.setString(6, volumeReference);
-                                stmt.setString(7, chapterReference);
-                                stmt.setString(8, doiReference);
-                                stmt.setString(9, pagesReference);
-                                stmt.setString(10, artnReference);
-                                stmt.setString(11, reference);
-                                stmt.setInt(12, -1);
-                                stmt.executeUpdate();
-
-                                result = stmt.getGeneratedKeys();
-                                result.next();
-                                id_ref = result.getInt(1);
-                                result.close();
-                                stmt.close();
-
-                                stmt = sqlManager.getSqlStatement(conn, "INSERT.DOCUMENT.TO.REFERENCE");
-                                stmt.setInt(1, id);
-                                stmt.setInt(2, id_collection);
-                                stmt.setInt(3, id_ref);
-                                stmt.executeUpdate();
-                                stmt.close();
+                            			try (PreparedStatement stmtInsertDocument2Reference = sqlManager.getSqlStatement(conn, "INSERT.DOCUMENT.TO.REFERENCE")) {
+                                			stmtInsertDocument2Reference.setInt(1, id);
+                                			stmtInsertDocument2Reference.setInt(2, id_collection);
+                                			stmtInsertDocument2Reference.setInt(3, id_ref);
+                                			stmtInsertDocument2Reference.executeUpdate();
+                                			stmtInsertDocument2Reference.close();
+                            			}
+                            		}
+                            	}
                             }
                         }
                     }
@@ -551,9 +512,6 @@ public abstract class AbstractDatabaseImporter implements DatabaseImporter {
             System.out.println("Referencia: " + id_ref);
             System.out.println("[REF DUPLICADA] " + reference);
 //            throw new RuntimeException("Error loading data from database", e);
-        } finally {
-            SqlUtil.close(result);
-            SqlUtil.close(stmt);
         }
     }
 

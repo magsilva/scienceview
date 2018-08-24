@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import topicevolutionvis.database.Corpus;
+import topicevolutionvis.data.Corpus;
 import topicevolutionvis.graph.Vertex;
 import topicevolutionvis.matrix.SparseMatrix;
 import topicevolutionvis.matrix.SparseVector;

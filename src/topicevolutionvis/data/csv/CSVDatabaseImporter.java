@@ -17,7 +17,7 @@ with this software. If not, see <http://www.gnu.org/licenses/>.
 ***** END LICENSE BLOCK *****
 */
 
-package topicevolutionvis.data;
+package topicevolutionvis.data.csv;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -37,7 +37,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.csv.CSVFormat;
@@ -50,7 +49,8 @@ import com.ironiacorp.computer.OperationalSystem;
 import com.ironiacorp.computer.OperationalSystemDetector;
 import com.ironiacorp.computer.OperationalSystemType;
 
-import topicevolutionvis.database.SqlManager;
+import topicevolutionvis.data.AbstractDatabaseImporter;
+import topicevolutionvis.data.SqlManager;
 import topicevolutionvis.matrix.SparseMatrix;
 import topicevolutionvis.preprocessing.Ngram;
 import topicevolutionvis.projection.ProjectionData;

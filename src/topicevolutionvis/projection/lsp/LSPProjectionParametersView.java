@@ -10,7 +10,7 @@
  */
 package topicevolutionvis.projection.lsp;
 
-import topicevolutionvis.database.Corpus;
+import topicevolutionvis.data.Corpus;
 import topicevolutionvis.projection.ProjectionData;
 import topicevolutionvis.projection.ProjectorType;
 import topicevolutionvis.projection.distance.DissimilarityType;

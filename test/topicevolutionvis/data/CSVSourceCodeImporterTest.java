@@ -5,8 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import topicevolutionvis.database.Corpus;
-import topicevolutionvis.database.DatabaseCorpus;
+import topicevolutionvis.data.csv.CSVDatabaseImporter;
 
 public class CSVSourceCodeImporterTest {
 

@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import topicevolutionvis.database.Corpus;
-import topicevolutionvis.database.SqlManager;
 import topicevolutionvis.wizard.DataImportWizard;
 
 /**

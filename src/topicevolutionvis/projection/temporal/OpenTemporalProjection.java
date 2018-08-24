@@ -25,10 +25,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import topicevolutionvis.database.CollectionManager;
-import topicevolutionvis.database.ConnectionManager;
-import topicevolutionvis.database.Corpus;
-import topicevolutionvis.database.DatabaseCorpus;
+
+import topicevolutionvis.data.CollectionManager;
+import topicevolutionvis.data.ConnectionManager;
+import topicevolutionvis.data.Corpus;
+import topicevolutionvis.data.DatabaseCorpus;
 import topicevolutionvis.dimensionreduction.DimensionalityReductionType;
 import topicevolutionvis.graph.*;
 import topicevolutionvis.matrix.normalization.NormalizationType;

@@ -19,11 +19,11 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 
-import topicevolutionvis.data.CSVDatabaseImporter;
+import topicevolutionvis.data.CollectionManager;
+import topicevolutionvis.data.Corpus;
+import topicevolutionvis.data.DatabaseCorpus;
 import topicevolutionvis.data.DatabaseImporter;
-import topicevolutionvis.database.CollectionManager;
-import topicevolutionvis.database.Corpus;
-import topicevolutionvis.database.DatabaseCorpus;
+import topicevolutionvis.data.csv.CSVDatabaseImporter;
 import topicevolutionvis.projection.ProjectionData;
 import topicevolutionvis.util.SystemPropertiesManager;
 import topicevolutionvis.utils.filefilter.BibTeXFileFilter;

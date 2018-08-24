@@ -15,7 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.math3.analysis.interpolation.LinearInterpolator;
 
-import topicevolutionvis.database.Corpus;
+import topicevolutionvis.data.Corpus;
 import topicevolutionvis.datamining.network.BibliographicCouplingConnectivity;
 import topicevolutionvis.datamining.network.CoAuthorshipConnectivy;
 import topicevolutionvis.datamining.network.CoreCitationConnectivity;

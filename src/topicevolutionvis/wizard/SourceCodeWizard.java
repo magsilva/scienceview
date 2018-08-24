@@ -30,7 +30,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import topicevolutionvis.data.*;
-import topicevolutionvis.database.CollectionManager;
+import topicevolutionvis.data.csv.CSVDatabaseImporter;
 import topicevolutionvis.projection.ProjectionData;
 
 /**

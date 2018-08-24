@@ -11,14 +11,14 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-import topicevolutionvis.data.BibTeX2RIS;
-import topicevolutionvis.data.CSVDatabaseImporter;
+import topicevolutionvis.data.CollectionManager;
+import topicevolutionvis.data.Corpus;
+import topicevolutionvis.data.DatabaseCorpus;
 import topicevolutionvis.data.DumpDatabaseImporter;
-import topicevolutionvis.data.EndnoteDatabaseImporter;
-import topicevolutionvis.data.ISICorpusDatabaseImporter;
-import topicevolutionvis.database.CollectionManager;
-import topicevolutionvis.database.Corpus;
-import topicevolutionvis.database.DatabaseCorpus;
+import topicevolutionvis.data.bibtex.BibTeX2RIS;
+import topicevolutionvis.data.csv.CSVDatabaseImporter;
+import topicevolutionvis.data.endnote.EndnoteDatabaseImporter;
+import topicevolutionvis.data.isi.ISICorpusDatabaseImporter;
 import topicevolutionvis.projection.ProjectionData;
 
 /**

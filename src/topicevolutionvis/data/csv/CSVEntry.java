@@ -1,4 +1,4 @@
-package topicevolutionvis.data;
+package topicevolutionvis.data.csv;
 
 import java.io.File;
 import java.io.FileNotFoundException;

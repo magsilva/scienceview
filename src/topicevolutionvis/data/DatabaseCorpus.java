@@ -1,10 +1,11 @@
-package topicevolutionvis.database;
+package topicevolutionvis.data;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,7 +18,6 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.collections.map.MultiKeyMap;
 
-import topicevolutionvis.data.Encoding;
 import topicevolutionvis.matrix.SparseMatrix;
 import topicevolutionvis.preprocessing.Ngram;
 import topicevolutionvis.preprocessing.Reference;
@@ -38,7 +38,7 @@ public class DatabaseCorpus implements Corpus {
 
     protected int nrDocuments;
 
-    protected static Encoding encoding = Encoding.ASCII;
+    private Charset encoding;
 
     private int id_collection = 0;
 

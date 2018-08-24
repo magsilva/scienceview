@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
-import topicevolutionvis.database.Corpus;
+import topicevolutionvis.data.Corpus;
 import topicevolutionvis.dimensionreduction.lda.LDAOutput;
 import topicevolutionvis.matrix.SparseMatrix;
 import topicevolutionvis.matrix.SparseVector;

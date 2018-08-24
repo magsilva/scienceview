@@ -20,8 +20,6 @@ with this software. If not, see <http://www.gnu.org/licenses/>.
 
 package topicevolutionvis.data;
 
-import topicevolutionvis.database.Corpus;
-
 /**
  * Create collection (DatabaseCorpus) from a set of data.
  */

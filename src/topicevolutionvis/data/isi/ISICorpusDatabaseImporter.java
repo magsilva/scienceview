@@ -1,4 +1,4 @@
-package topicevolutionvis.data;
+package topicevolutionvis.data.isi;
 
 import java.io.*;
 import java.sql.PreparedStatement;
@@ -14,7 +14,8 @@ import java.util.regex.Pattern;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
-import topicevolutionvis.database.SqlManager;
+import topicevolutionvis.data.AbstractDatabaseImporter;
+import topicevolutionvis.data.SqlManager;
 import topicevolutionvis.preprocessing.Ngram;
 import topicevolutionvis.util.PExConstants;
 import topicevolutionvis.wizard.DataImportWizard;

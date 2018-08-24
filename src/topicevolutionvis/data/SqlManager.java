@@ -1,4 +1,4 @@
-package topicevolutionvis.database;
+package topicevolutionvis.data;
 
 import java.io.IOException;
 import java.io.InputStream;

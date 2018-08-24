@@ -29,7 +29,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
-import topicevolutionvis.database.SqlManager;
+import topicevolutionvis.data.SqlManager;
 import topicevolutionvis.datamining.clustering.monic.MONICSettings;
 import topicevolutionvis.datamining.dataanalysis.NeighborhoodPreservationView;
 import topicevolutionvis.graph.Edge;

@@ -10,6 +10,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import topicevolutionvis.data.ConnectionManager;
+import topicevolutionvis.data.SqlManager;
+
 public class SqlManagerTest {
 	
 	private ConnectionManager connManager;

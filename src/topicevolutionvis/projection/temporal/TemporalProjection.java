@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
-import topicevolutionvis.database.Corpus;
+import topicevolutionvis.data.Corpus;
 import topicevolutionvis.datamining.clustering.monic.ExternalTransitions;
 import topicevolutionvis.graph.*;
 import topicevolutionvis.graph.scalar.QuerySolver;

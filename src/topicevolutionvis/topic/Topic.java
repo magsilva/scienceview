@@ -30,7 +30,7 @@ import setvis.SetOutline;
 import setvis.bubbleset.BubbleSet;
 import setvis.shape.AbstractShapeGenerator;
 import setvis.shape.BSplineShapeGenerator;
-import topicevolutionvis.database.Corpus;
+import topicevolutionvis.data.Corpus;
 import topicevolutionvis.graph.TemporalGraph;
 import topicevolutionvis.graph.Vertex;
 import topicevolutionvis.projection.temporal.TemporalProjection;

@@ -7,8 +7,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import topicevolutionvis.data.BibTeX2RIS;
-import topicevolutionvis.data.ISICorpusDatabaseImporter;
+
+import topicevolutionvis.data.bibtex.BibTeX2RIS;
+import topicevolutionvis.data.isi.ISICorpusDatabaseImporter;
 
 import com.ironiacorp.computer.ComputerSystem;
 import com.ironiacorp.computer.Filesystem;

@@ -6,7 +6,7 @@ package topicevolutionvis.preprocessing;
 
 import java.io.IOException;
 
-import topicevolutionvis.database.Corpus;
+import topicevolutionvis.data.Corpus;
 
 /**
  *

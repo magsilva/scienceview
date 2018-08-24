@@ -39,7 +39,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.DefaultFormatter;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import topicevolutionvis.database.Corpus;
+import topicevolutionvis.data.Corpus;
 import topicevolutionvis.graph.*;
 import topicevolutionvis.projection.ProjectionData;
 import topicevolutionvis.projection.temporal.TemporalProjection;

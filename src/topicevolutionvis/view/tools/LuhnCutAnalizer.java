@@ -62,7 +62,7 @@ import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.table.DefaultTableModel;
 
-import topicevolutionvis.database.Corpus;
+import topicevolutionvis.data.Corpus;
 import topicevolutionvis.preprocessing.Ngram;
 import topicevolutionvis.preprocessing.Stopwords;
 import topicevolutionvis.preprocessing.VectorSpaceRepresentation;

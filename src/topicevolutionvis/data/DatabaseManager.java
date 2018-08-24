@@ -1,4 +1,4 @@
-package topicevolutionvis.database;
+package topicevolutionvis.data;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;

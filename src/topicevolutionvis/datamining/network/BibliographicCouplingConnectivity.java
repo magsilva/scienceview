@@ -10,7 +10,7 @@ import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import java.util.ArrayList;
 
-import topicevolutionvis.database.Corpus;
+import topicevolutionvis.data.Corpus;
 import topicevolutionvis.graph.Connectivity;
 import topicevolutionvis.graph.ConnectivityType;
 import topicevolutionvis.graph.Vertex;

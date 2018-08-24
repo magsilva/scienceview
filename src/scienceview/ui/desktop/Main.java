@@ -17,7 +17,7 @@ with this software. If not, see <http://www.gnu.org/licenses/>.
 
 package scienceview.ui.desktop;
 
-import topicevolutionvis.database.DatabaseManager;
+import topicevolutionvis.data.DatabaseManager;
 import topicevolutionvis.view.ScienceViewMainFrame;
 
 /**

@@ -8,7 +8,7 @@ import java.util.List;
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import topicevolutionvis.database.Corpus;
+import topicevolutionvis.data.Corpus;
 import topicevolutionvis.dimensionreduction.DimensionalityReductionType;
 import topicevolutionvis.dimensionreduction.lda.LDAOutput;
 import topicevolutionvis.matrix.SparseMatrix;

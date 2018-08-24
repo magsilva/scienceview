@@ -1,4 +1,21 @@
-package topicevolutionvis.data;
+/*
+***** BEGIN LICENSE BLOCK *****
+This is free software: you can redistribute it and/or modify it under 
+the terms of the GNU General Public License as published by the Free 
+Software Foundation, either version 3 of the License, or (at your option) 
+any later version.
+
+It is distributed in the hope that it will be useful, but WITHOUT 
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
+for more details.
+
+You should have received a copy of the GNU General Public License along 
+with this software. If not, see <http://www.gnu.org/licenses/>.
+***** END LICENSE BLOCK *****
+*/
+
+package topicevolutionvis.data.bibtex;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,6 +38,7 @@ import net.sf.jabref.BibtexEntry;
 import net.sf.jabref.BibtexEntryType;
 import net.sf.jabref.imports.BibtexParser;
 import net.sf.jabref.imports.ParserResult;
+import topicevolutionvis.data.isi.ISICorpusDatabaseImporter;
 
 public class BibTeX2RIS
 {

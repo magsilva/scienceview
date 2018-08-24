@@ -33,9 +33,9 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import topicevolutionvis.database.ConnectionManager;
-import topicevolutionvis.database.Corpus;
-import topicevolutionvis.database.SqlManager;
+import topicevolutionvis.data.ConnectionManager;
+import topicevolutionvis.data.Corpus;
+import topicevolutionvis.data.SqlManager;
 import topicevolutionvis.graph.*;
 import topicevolutionvis.projection.ProjectionData;
 import topicevolutionvis.topic.TopicData;

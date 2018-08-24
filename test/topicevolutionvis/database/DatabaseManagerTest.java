@@ -6,6 +6,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import topicevolutionvis.data.DatabaseManager;
+
 public class DatabaseManagerTest
 {
 	private DatabaseManager db;
