@@ -22,7 +22,7 @@ public class DatabaseManager {
     	sqlManager = SqlManager.getInstance();
     }
     
-    public synchronized boolean checkDatabase()
+    public synchronized boolean isDatabaseReady()
     {
           try (Connection conn = connManager.getConnection()) {
         	  DatabaseMetaData dbm = conn.getMetaData();
