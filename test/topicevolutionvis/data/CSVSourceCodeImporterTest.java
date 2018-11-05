@@ -5,7 +5,10 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import topicevolutionvis.data.csv.CSVDatabaseImporter;
+import scienceview.database.DatabaseImporter;
+import scienceview.datamining.corpus.Corpus;
+import scienceview.datamining.corpus.DatabaseCorpus;
+import scienceview.datamining.corpus.csv.CSVDatabaseImporter;
 
 public class CSVSourceCodeImporterTest {
 

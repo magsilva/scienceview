@@ -11,15 +11,15 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-import topicevolutionvis.data.CollectionManager;
-import topicevolutionvis.data.Corpus;
-import topicevolutionvis.data.DatabaseCorpus;
-import topicevolutionvis.data.DumpDatabaseImporter;
-import topicevolutionvis.data.bibtex.BibTeX2RIS;
-import topicevolutionvis.data.csv.CSVDatabaseImporter;
-import topicevolutionvis.data.endnote.EndnoteDatabaseImporter;
-import topicevolutionvis.data.isi.ISICorpusDatabaseImporter;
-import topicevolutionvis.projection.ProjectionData;
+import scienceview.database.DumpDatabaseImporter;
+import scienceview.datamining.corpus.CollectionManager;
+import scienceview.datamining.corpus.Corpus;
+import scienceview.datamining.corpus.DatabaseCorpus;
+import scienceview.datamining.corpus.bibtex.BibTeX2RIS;
+import scienceview.datamining.corpus.csv.CSVDatabaseImporter;
+import scienceview.datamining.corpus.endnote.EndnoteDatabaseImporter;
+import scienceview.datamining.corpus.isi.ISICorpusDatabaseImporter;
+import scienceview.datamining.projection.ProjectionData;
 
 /**
  * Wizard to create and select collections.

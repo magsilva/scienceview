@@ -62,17 +62,17 @@ import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.table.DefaultTableModel;
 
+import scienceview.SystemPropertiesManager;
+import scienceview.datamining.corpus.Corpus;
+import scienceview.datamining.preprocessing.steemer.StemmerFactory;
+import scienceview.datamining.preprocessing.steemer.StemmerType;
+import scienceview.datamining.preprocessing.stopwords.Stopwords;
+import scienceview.datamining.projection.ProjectionData;
+import scienceview.datarepresentation.Ngram;
+import scienceview.datarepresentation.VectorSpaceRepresentation;
 import scienceview.ui.desktop.view.SaveDialog;
 import scienceview.ui.desktop.view.filefilter.STARTFilter;
 import scienceview.ui.desktop.view.filefilter.StopwordsFileFilter;
-import topicevolutionvis.data.Corpus;
-import topicevolutionvis.preprocessing.Ngram;
-import topicevolutionvis.preprocessing.Stopwords;
-import topicevolutionvis.preprocessing.VectorSpaceRepresentation;
-import topicevolutionvis.preprocessing.steemer.StemmerFactory;
-import topicevolutionvis.preprocessing.steemer.StemmerType;
-import topicevolutionvis.projection.ProjectionData;
-import topicevolutionvis.util.SystemPropertiesManager;
 
 /**
  *

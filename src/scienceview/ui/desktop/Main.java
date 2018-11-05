@@ -17,8 +17,8 @@ with this software. If not, see <http://www.gnu.org/licenses/>.
 
 package scienceview.ui.desktop;
 
+import scienceview.database.DatabaseManager;
 import scienceview.ui.desktop.view.ScienceViewMainFrame;
-import topicevolutionvis.data.DatabaseManager;
 
 /**
  * Main class for desktop version of ScienceView.

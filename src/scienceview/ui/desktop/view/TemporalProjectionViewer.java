@@ -10,12 +10,17 @@
  */
 package scienceview.ui.desktop.view;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import gnu.trove.iterator.TIntIterator;
 import gnu.trove.iterator.TIntObjectIterator;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import scienceview.PExConstants;
+import scienceview.datamining.corpus.Corpus;
+import scienceview.datamining.projection.ProjectionData;
+import scienceview.datamining.topicmodeling.Topic;
+import scienceview.datamining.topicmodeling.TopicData;
+import scienceview.datarepresentation.graph.*;
+import scienceview.projection.temporal.TemporalProjection;
 import scienceview.ui.desktop.view.color.ColorScalePanel;
 import scienceview.ui.desktop.view.color.ColorTable;
 
@@ -42,14 +47,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.DefaultFormatter;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import topicevolutionvis.data.Corpus;
-import topicevolutionvis.graph.*;
-import topicevolutionvis.projection.ProjectionData;
-import topicevolutionvis.projection.temporal.TemporalProjection;
-import topicevolutionvis.projection.temporal.listeners.VertexSelectionFactory;
-import topicevolutionvis.topic.Topic;
-import topicevolutionvis.topic.TopicData;
-import topicevolutionvis.util.PExConstants;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 
 /**
  *
@@ -1810,7 +1809,7 @@ private void previous_graphButtonActionPerformed(java.awt.event.ActionEvent evt)
 
         public Topic getTopicByPosition(java.awt.Point point) {
             GeometryFactory factory = new GeometryFactory();
-            com.vividsolutions.jts.geom.Point p = factory.createPoint(new Coordinate(point.x, point.y));
+            org.locationtech.jts.geom.Point p = factory.createPoint(new Coordinate(point.x, point.y));
             for (Topic t : getGraph().getTopics()) {
                 if (t.contains(p) && !t.isAnimation()) {
                     return t;

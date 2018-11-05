@@ -13,13 +13,13 @@ package scienceview.ui.desktop.view;
 import java.awt.Color;
 import java.awt.Font;
 
+import scienceview.datamining.topicmodeling.LDATopicSettings;
+import scienceview.datamining.topicmodeling.PCATopicSettings;
+import scienceview.datamining.topicmodeling.TopicData.TopicType;
+import scienceview.datamining.topicmodeling.TopicData.TopicVisualization;
+import scienceview.datarepresentation.graph.Vertex;
+import scienceview.projection.temporal.TemporalProjection;
 import scienceview.ui.desktop.view.tools.LDADialog;
-import topicevolutionvis.graph.Vertex;
-import topicevolutionvis.projection.temporal.TemporalProjection;
-import topicevolutionvis.topic.LDATopicSettings;
-import topicevolutionvis.topic.PCATopicSettings;
-import topicevolutionvis.topic.TopicData.TopicType;
-import topicevolutionvis.topic.TopicData.TopicVisualization;
 
 /**
  *

@@ -12,11 +12,11 @@ package scienceview.ui.desktop.wizard;
 
 import javax.swing.JFileChooser;
 
+import scienceview.datamining.dimensionreduction.DimensionalityReductionType;
+import scienceview.datamining.projection.ProjectionData;
 import scienceview.ui.desktop.view.SaveDialog;
 import scienceview.ui.desktop.view.filefilter.DATAFilter;
-import topicevolutionvis.dimensionreduction.DimensionalityReductionType;
-import topicevolutionvis.matrix.normalization.NormalizationType;
-import topicevolutionvis.projection.ProjectionData;
+import scienceview.utils.matrix.normalization.NormalizationType;
 
 /**
  *

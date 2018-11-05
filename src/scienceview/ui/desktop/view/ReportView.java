@@ -23,13 +23,13 @@ import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import scienceview.SystemPropertiesManager;
+import scienceview.datamining.preprocessing.stopwords.Stopwords;
+import scienceview.datamining.projection.ProjectionData;
+import scienceview.datamining.topicmodeling.TopicData;
+import scienceview.datamining.topicmodeling.TopicData.TopicType;
+import scienceview.datarepresentation.RepresentationType;
 import scienceview.ui.desktop.view.filefilter.TXTFileFilter;
-import topicevolutionvis.preprocessing.RepresentationType;
-import topicevolutionvis.preprocessing.Stopwords;
-import topicevolutionvis.projection.ProjectionData;
-import topicevolutionvis.topic.TopicData;
-import topicevolutionvis.topic.TopicData.TopicType;
-import topicevolutionvis.util.SystemPropertiesManager;
 
 /**
  *

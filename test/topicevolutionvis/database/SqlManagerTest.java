@@ -10,8 +10,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import topicevolutionvis.data.ConnectionManager;
-import topicevolutionvis.data.SqlManager;
+import scienceview.database.ConnectionManager;
+import scienceview.database.SqlManager;
 
 public class SqlManagerTest {
 	

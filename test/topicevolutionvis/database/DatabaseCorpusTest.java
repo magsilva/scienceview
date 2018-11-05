@@ -7,9 +7,9 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
-import topicevolutionvis.data.Corpus;
-import topicevolutionvis.data.DatabaseCorpus;
-import topicevolutionvis.preprocessing.Ngram;
+import scienceview.datamining.corpus.Corpus;
+import scienceview.datamining.corpus.DatabaseCorpus;
+import scienceview.datarepresentation.Ngram;
 
 public class DatabaseCorpusTest {
 

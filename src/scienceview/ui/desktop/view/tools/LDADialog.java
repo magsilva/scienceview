@@ -4,8 +4,8 @@
  */
 package scienceview.ui.desktop.view.tools;
 
+import scienceview.datamining.topicmodeling.TopicData;
 import scienceview.ui.desktop.view.ToolOptions;
-import topicevolutionvis.topic.TopicData;
 
 /**
  *

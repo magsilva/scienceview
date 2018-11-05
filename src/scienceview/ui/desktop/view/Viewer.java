@@ -6,11 +6,11 @@ package scienceview.ui.desktop.view;
 
 import java.awt.Font;
 
+import scienceview.datarepresentation.graph.Connectivity;
+import scienceview.datarepresentation.graph.Scalar;
+import scienceview.datarepresentation.graph.TemporalGraph;
+import scienceview.ui.desktop.view.VertexSelectionFactory.SelectionType;
 import scienceview.ui.desktop.view.color.ColorTable;
-import topicevolutionvis.graph.Connectivity;
-import topicevolutionvis.graph.Scalar;
-import topicevolutionvis.graph.TemporalGraph;
-import topicevolutionvis.projection.temporal.listeners.VertexSelectionFactory.SelectionType;
 
 /**
  *

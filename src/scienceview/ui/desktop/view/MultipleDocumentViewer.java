@@ -26,9 +26,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 
-import topicevolutionvis.data.Corpus;
-import topicevolutionvis.matrix.SparseMatrix;
-import topicevolutionvis.preprocessing.Ngram;
+import scienceview.datamining.corpus.Corpus;
+import scienceview.datarepresentation.Ngram;
+import scienceview.utils.matrix.SparseMatrix;
 
 /**
  * Viewer of multiple documents. It uses a tab to organized multiple documents.

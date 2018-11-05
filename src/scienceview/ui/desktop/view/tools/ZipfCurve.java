@@ -58,7 +58,8 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 import java.util.List;
-import topicevolutionvis.preprocessing.Ngram;
+
+import scienceview.datarepresentation.Ngram;
 
 /**
  *

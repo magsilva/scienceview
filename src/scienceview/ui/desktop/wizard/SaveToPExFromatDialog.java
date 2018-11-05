@@ -13,10 +13,10 @@ package scienceview.ui.desktop.wizard;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import scienceview.datamining.projection.ProjectionData;
 import scienceview.ui.desktop.view.SaveDialog;
 import scienceview.ui.desktop.view.filefilter.ScalarFileFilter;
 import scienceview.ui.desktop.view.filefilter.ZipFileFilter;
-import topicevolutionvis.projection.ProjectionData;
 
 /**
  *

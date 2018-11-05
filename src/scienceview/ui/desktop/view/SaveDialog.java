@@ -9,8 +9,8 @@ import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import scienceview.SystemPropertiesManager;
 import scienceview.ui.desktop.view.filefilter.MyFileFilter;
-import topicevolutionvis.util.SystemPropertiesManager;
 
 /**
  *

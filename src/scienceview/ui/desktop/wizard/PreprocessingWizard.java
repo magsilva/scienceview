@@ -47,11 +47,11 @@
  * ***** END LICENSE BLOCK ***** */
 package scienceview.ui.desktop.wizard;
 
+import scienceview.datamining.preprocessing.steemer.StemmerType;
+import scienceview.datamining.projection.ProjectionData;
+import scienceview.datamining.termweight.MatrixTransformationType;
+import scienceview.datarepresentation.RepresentationType;
 import scienceview.ui.desktop.view.tools.LuhnCutAnalizer;
-import topicevolutionvis.preprocessing.RepresentationType;
-import topicevolutionvis.preprocessing.steemer.StemmerType;
-import topicevolutionvis.preprocessing.transformation.MatrixTransformationType;
-import topicevolutionvis.projection.ProjectionData;
 
 /**
  *

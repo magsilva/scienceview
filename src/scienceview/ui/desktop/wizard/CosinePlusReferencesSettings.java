@@ -14,9 +14,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import javax.swing.table.DefaultTableModel;
 
+import scienceview.datamining.projection.ProjectionData;
+import scienceview.datamining.termrepresentation.Reference;
 import scienceview.ui.desktop.view.tools.ZipfCurveReferences;
-import topicevolutionvis.preprocessing.Reference;
-import topicevolutionvis.projection.ProjectionData;
 
 /**
  *

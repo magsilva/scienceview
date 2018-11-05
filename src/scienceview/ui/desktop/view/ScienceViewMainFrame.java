@@ -29,23 +29,19 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
+import scienceview.SystemPropertiesManager;
+import scienceview.database.SqlManager;
+import scienceview.datamining.topicmodeling.Topic;
+import scienceview.datarepresentation.graph.Edge;
+import scienceview.datarepresentation.graph.Scalar;
+import scienceview.datarepresentation.graph.TemporalGraph;
+import scienceview.datarepresentation.graph.Vertex;
+import scienceview.projection.temporal.TemporalProjection;
 import scienceview.ui.desktop.view.filefilter.PNGFileFilter;
 import scienceview.ui.desktop.view.tools.MemoryCheck;
 import scienceview.ui.desktop.view.tools.OpenProjectionDialog;
 import scienceview.ui.desktop.view.tools.WordsManager;
 import scienceview.ui.desktop.wizard.ProjectionWizardView;
-import topicevolutionvis.data.SqlManager;
-import topicevolutionvis.datamining.clustering.monic.MONICSettings;
-import topicevolutionvis.datamining.dataanalysis.NeighborhoodPreservationView;
-import topicevolutionvis.graph.Edge;
-import topicevolutionvis.graph.Scalar;
-import topicevolutionvis.graph.TemporalGraph;
-import topicevolutionvis.graph.Vertex;
-import topicevolutionvis.projection.stress.StressJDialog;
-import topicevolutionvis.projection.temporal.TemporalProjection;
-import topicevolutionvis.projection.temporal.listeners.VertexSelectionFactory;
-import topicevolutionvis.topic.Topic;
-import topicevolutionvis.util.SystemPropertiesManager;
 
 /**
  *

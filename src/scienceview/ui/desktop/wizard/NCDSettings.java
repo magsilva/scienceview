@@ -4,8 +4,8 @@
  */
 package scienceview.ui.desktop.wizard;
 
-import topicevolutionvis.projection.ProjectionData;
-import topicevolutionvis.projection.distance.kolmogorov.CompressorType;
+import scienceview.datamining.projection.ProjectionData;
+import scienceview.utils.distance.CompressorType;
 
 /**
  *

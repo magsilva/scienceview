@@ -14,10 +14,10 @@ import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import scienceview.SystemPropertiesManager;
+import scienceview.projection.temporal.SaveTemporalProjection;
+import scienceview.projection.temporal.TemporalProjection;
 import scienceview.ui.desktop.view.filefilter.ZipFileFilter;
-import topicevolutionvis.projection.temporal.SaveTemporalProjection;
-import topicevolutionvis.projection.temporal.TemporalProjection;
-import topicevolutionvis.util.SystemPropertiesManager;
 
 /**
  *

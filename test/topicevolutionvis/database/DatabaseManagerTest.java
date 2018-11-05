@@ -6,7 +6,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import topicevolutionvis.data.DatabaseManager;
+import scienceview.database.DatabaseManager;
 
 public class DatabaseManagerTest
 {

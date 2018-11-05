@@ -24,14 +24,14 @@ import com.github.opendevl.JFlat;
 import com.mashape.unirest.http.Unirest;
 
 import cc.mallet.pipe.Filename2CharSequence;
+import scienceview.database.*;
+import scienceview.datamining.corpus.CollectionManager;
+import scienceview.datamining.corpus.csv.CSVDatabaseImporter;
+import scienceview.datamining.projection.ProjectionData;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import topicevolutionvis.data.*;
-import topicevolutionvis.data.csv.CSVDatabaseImporter;
-import topicevolutionvis.projection.ProjectionData;
 
 /**
  * Wizard to create and select code collections.

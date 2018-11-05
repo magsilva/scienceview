@@ -11,7 +11,8 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import topicevolutionvis.preprocessing.Reference;
+
+import scienceview.datamining.termrepresentation.Reference;
 
 /**
  *

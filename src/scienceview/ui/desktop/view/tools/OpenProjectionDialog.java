@@ -12,10 +12,10 @@ package scienceview.ui.desktop.view.tools;
 
 import javax.swing.JFileChooser;
 
+import scienceview.SystemPropertiesManager;
+import scienceview.projection.temporal.OpenTemporalProjection;
 import scienceview.ui.desktop.view.ScienceViewMainFrame;
 import scienceview.ui.desktop.view.filefilter.ZipFileFilter;
-import topicevolutionvis.projection.temporal.OpenTemporalProjection;
-import topicevolutionvis.util.SystemPropertiesManager;
 
 /**
  *

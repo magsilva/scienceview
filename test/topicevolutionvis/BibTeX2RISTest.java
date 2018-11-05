@@ -8,13 +8,13 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-import topicevolutionvis.data.bibtex.BibTeX2RIS;
-import topicevolutionvis.data.isi.ISICorpusDatabaseImporter;
-
 import com.ironiacorp.computer.ComputerSystem;
 import com.ironiacorp.computer.Filesystem;
 import com.ironiacorp.computer.OperationalSystem;
 import com.ironiacorp.io.IoUtil;
+
+import scienceview.datamining.corpus.bibtex.BibTeX2RIS;
+import scienceview.datamining.corpus.isi.ISICorpusDatabaseImporter;
 
 public class BibTeX2RISTest
 {

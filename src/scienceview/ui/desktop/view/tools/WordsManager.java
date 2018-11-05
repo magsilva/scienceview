@@ -19,10 +19,10 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.table.DefaultTableModel;
 
+import scienceview.SystemPropertiesManager;
+import scienceview.datamining.preprocessing.stopwords.Startword;
+import scienceview.datamining.preprocessing.stopwords.Stopwords;
 import scienceview.ui.desktop.view.filefilter.StopwordsFileFilter;
-import topicevolutionvis.preprocessing.Startword;
-import topicevolutionvis.preprocessing.Stopwords;
-import topicevolutionvis.util.SystemPropertiesManager;
 
 /**
  *

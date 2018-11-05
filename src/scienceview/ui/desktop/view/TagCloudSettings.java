@@ -10,8 +10,8 @@
  */
 package scienceview.ui.desktop.view;
 
-import topicevolutionvis.projection.temporal.TemporalProjection;
-import topicevolutionvis.topic.TopicData;
+import scienceview.datamining.topicmodeling.TopicData;
+import scienceview.projection.temporal.TemporalProjection;
 
 /**
  *

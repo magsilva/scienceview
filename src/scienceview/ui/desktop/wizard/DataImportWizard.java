@@ -19,18 +19,18 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 
+import scienceview.SystemPropertiesManager;
+import scienceview.database.DatabaseImporter;
+import scienceview.datamining.corpus.CollectionManager;
+import scienceview.datamining.corpus.Corpus;
+import scienceview.datamining.corpus.DatabaseCorpus;
+import scienceview.datamining.corpus.csv.CSVDatabaseImporter;
+import scienceview.datamining.projection.ProjectionData;
 import scienceview.ui.desktop.view.filefilter.BibTeXFileFilter;
 import scienceview.ui.desktop.view.filefilter.CSVFileFilter;
 import scienceview.ui.desktop.view.filefilter.DatabaseFileFilter;
 import scienceview.ui.desktop.view.filefilter.EndnoteExportFileFilter;
 import scienceview.ui.desktop.view.filefilter.ISIFileFilter;
-import topicevolutionvis.data.CollectionManager;
-import topicevolutionvis.data.Corpus;
-import topicevolutionvis.data.DatabaseCorpus;
-import topicevolutionvis.data.DatabaseImporter;
-import topicevolutionvis.data.csv.CSVDatabaseImporter;
-import topicevolutionvis.projection.ProjectionData;
-import topicevolutionvis.util.SystemPropertiesManager;
 
 public abstract class DataImportWizard extends WizardPanel implements ActionListener {
 

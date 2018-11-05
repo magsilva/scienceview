@@ -13,11 +13,11 @@ package scienceview.ui.desktop.wizard;
 import java.io.File;
 import javax.swing.JFileChooser;
 
+import scienceview.SystemPropertiesManager;
+import scienceview.datamining.projection.ProjectionData;
+import scienceview.datamining.projection.ProjectionType;
 import scienceview.ui.desktop.view.filefilter.DmatFileFilter;
-import topicevolutionvis.projection.ProjectionData;
-import topicevolutionvis.projection.ProjectionType;
-import topicevolutionvis.projection.distance.DissimilarityType;
-import topicevolutionvis.util.SystemPropertiesManager;
+import scienceview.utils.distance.DissimilarityType;
 
 /**
  *

@@ -59,8 +59,8 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
+import scienceview.projection.temporal.TemporalProjection;
 import scienceview.ui.desktop.view.ScienceViewMainFrame;
-import topicevolutionvis.projection.temporal.TemporalProjection;
 
 /**
  *

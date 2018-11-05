@@ -47,10 +47,10 @@ address = {Washington, DC, USA},
  * ***** END LICENSE BLOCK ***** */
 package scienceview.ui.desktop.wizard;
 
-import topicevolutionvis.projection.ProjectionData;
-import topicevolutionvis.projection.lsp.LSPProjectionParametersView;
-import topicevolutionvis.projection.temporal.TemporalGraphBuilder;
-import topicevolutionvis.projection.temporal.TemporalProjection;
+import scienceview.datamining.projection.ProjectionData;
+import scienceview.projection.lsp.LSPProjectionParametersView;
+import scienceview.projection.temporal.TemporalGraphBuilder;
+import scienceview.projection.temporal.TemporalProjection;
 
 /**
  *
