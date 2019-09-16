@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import scienceview.datamining.corpus.Corpus;
 import scienceview.datamining.corpus.DatabaseCorpus;
-import scienceview.datarepresentation.Ngram;
+import scienceview.datamining.datarepresentation.Ngram;
 
 public class DatabaseCorpusTest {
 

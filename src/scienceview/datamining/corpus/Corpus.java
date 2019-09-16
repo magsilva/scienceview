@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import scienceview.datamining.datarepresentation.Ngram;
 import scienceview.datamining.projection.ProjectionData;
 import scienceview.datamining.termrepresentation.Reference;
-import scienceview.datarepresentation.Ngram;
 import scienceview.utils.datastructures.Pair;
 import scienceview.utils.matrix.SparseMatrix;
 

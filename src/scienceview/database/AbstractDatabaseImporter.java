@@ -41,7 +41,7 @@ import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import scienceview.datamining.corpus.CollectionManager;
 import scienceview.datamining.corpus.Corpus;
-import scienceview.datarepresentation.Ngram;
+import scienceview.datamining.datarepresentation.Ngram;
 import scienceview.ui.desktop.wizard.DataImportWizard;
 
 /**

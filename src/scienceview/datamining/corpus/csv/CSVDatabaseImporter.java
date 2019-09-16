@@ -51,8 +51,8 @@ import com.ironiacorp.computer.OperationalSystemType;
 
 import scienceview.database.AbstractDatabaseImporter;
 import scienceview.database.SqlManager;
+import scienceview.datamining.datarepresentation.Ngram;
 import scienceview.datamining.projection.ProjectionData;
-import scienceview.datarepresentation.Ngram;
 import scienceview.ui.desktop.wizard.DataImportWizard;
 import scienceview.utils.matrix.SparseMatrix;
 

@@ -8,14 +8,14 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import scienceview.datamining.datarepresentation.LDARepresentation;
+import scienceview.datamining.datarepresentation.RepresentationFactory;
+import scienceview.datamining.datarepresentation.RepresentationType;
 import scienceview.datamining.dimensionreduction.LDAOutput;
 import scienceview.datamining.preprocessing.steemer.StemmerType;
 import scienceview.datamining.projection.ProjectionData;
 import scienceview.datamining.termweight.MatrixTransformationType;
 import scienceview.datamining.topicmodeling.TopicData;
-import scienceview.datarepresentation.LDARepresentation;
-import scienceview.datarepresentation.RepresentationFactory;
-import scienceview.datarepresentation.RepresentationType;
 import scienceview.projection.temporal.TemporalProjection;
 import scienceview.ui.desktop.view.ToolOptions;
 import scienceview.utils.matrix.SparseMatrix;

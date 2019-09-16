@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 import scienceview.PExConstants;
 import scienceview.database.AbstractDatabaseImporter;
 import scienceview.database.SqlManager;
-import scienceview.datarepresentation.Ngram;
+import scienceview.datamining.datarepresentation.Ngram;
 import scienceview.ui.desktop.wizard.DataImportWizard;
 
 /**

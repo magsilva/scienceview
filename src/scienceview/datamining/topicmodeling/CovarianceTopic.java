@@ -2,9 +2,9 @@ package scienceview.datamining.topicmodeling;
 
 import org.locationtech.jts.geom.Coordinate;
 import gnu.trove.list.array.TIntArrayList;
+import scienceview.datamining.datarepresentation.Ngram;
+import scienceview.datamining.datarepresentation.VectorSpaceRepresentation;
 import scienceview.datamining.preprocessing.steemer.StemmerType;
-import scienceview.datarepresentation.Ngram;
-import scienceview.datarepresentation.VectorSpaceRepresentation;
 import scienceview.datarepresentation.graph.TemporalGraph;
 import scienceview.projection.temporal.TemporalProjection;
 import scienceview.utils.matrix.SparseMatrix;

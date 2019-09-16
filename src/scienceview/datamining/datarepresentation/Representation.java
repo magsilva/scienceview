@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package scienceview.datarepresentation;
+package scienceview.datamining.datarepresentation;
 
 import java.io.IOException;
 import java.util.*;
@@ -21,7 +21,6 @@ import scienceview.datamining.termweight.MatrixTransformationType;
 import scienceview.datarepresentation.graph.Vertex;
 import scienceview.projection.temporal.TemporalProjection;
 import scienceview.utils.matrix.SparseMatrix;
-import scienceview.utils.matrix.SparseVector;
 
 /**
  *

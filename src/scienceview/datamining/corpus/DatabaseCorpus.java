@@ -5,9 +5,9 @@ import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import scienceview.database.ConnectionManager;
 import scienceview.database.SqlManager;
+import scienceview.datamining.datarepresentation.Ngram;
 import scienceview.datamining.projection.ProjectionData;
 import scienceview.datamining.termrepresentation.Reference;
-import scienceview.datarepresentation.Ngram;
 import scienceview.utils.datastructures.Pair;
 import scienceview.utils.matrix.SparseMatrix;
 

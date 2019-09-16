@@ -50,7 +50,7 @@ import gnu.trove.iterator.TIntIntIterator;
 import gnu.trove.iterator.TIntObjectIterator;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
-import scienceview.datarepresentation.Ngram;
+import scienceview.datamining.datarepresentation.Ngram;
 import scienceview.projection.temporal.TemporalProjection;
 
 import java.io.IOException;

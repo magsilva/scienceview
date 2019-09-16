@@ -45,7 +45,7 @@
  * with PEx. If not, see <http://www.gnu.org/licenses/>.
  *
  * ***** END LICENSE BLOCK ***** */
-package scienceview.datarepresentation;
+package scienceview.datamining.datarepresentation;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;

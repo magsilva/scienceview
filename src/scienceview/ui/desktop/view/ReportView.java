@@ -24,11 +24,11 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import scienceview.SystemPropertiesManager;
+import scienceview.datamining.datarepresentation.RepresentationType;
 import scienceview.datamining.preprocessing.stopwords.Stopwords;
 import scienceview.datamining.projection.ProjectionData;
 import scienceview.datamining.topicmodeling.TopicData;
 import scienceview.datamining.topicmodeling.TopicData.TopicType;
-import scienceview.datarepresentation.RepresentationType;
 import scienceview.ui.desktop.view.filefilter.TXTFileFilter;
 
 /**

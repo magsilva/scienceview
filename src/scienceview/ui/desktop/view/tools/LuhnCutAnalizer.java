@@ -64,12 +64,12 @@ import javax.swing.table.DefaultTableModel;
 
 import scienceview.SystemPropertiesManager;
 import scienceview.datamining.corpus.Corpus;
+import scienceview.datamining.datarepresentation.Ngram;
+import scienceview.datamining.datarepresentation.VectorSpaceRepresentation;
 import scienceview.datamining.preprocessing.steemer.StemmerFactory;
 import scienceview.datamining.preprocessing.steemer.StemmerType;
 import scienceview.datamining.preprocessing.stopwords.Stopwords;
 import scienceview.datamining.projection.ProjectionData;
-import scienceview.datarepresentation.Ngram;
-import scienceview.datarepresentation.VectorSpaceRepresentation;
 import scienceview.ui.desktop.view.SaveDialog;
 import scienceview.ui.desktop.view.filefilter.STARTFilter;
 import scienceview.ui.desktop.view.filefilter.StopwordsFileFilter;

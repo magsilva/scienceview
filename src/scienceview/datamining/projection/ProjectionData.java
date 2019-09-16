@@ -9,11 +9,11 @@ import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import scienceview.datamining.corpus.Corpus;
+import scienceview.datamining.datarepresentation.RepresentationType;
 import scienceview.datamining.dimensionreduction.DimensionalityReductionType;
 import scienceview.datamining.dimensionreduction.LDAOutput;
 import scienceview.datamining.preprocessing.steemer.StemmerType;
 import scienceview.datamining.termweight.MatrixTransformationType;
-import scienceview.datarepresentation.RepresentationType;
 import scienceview.projection.lsp.ControlPointsType;
 import scienceview.utils.distance.CompressorType;
 import scienceview.utils.distance.DissimilarityType;

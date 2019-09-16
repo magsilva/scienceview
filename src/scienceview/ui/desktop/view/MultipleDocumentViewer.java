@@ -27,7 +27,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 
 import scienceview.datamining.corpus.Corpus;
-import scienceview.datarepresentation.Ngram;
+import scienceview.datamining.datarepresentation.Ngram;
 import scienceview.utils.matrix.SparseMatrix;
 
 /**

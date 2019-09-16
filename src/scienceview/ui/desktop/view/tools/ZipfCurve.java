@@ -59,7 +59,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-import scienceview.datarepresentation.Ngram;
+import scienceview.datamining.datarepresentation.Ngram;
 
 /**
  *
