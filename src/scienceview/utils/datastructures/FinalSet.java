@@ -2,6 +2,7 @@ package scienceview.utils.datastructures;
 import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.Spliterator;
 
 /** 
 This class is part of the Java Tools (see http://mpii.de/yago-naga/javatools).
@@ -45,6 +46,12 @@ public class FinalSet<T extends Comparable> extends AbstractList<T> implements S
   public FinalSet(T... a) {
     this(false,a);
   }
+@Override
+public Spliterator<T> spliterator() {
+    return Set.super.spliterator();
+}
+
+
   /** Tells whether x is in the container */
   public boolean contains(T x) {
     return(Arrays.binarySearch(data,x)>=0);

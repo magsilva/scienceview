@@ -27,17 +27,21 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.util.Map;
+import java.util.Collection;
 
 import com.ironiacorp.computer.ComputerSystem;
 import com.ironiacorp.computer.Filesystem;
 import com.ironiacorp.computer.OperationalSystem;
 import com.ironiacorp.string.StringUtil;
 
-import net.sf.jabref.BibtexDatabase;
-import net.sf.jabref.BibtexEntry;
-import net.sf.jabref.BibtexEntryType;
-import net.sf.jabref.imports.BibtexParser;
-import net.sf.jabref.imports.ParserResult;
+import org.jbibtex.BibTeXParser;
+import org.jbibtex.BibTeXDatabase;
+import org.jbibtex.BibTeXEntry;
+import org.jbibtex.Key;
+import org.jbibtex.Value;
+import org.jbibtex.ParseException;
+
 import scienceview.datamining.corpus.isi.ISICorpusDatabaseImporter;
 
 public class BibTeX2RIS
@@ -47,14 +51,13 @@ public class BibTeX2RIS
 	
 	private boolean referencesEnabled = true;
 	
-	private BibtexDatabase database;
+	private BibTeXDatabase database;
 	
 	private Reader reader;
-																																																										
+
 	public File outputFile;
 	
 	public PrintWriter outputWriter;
-	
 	
 	public void setInputFilename(String filename) {
 		File file = new File(filename);
@@ -107,15 +110,12 @@ public class BibTeX2RIS
     
     
     public void readData() {
-		ParserResult parseResult;
-		
-		try {
-			parseResult = BibtexParser.parse(reader);
-		} catch (IOException e) {
-			throw new RuntimeException("Error reading data", e);
-		}
-		
-		database = parseResult.getDatabase();
+	try {
+		BibTeXParser bibtexParser = new org.jbibtex.BibTeXParser();
+		database = bibtexParser.parse(reader);
+	} catch (ParseException e) {
+		throw new RuntimeException("Error parsing BibTeX file", e);
+	}
     }
     
     /**
@@ -127,9 +127,6 @@ public class BibTeX2RIS
      */
 	public void convert() 
 	{
-		String crossrefKey;
-		BibtexEntry crossref;
-	
 		FileWriter writer;
 		try {
 			writer = new FileWriter(outputFile);
@@ -144,7 +141,10 @@ public class BibTeX2RIS
 
 		printBeginOfRecord();
 		
-		for (BibtexEntry entry : database.getEntries()) {
+		Map<Key, BibTeXEntry> entryMap = database.getEntries();
+		Collection<BibTeXEntry> entries = entryMap.values();	
+		for (BibTeXEntry entry : entries) {
+/*
 			crossrefKey = entry.getField("crossref");
 			crossref = null;
 			if (crossrefKey != null && crossrefKey.isEmpty() == false) {
@@ -156,32 +156,34 @@ public class BibTeX2RIS
 				// We do not have crossref, so try to download data from current bibtex entry
 				crossref = entry;
 			}
-	
-			if (entry.getType() == BibtexEntryType.INPROCEEDINGS){
+*/
+			Key entryType = entry.getType();
+			if (entryType == BibTeXEntry.TYPE_INPROCEEDINGS || entryType == BibTeXEntry.TYPE_CONFERENCE) {
 				printField("PT", "CPAPER");
-				printEntry(entry, database);
-				printField("PY", crossref.getField("year"));
-				printField("JF", crossref.getField("booktitle"));
+				printEntry(entry);
+/*
+				printField("PY", crossref.getField("year").toUserString());
+				printField("JF", crossref.getField("booktitle").toUserString());
 				
 				if (crossref.getField("location") != null) {
-					printField("CY", crossref.getField("address"));
+					printField("CY", crossref.getField("address").toUserString());
 				} else {
 					if (crossref.getField("address") != null) {
 						printField("CY", crossref.getField("address"));
 					}
 				}
-				printEndOfEntry();
-			}
-								
-			if (entry.getType() == BibtexEntryType.ARTICLE) {
+*/
+			} else if (entry.getType() == BibTeXEntry.TYPE_ARTICLE) {
 				printField("PT", "JOUR");
-				printEntry(entry, database);
-				printField("JF", crossref.getField("journal"));
-				printField("VL", entry.getField("volume"));
-				printField("PY", entry.getField("year"));
-				printField("CY", crossref.getField("address"));
-				printEndOfEntry();
+				printEntry(entry);
+/*
+				printField("JF", crossref.getField("journal").toUserString());
+				printField("VL", entry.getField("volume").toUserString());
+				printField("PY", entry.getField("year").toUserString());
+				printField("CY", crossref.getField("address").toUserString());
+*/
 			}
+			printEndOfEntry();
 		}
 		
 		printEndOfRecord();
@@ -270,77 +272,66 @@ public class BibTeX2RIS
 
 
 
-	private String[] getReferences(String referencesField, BibtexDatabase database) {
+	private String[] getReferences(String referencesField) {
 		StringBuilder sb = new StringBuilder();
 		String[] entryKeys = referencesField.split(",");
 		String[] references = new String[entryKeys.length];
 		
 		for (int i = 0; i < entryKeys.length; i++) {
 			String entryKey = entryKeys[i];
-			String crossrefKey;
-			BibtexEntry entry;
-			BibtexEntry crossref = null;
+			BibTeXEntry entry;
 			String[] authors;
 			String year = null;
 			String doi;
 			int pages = 0;
 
-			entry = database.getEntryByKey(entryKey.trim());
+			entry = database.resolveEntry(new Key(entryKey.trim()));
 			if (entry == null) {
 				System.out.println("Could not find the following reference: " + entryKey);
 				continue;
 			}
 
-			authors = entry.getField("author").split(" and ");
-			crossrefKey = entry.getField("crossref");
-			if (crossrefKey != null && ! crossrefKey.isEmpty()) {
-				crossref = database.getEntryByKey(crossrefKey);
-			}
-			
-			if (entry.getType() == BibtexEntryType.INPROCEEDINGS){
-				year =  crossref.getField("year");
-			} else if (entry.getType() == BibtexEntryType.ARTICLE || entry.getType() == BibtexEntryType.BOOK || entry.getType() == BibtexEntryType.MISC) {
-			    year =  entry.getField("year");
-			}
+			authors = entry.getField(new Key("author")).toUserString().split(" and ");
+			year =  entry.getField(new Key("year")).toUserString();
 
-			if (entry.getType() == BibtexEntryType.BOOK) {
-				pages = Integer.parseInt(entry.getField("pages"));
+			if (entry.getType() == BibTeXEntry.TYPE_BOOK) {
+				pages = Integer.parseInt(entry.getField(new Key("pages")).toUserString());
 			} else {
 				try {
 					int[] pageRange;
-					pageRange = pages(entry.getField("pages"));
+					pageRange = pages(entry.getField(new Key("pages")).toUserString());
 					pages = pageRange[1] - pageRange[0];
 				} catch (Exception e) {
-					if (entry.getType() == BibtexEntryType.MISC) {
+					if (entry.getType() == BibTeXEntry.TYPE_MISC) {
 						pages = 0;
 					}
 				}
 			}
 				
-			doi = entry.getField("doi");
+			doi = entry.getField(new Key("doi")).toUserString();
 				
 			sb.setLength(0);
 			sb.append(convertAuthor(authors[0], " "));
 			sb.append(", ");
 			sb.append(year);
-			if (entry.getType() == BibtexEntryType.ARTICLE) {
+			if (entry.getType() == BibTeXEntry.TYPE_ARTICLE) {
 				sb.append(", ");
-				sb.append(crossref.getField("journal"));
+				sb.append(entry.getField(new Key("journal")).toUserString());
 				sb.append(", ");
 				sb.append("V");
-				sb.append(entry.getField("volume"));
+				sb.append(entry.getField(new Key("volume")).toUserString());
 			}
-			if (entry.getType() == BibtexEntryType.INPROCEEDINGS) {
+			if (entry.getType() == BibTeXEntry.TYPE_INPROCEEDINGS) {
 				sb.append(", ");
-				sb.append(crossref.getField("booktitle"));
+				sb.append(entry.getField(new Key("booktitle")).toUserString());
 			}
-			if (entry.getType() == BibtexEntryType.BOOK) {
+			if (entry.getType() == BibTeXEntry.TYPE_BOOK) {
 				sb.append(", ");
-				sb.append(entry.getField("booktitle"));
+				sb.append(entry.getField(new Key("booktitle")).toUserString());
 			}
-			if (entry.getType() == BibtexEntryType.MISC) {
+			if (entry.getType() == BibTeXEntry.TYPE_MISC) {
 				sb.append(", ");
-				sb.append(entry.getField("title"));
+				sb.append(entry.getField(new Key("title")).toUserString());
 			}
 			
 			sb.append(", ");
@@ -384,50 +375,54 @@ public class BibTeX2RIS
 	
 	 }
 
-	private void printEntry(BibtexEntry entry, BibtexDatabase database) {
+	private void printEntry(BibTeXEntry entry) {
 		// autor
 		/**
 		 * tem que dar split em espaço+and+espaço, porque no meio do nome pode formar
 		 * a string and. Com espaço garanto que não vai quebrar no meio de nenhum nome.
 		 */
-		String[] authors = entry.getField("author").split(" and "); 
+		String[] authors = entry.getField(new Key("author")).toUserString().split(" and "); 
 		for (int i = 0; i < authors.length; i++) {
 			authors[i] = convertAuthor(authors[i], ", ");
 		}
 		printField("AU", authors);
 
-		String lang = entry.getField("lang");
+		String lang = entry.getField(new Key("lang")).toUserString();
 		String title;
 		String abs;
 		String keywords;
-		if (entry.getField("lang") != null) {
-			title = entry.getField("title-" + lang);
-			abs = entry.getField("abstract-" + lang);
-			keywords = entry.getField("keywords-" + lang);
-			if (title == null || abs == null || keywords == null) {
-				title = entry.getField("title");
-				abs = entry.getField("abstract");
-				keywords = entry.getField("keywords");
+		if (entry.getField(new Key("lang")) != null) {
+			Value titleValue = entry.getField(new Key("title-" + lang));
+			Value absValue = entry.getField(new Key("abstract-" + lang));
+			Value keywordsValue = entry.getField(new Key("keywords-" + lang));
+			if (titleValue == null || absValue == null || keywordsValue == null) {
+				title = entry.getField(new Key("title")).toUserString();
+				abs = entry.getField(new Key("abstract")).toUserString();
+				keywords = entry.getField(new Key("keywords")).toUserString();
+			} else {
+				title = titleValue.toUserString();
+				abs = absValue.toUserString();
+				keywords = keywordsValue.toUserString();
 			}
 		} else {
-			title = entry.getField("title");
-			abs = entry.getField("abstract");
-			keywords = entry.getField("keywords");
+			title = entry.getField(new Key("title")).toUserString();
+			abs = entry.getField(new Key("abstract")).toUserString();
+			keywords = entry.getField(new Key("keywords")).toUserString();
 		}
 		printField("TI", title);
 		printField("AB", abs);
 		printField("KW", keywords);
 				
-		int[] pages = pages(entry.getField("pages"));
+		int[] pages = pages(entry.getField(new Key("pages")).toUserString());
 		printField("BP", Integer.toString(pages[0]));
 		printField("EP", Integer.toString(pages[1]));
 	
-		printField("DI", entry.getField("doi"));	
+		printField("DI", entry.getField(new Key("doi")).toUserString());	
 
 		if (referencesEnabled) {
-		  	String references = entry.getField("references");
+		  	String references = entry.getField(new Key("references")).toUserString();
 		   	if (references != null) {
-		   		printField("CR", getReferences(references, database));
+		   		printField("CR", getReferences(references));
 		   	}
 		}
 	}
