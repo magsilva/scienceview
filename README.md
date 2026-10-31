@@ -10,7 +10,7 @@ Ferramenta ScienceView
 
 Para gerar o executável
 ===========
-1. Construa o pacote do projeto: mvn -DskipTests assembly:assembly
+1. Construa o pacote do projeto: mvn -DskipTests assembly:single
 2. Vá para o diretório 'target'.
 3. Execute a aplicação: java -jar scienceview-1.0.0-jar-with-dependencies.jar createdb
 
